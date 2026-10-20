@@ -14,7 +14,7 @@
 
 ## نصب محلی
 
-فقط برای توسعه روی SQLite. استقرار تولید با MySQL در `DEPLOYMENT.md` است (نسخه **1.1.2**، tag `v1.1.2`). قبل از migrate: `php artisan crm:check-env`.
+فقط برای توسعه روی SQLite. استقرار تولید با MySQL در `DEPLOYMENT.md` است (نسخه **1.1.3**، tag `v1.1.3`). قبل از migrate: `php artisan crm:check-env`.
 
 ```bash
 composer install

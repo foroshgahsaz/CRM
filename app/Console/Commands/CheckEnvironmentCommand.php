@@ -4,7 +4,9 @@ namespace App\Console\Commands;
 
 use App\Support\MysqlConnectionConfig;
 use Illuminate\Console\Command;
+use Illuminate\Database\Migrations\Migrator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use PDOException;
 use Throwable;
 
@@ -75,6 +77,44 @@ class CheckEnvironmentCommand extends Command
             return self::FAILURE;
         }
 
+        $partial = $this->partialMigrationMessage();
+        if ($partial !== null) {
+            $this->error($partial);
+            $this->line('اگر هنوز دادهٔ واقعی در CRM ندارید:');
+            $this->line('  php artisan migrate:fresh --force');
+            $this->line('  php artisan crm:create-admin --name="..." --email="..."');
+            $this->line('در غیر این صورت قبل از migrate با DBA جدول‌های ناقص را حذف یا پشتیبان بگیرید.');
+
+            return self::FAILURE;
+        }
+
         return self::SUCCESS;
+    }
+
+    private function partialMigrationMessage(): ?string
+    {
+        if (! Schema::hasTable('migrations')) {
+            return null;
+        }
+
+        if (Schema::hasTable('users') && ! Schema::hasTable('cache')) {
+            return 'migrate ناقص است: جدول users وجود دارد ولی cache (و احتمالاً بقیهٔ جداول) ساخته نشده — معمولاً بعد از خطای migrate قبلی.';
+        }
+
+        if (Schema::hasTable('users') && ! Schema::hasTable('permissions')) {
+            return 'migrate ناقص است: users هست ولی جدول permissions (Spatie) نیست.';
+        }
+
+        /** @var Migrator $migrator */
+        $migrator = app('migrator');
+        $files = $migrator->getMigrationFiles(database_path('migrations'));
+        $ran = app('migration.repository')->getRan();
+        $pending = array_values(array_diff(array_keys($files), $ran));
+
+        if ($pending !== [] && Schema::hasTable('users') && in_array('0001_01_01_000000_create_users_table', $pending, true)) {
+            return 'migrate گیر کرده: جدول users از اجرای قبلی مانده ولی migration users هنوز pending است (خطای 1050 Table already exists).';
+        }
+
+        return null;
     }
 }

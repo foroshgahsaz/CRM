@@ -1,5 +1,11 @@
 # تغییرات
 
+## 1.1.3
+
+- **`crm:check-env`**: تشخیص migrate ناقص (users بدون cache / pending تکراری)
+- **`crm:create-admin`**: توقف با پیام واضح اگر `roles` یا `cache` وجود ندارد
+- مستند خطای **1050 Table already exists** در `DEPLOYMENT.md`
+
 ## 1.1.2
 
 - **`Schema::defaultStringLength(191)`** برای سازگاری migrate با MySQL/MariaDB (رفع خطای `1071 Specified key was too long` روی ایندекс `email` و مشابه)
