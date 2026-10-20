@@ -3,7 +3,9 @@
 namespace Tests\Feature;
 
 use App\Filament\Auth\Login;
+use App\Services\SmsService;
 use App\Sms\LogSmsGateway;
+use App\Sms\SmsGateway;
 use Illuminate\Support\Facades\Config;
 use Livewire\Livewire;
 use Tests\CrmTestCase;
@@ -12,7 +14,10 @@ class StaffMobileLoginTest extends CrmTestCase
 {
     public function test_staff_can_switch_to_mobile_otp_login_and_authenticate(): void
     {
+        Config::set('sms.gateway', 'log');
         Config::set('crm.otp_debug', false);
+        $this->app->bind(SmsGateway::class, fn (): LogSmsGateway => new LogSmsGateway);
+        $this->app->forgetInstance(SmsService::class);
         LogSmsGateway::$captured = [];
 
         $user = $this->staff('super_admin', [
@@ -38,7 +43,8 @@ class StaffMobileLoginTest extends CrmTestCase
 
     private function extractOtpFromCapturedSms(): ?string
     {
-        $message = LogSmsGateway::$captured[0]['message'] ?? '';
+        $last = LogSmsGateway::$captured !== [] ? LogSmsGateway::$captured[array_key_last(LogSmsGateway::$captured)] : [];
+        $message = $last['message'] ?? '';
 
         if (preg_match('/(\d{4,8})/', $message, $matches)) {
             return $matches[1];
