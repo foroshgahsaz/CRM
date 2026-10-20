@@ -1,13 +1,39 @@
 # استقرار
 
-نسخهٔ فعلی سامانه: **1.1.7** (فایل `VERSION`).
+نسخهٔ فعلی سامانه: **1.1.8** (فایل `VERSION`).
 
 **روی سرور:**
 
 ```bash
 git fetch origin
-git checkout v1.1.7
+git checkout v1.1.8
 ```
+
+### تست OTP بدون الگوی SMS.ir
+
+در متغیرهای محلی Runflare (موقت):
+
+```dotenv
+CRM_OTP_DEBUG=true
+```
+
+بعد از «دریافت رمز»، در Console پاد:
+
+```bash
+tail -n 30 storage/logs/laravel.log | grep crm.otp_debug
+```
+
+خروجی شامل `"code":"123456"` است. **بعد از تست `CRM_OTP_DEBUG=false` بگذارید.**
+
+### رمز admin
+
+رمز فقط هنگام `crm:create-admin` یک‌بار چاپ می‌شود. فراموشی:
+
+```bash
+php artisan crm:reset-admin-password admin@example.com
+```
+
+ورود پنل: **ایمیل + رمز** یا **موبایل staff + OTP** (موبایل را هنگام ساخت کاربر در پنل یا `--mobile` در create-admin ست کنید).
 
 ### نصب اولیه پایگاه (migrate + seed)
 
@@ -23,10 +49,8 @@ php artisan crm:install --fresh
 
 | مسیر | روش ورود |
 | --- | --- |
-| **`/admin/login`** | **ایمیل + رمز** (Filament) — نه OTP موبایل |
+| **`/admin/login`** | **ایمیل + رمز** یا **موبایل + OTP** (موبایل باید روی کاربر staff ثبت شده باشد) |
 | **`/requests/new`** و **`/track`** | **موبایل + OTP** برای مشتری |
-
-موبایل روی کاربر staff در پنل اختیاری است؛ برای ورود admin استفاده نمی‌شود.
 
 ### فایل `.env` (الزامی)
 

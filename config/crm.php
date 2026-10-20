@@ -26,4 +26,7 @@ return [
     'business_end' => '17:00',
     'holidays' => [],
 
+    // فقط برای تست بدون SMS.ir — OTP در storage/logs/laravel.log نوشته می‌شود. در go-live خاموش کنید.
+    'otp_debug' => (bool) env('CRM_OTP_DEBUG', false),
+
 ];

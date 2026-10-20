@@ -5,7 +5,10 @@ namespace App\Services;
 use App\Enums\OtpPurpose;
 use App\Exceptions\WorkflowException;
 use App\Models\OtpChallenge;
+use App\Models\User;
 use App\Support\MobileNumber;
+use Filament\Facades\Filament;
+use Illuminate\Support\Facades\Log;
 
 class OtpService
 {
@@ -51,6 +54,54 @@ class OtpService
             'company_name' => (string) $this->settings->get('company_name'),
             'tracking_code' => $trackingCode ?? '',
         ], null, 'otp:'.$challenge->id);
+
+        if (config('crm.otp_debug')) {
+            Log::warning('crm.otp_debug', [
+                'mobile' => $mobile,
+                'purpose' => $purpose->value,
+                'code' => $code,
+            ]);
+        }
+    }
+
+    public function issueForStaff(string $mobile, ?string $ip): void
+    {
+        $normalized = MobileNumber::normalize($mobile);
+
+        if ($normalized === null) {
+            throw new WorkflowException('شماره موبایل معتبر نیست.');
+        }
+
+        $user = User::query()
+            ->where('mobile', $normalized)
+            ->where('is_active', true)
+            ->whereHas('roles')
+            ->first();
+
+        if ($user === null || ! $user->canAccessPanel(Filament::getCurrentOrDefaultPanel())) {
+            throw new WorkflowException('این شماره برای ورود کارکنان ثبت نشده یا غیرفعال است.');
+        }
+
+        $this->issue($normalized, OtpPurpose::StaffLogin, null, $ip);
+    }
+
+    public function verifyStaffLogin(string $mobile, string $code): User
+    {
+        $this->verify($mobile, OtpPurpose::StaffLogin, null, $code);
+
+        $normalized = MobileNumber::normalize($mobile);
+
+        $user = User::query()
+            ->where('mobile', $normalized)
+            ->where('is_active', true)
+            ->whereHas('roles')
+            ->first();
+
+        if ($user === null || ! $user->canAccessPanel(Filament::getCurrentOrDefaultPanel())) {
+            throw new WorkflowException('ورود با این شماره مجاز نیست.');
+        }
+
+        return $user;
     }
 
     public function verify(string $mobile, OtpPurpose $purpose, ?string $trackingCode, string $code): void

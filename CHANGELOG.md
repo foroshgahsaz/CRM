@@ -1,5 +1,11 @@
 # تغییرات
 
+## 1.1.8
+
+- ورود پنل **`/admin/login`**: **ایمیل + رمز** یا **موبایل + OTP** (کاربر staff باید `mobile` و نقش داشته باشد)
+- **`CRM_OTP_DEBUG=true`**: دیدن OTP در `storage/logs/laravel.log` (تست بدون الگوی SMS.ir)
+- **`php artisan crm:reset-admin-password {email}`** برای بازیابی رمز admin
+
 ## 1.1.7
 
 - **`php artisan crm:install`** — migrate (+ اختیاری `--fresh`) و **`db:seed`** کامل (نوع درخواست، قالب پیامک، …)
