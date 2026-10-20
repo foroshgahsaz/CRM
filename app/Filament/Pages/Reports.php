@@ -32,7 +32,7 @@ class Reports extends Page
 
     protected static string|UnitEnum|null $navigationGroup = 'نظارت';
 
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 10;
 
     /**
      * @var array<string, mixed>|null

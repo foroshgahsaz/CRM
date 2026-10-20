@@ -12,6 +12,22 @@ git pull origin main
 
 بعد از به‌روزرسانی migrate ناقص: `php artisan crm:install --fresh` (بدون دادهٔ مهم).
 
+### راه‌اندازی OTP (production)
+
+1. **پایگاه و seed** — جداول `otp_challenges` و `sessions` + قالب پیامک `otp` (با `db:seed` یا `crm:install --fresh`).
+2. **درگاه پیامک** — OTP همیشه ارسال می‌شود (مستقل از toggle «پیامک اطلاع‌رسانی» در تنظیمات):
+   ```dotenv
+   SMS_GATEWAY=sms_ir
+   SMSIR_API_KEY=کلید_از_پنل_SMS.ir
+   SMSIR_LINE_NUMBER=3000xxxxxxxx   # فقط رقم، خط فعال
+   ```
+3. **Runflare** — همان نام‌ها در **متغیرهای محلی**؛ بعد `php artisan config:clear && php artisan config:cache`.
+4. **سشن** — `SESSION_DRIVER=database` و migrate اجرا شده باشد؛ برای جلوگیری از 419: HTTPS یا `CRM_SESSION_SECURE_AUTO=true` (پیش‌فرض).
+5. **ورود staff با OTP** — در پنل برای کاربر `mobile` + نقش + `is_active` ست شود.
+6. **تست** — یک بار `CRM_OTP_DEBUG=true`، OTP را از لاگ ببینید، سپس **`CRM_OTP_DEBUG=false`** و **`SMS_LOG_CODES=false`**.
+
+قالب OTP در admin: **تنظیمات → قالب پیامک** (`event_key`: `otp`) — متغیرها: `{otp_code}`, `{company_name}`, `{tracking_code}`.
+
 ### تست OTP بدون الگوی SMS.ir
 
 در متغیرهای محلی Runflare (موقت):
