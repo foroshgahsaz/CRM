@@ -1,13 +1,15 @@
 # استقرار
 
-نسخهٔ فعلی سامانه: **1.1.8** (فایل `VERSION`).
+نسخهٔ فعلی سامانه: **1.1.9** (فایل `VERSION`).
 
-**روی سرور:**
+**روی سرور — فقط branch (بدون tag):**
 
 ```bash
 git fetch origin
-git checkout v1.1.8
+git checkout cursor/release-v1-1-9-6a95
 ```
+
+شماره نسخه در `VERSION` است. انتشارهای بعدی: `cursor/release-v1-1-10-6a95` و … — از **tag استفاده نمی‌شود**.
 
 ### تست OTP بدون الگوی SMS.ir
 
