@@ -1,0 +1,37 @@
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
+
+@source '../../../../app/Filament/**/*';
+@source '../../../../resources/views/filament/**/*';
+
+.fi-body {
+    background: linear-gradient(160deg, #eef2ff 0%, #ede9fe 45%, #f5f3ff 100%);
+}
+
+.fi-sidebar {
+    background: linear-gradient(180deg, #1e1b4b 0%, #312e81 55%, #4c1d95 100%);
+}
+
+.fi-sidebar-header {
+    border-color: rgb(255 255 255 / 0.12);
+}
+
+.fi-topbar {
+    background: rgb(255 255 255 / 0.72);
+    backdrop-filter: blur(12px);
+    border-color: rgb(199 210 254 / 0.6);
+}
+
+.fi-simple-page {
+    background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 50%, #5b21b6 100%);
+}
+
+.fi-simple-main-ctn {
+    background: transparent;
+}
+
+.fi-simple-page .fi-section {
+    border-radius: 1.25rem;
+    border: 1px solid rgb(255 255 255 / 0.35);
+    background: rgb(255 255 255 / 0.94);
+    box-shadow: 0 24px 50px rgb(30 27 75 / 0.25);
+}

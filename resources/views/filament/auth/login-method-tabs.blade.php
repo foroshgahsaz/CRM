@@ -1,11 +1,11 @@
-<div class="mb-6 grid grid-cols-2 gap-1 rounded-xl bg-gray-100 p-1 dark:bg-white/5">
+<div class="mb-6 grid grid-cols-2 gap-1 rounded-full border border-indigo-200/80 bg-indigo-50/80 p-1">
     <button
         type="button"
         wire:click="switchToMobileLogin"
         @class([
-            'rounded-lg px-3 py-2.5 text-sm font-medium transition',
-            'bg-white text-gray-950 shadow dark:bg-white/10 dark:text-white' => $loginMethod === 'mobile',
-            'text-gray-600 hover:text-gray-950 dark:text-gray-400 dark:hover:text-white' => $loginMethod !== 'mobile',
+            'rounded-full px-3 py-2.5 text-sm font-semibold transition',
+            'bg-gradient-to-l from-indigo-600 to-violet-600 text-white shadow-md shadow-indigo-500/30' => $loginMethod === 'mobile',
+            'text-indigo-700 hover:bg-white/70' => $loginMethod !== 'mobile',
         ])
     >
         ورود با موبایل
@@ -14,9 +14,9 @@
         type="button"
         wire:click="switchToEmailLogin"
         @class([
-            'rounded-lg px-3 py-2.5 text-sm font-medium transition',
-            'bg-white text-gray-950 shadow dark:bg-white/10 dark:text-white' => $loginMethod === 'email',
-            'text-gray-600 hover:text-gray-950 dark:text-gray-400 dark:hover:text-white' => $loginMethod !== 'email',
+            'rounded-full px-3 py-2.5 text-sm font-semibold transition',
+            'bg-gradient-to-l from-indigo-600 to-violet-600 text-white shadow-md shadow-indigo-500/30' => $loginMethod === 'email',
+            'text-indigo-700 hover:bg-white/70' => $loginMethod !== 'email',
         ])
     >
         ورود با ایمیل

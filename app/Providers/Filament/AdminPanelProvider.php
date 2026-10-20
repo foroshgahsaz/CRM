@@ -34,9 +34,11 @@ class AdminPanelProvider extends PanelProvider
             ->profile()
             ->brandName('سامانه درخواست‌ها')
             ->font('Vazirmatn', url: asset('fonts/vazirmatn/vazirmatn.css'), provider: LocalFontProvider::class)
+            ->viteTheme('resources/css/filament/admin/theme.css')
             ->databaseNotifications()
             ->colors([
-                'primary' => Color::Teal,
+                'primary' => Color::Violet,
+                'info' => Color::Sky,
             ])
             ->navigationGroups([
                 'عملیات',
