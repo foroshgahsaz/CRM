@@ -1,5 +1,9 @@
 # تغییرات
 
+## 1.1.11
+
+- رفع **1071** روی Spatie `permissions` / `roles` (طول `name` و `guard_name` = 125؛ `model_type` = 125)
+
 ## 1.1.10
 
 - رفع **1071** روی ایندекс `failed_jobs` (طول `connection`/`queue` = 100)
