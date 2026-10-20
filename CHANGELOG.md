@@ -1,5 +1,10 @@
 # تغییرات
 
+## 1.1.12
+
+- هویت بصری جدید: گرادیان **آبی–بنفش**، glassmorphism، دکمه‌های pill (صفحات عمومی + Filament admin theme)
+- صفحهٔ اصلی hero شبیه مرجع (مراحل شماره‌دار، CTA سفید، رادار تزئینی)
+
 ## 1.1.11
 
 - رفع **1071** روی Spatie `permissions` / `roles` (طول `name` و `guard_name` = 125؛ `model_type` = 125)

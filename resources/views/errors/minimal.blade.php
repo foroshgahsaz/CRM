@@ -5,19 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ $title }}</title>
     <link rel="stylesheet" href="{{ asset('fonts/vazirmatn/vazirmatn.css') }}">
-    <style>
-        body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #f5f5f4; color: #1c1917; font-family: Vazirmatn, Tahoma, sans-serif; }
-        main { width: min(32rem, calc(100% - 2rem)); background: white; border-radius: 1rem; padding: 2rem; box-shadow: 0 1px 2px rgb(0 0 0 / 0.06); }
-        p { line-height: 1.9; }
-        a { color: #0f766e; }
-    </style>
+    @vite(['resources/css/app.css'])
 </head>
-<body>
-<main>
-    <p style="font-size: .875rem; color: #78716c;">{{ $code }}</p>
-    <h1 style="margin: .25rem 0 0; font-size: 1.5rem;">{{ $title }}</h1>
-    <p>{{ $message }}</p>
-    <p><a href="{{ url('/') }}">بازگشت به صفحه اصلی</a></p>
+<body class="crm-page-bg grid min-h-screen place-items-center p-4">
+<main class="crm-card w-full max-w-md p-8 text-center">
+    <p class="text-sm font-medium text-brand-600">{{ $code }}</p>
+    <h1 class="mt-2 text-2xl font-bold text-brand-900">{{ $title }}</h1>
+    <p class="mt-4 leading-8 text-slate-600">{{ $message }}</p>
+    <a href="{{ url('/') }}" class="crm-btn-solid mt-6 inline-flex">بازگشت به صفحه اصلی</a>
 </main>
 </body>
 </html>
