@@ -1,13 +1,13 @@
 # استقرار
 
-نسخهٔ فعلی سامانه: **1.1.1** (فایل `VERSION` و `CHANGELOG.md`).
+نسخهٔ فعلی سامانه: **1.1.2** (فایل `VERSION` و `CHANGELOG.md`).
 
 دریافت روی سرور:
 
 ```bash
 git fetch origin
-git checkout v1.1.1
-# یا: git checkout cursor/release-v1-1-1-6a95
+git checkout v1.1.2
+# یا: git checkout cursor/release-v1-1-2-6a95
 ```
 
 این سند برای سرور لینوکس با PHP، MySQL یا MariaDB، Composer و Nginx یا Apache است. Docker الزامی نیست.
@@ -167,6 +167,22 @@ php artisan up
 اگر migration داده را تغییر داده، به‌جای rollback از پشتیبان همان نسخه استفاده کنید.
 
 ## عیب‌یابی
+
+### `1071 Specified key was too long` (MySQL / MariaDB)
+
+برخی سرورها (MariaDB قدیمی یا `utf8mb4` با سقف ایندекс ۱۰۰۰ بایت) روی `varchar(255)` unique خطا می‌دهند.
+
+**نسخه 1.1.2+** در bootstrap طول پیش‌فرض رشته را **191** کاراکتر می‌گذارد.
+
+اگر migrate وسط کار fail شده (مثلاً جدول `users` ناقص مانده):
+
+```bash
+git checkout v1.1.2
+php artisan config:clear
+php artisan migrate:fresh --force    # فقط وقتی دادهٔ production ندارید
+php artisan db:seed --force          # در صورت نیاز
+php artisan crm:create-admin ...
+```
 
 ### `SQLSTATE[HY000] [2002] Connection refused` (MySQL)
 

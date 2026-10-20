@@ -24,6 +24,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Spatie\Permission\Models\Role;
@@ -43,6 +44,8 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        Schema::defaultStringLength(191);
+
         Gate::policy(Role::class, RolePolicy::class);
 
         $listener = DispatchRequestNotifications::class;

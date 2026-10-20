@@ -1,5 +1,10 @@
 # تغییرات
 
+## 1.1.2
+
+- **`Schema::defaultStringLength(191)`** برای سازگاری migrate با MySQL/MariaDB (رفع خطای `1071 Specified key was too long` روی ایندекс `email` و مشابه)
+- مستند عیب‌یابی migrate ناقص در `DEPLOYMENT.md`
+
 ## 1.1.1
 
 - خواندن تنظیم MySQL از **`MYSQL_*`** / **`CRM_DB_*`** وقتی `DB_HOST` هنوز `127.0.0.1` یا خالی است (مناسب Kubernetes)
