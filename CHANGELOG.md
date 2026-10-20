@@ -1,5 +1,15 @@
 # تغییرات
 
+## 1.1.4
+
+شمارهٔ انتشار برای **pull روی سرور** — tag **`v1.1.4`**.
+
+شامل اصلاحات تجمیعی از 1.1.1 تا 1.1.3: env MySQL در K8s، درگاه SMS.ir، طول رشته 191، تشخیص migrate ناقص، راهنمای `migrate:fresh`.
+
+```bash
+git fetch origin && git checkout v1.1.4
+```
+
 ## 1.1.3
 
 - **`crm:check-env`**: تشخیص migrate ناقص (users بدون cache / pending تکراری)

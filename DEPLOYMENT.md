@@ -1,14 +1,15 @@
 # استقرار
 
-نسخهٔ فعلی سامانه: **1.1.3** (فایل `VERSION` و `CHANGELOG.md`).
+نسخهٔ فعلی سامانه: **1.1.4** (شماره انتشار **۴** — فایل `VERSION`).
 
-دریافت روی سرور:
+**فقط این tag را روی سرور بگیرید:**
 
 ```bash
 git fetch origin
-git checkout v1.1.3
-# یا: git checkout cursor/release-v1-1-3-6a95
+git checkout v1.1.4
 ```
+
+(Branch: `cursor/release-v1-1-4-6a95`)
 
 این سند برای سرور لینوکس با PHP، MySQL یا MariaDB، Composer و Nginx یا Apache است. Docker الزامی نیست.
 
