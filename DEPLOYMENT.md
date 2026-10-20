@@ -1,15 +1,27 @@
 # استقرار
 
-نسخهٔ فعلی سامانه: **1.1.4** (شماره انتشار **۴** — فایل `VERSION`).
+نسخهٔ فعلی سامانه: **1.1.5** (فایل `VERSION`).
 
-**فقط این tag را روی سرور بگیرید:**
+**روی سرور:**
 
 ```bash
 git fetch origin
-git checkout v1.1.4
+git checkout v1.1.5
 ```
 
-(Branch: `cursor/release-v1-1-4-6a95`)
+### فایل `.env` (الزامی)
+
+`.env` در مخزن Git **نیست**. هر پاد/سرور باید خودش داشته باشد (Volume پایدار یا کپی دستی).
+
+```bash
+cp .env.example .env
+# یا: php artisan crm:bootstrap-env
+# سپس DB_*، APP_URL، SMS را ویرایش کنید
+php artisan key:generate
+php artisan config:clear
+```
+
+اگر `key:generate` خطای «No such file .env» داد، یعنی هنوز `.env` ساخته نشده است. در Kubernetes می‌توانید `APP_KEY` را از Secret تزریق کنید ولی برای `key:generate` باز هم فایل `.env` لازم است مگر کلید را دستی در فایل بگذارید.
 
 این سند برای سرور لینوکس با PHP، MySQL یا MariaDB، Composer و Nginx یا Apache است. Docker الزامی نیست.
 

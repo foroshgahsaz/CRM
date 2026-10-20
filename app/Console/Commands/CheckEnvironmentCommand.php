@@ -18,6 +18,23 @@ class CheckEnvironmentCommand extends Command
 
     public function handle(): int
     {
+        $envPath = base_path('.env');
+
+        if (! is_file($envPath)) {
+            $this->error('فایل .env در مسیر پروژه وجود ندارد (در Git commit نمی‌شود).');
+            $this->line('  cp .env.example .env');
+            $this->line('  # یا: php artisan crm:bootstrap-env');
+            $this->line('سپس مقادیر DB و APP_URL را ویرایش کنید و php artisan key:generate بزنید.');
+
+            return self::FAILURE;
+        }
+
+        if (config('app.key') === null || config('app.key') === '') {
+            $this->error('APP_KEY خالی است. بعد از ساخت .env: php artisan key:generate');
+
+            return self::FAILURE;
+        }
+
         $connection = (string) config('database.default');
         $this->info('اتصال پیش‌فرض: '.$connection);
 
