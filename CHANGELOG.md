@@ -1,5 +1,10 @@
 # تغییرات
 
+## 1.1.14
+
+- **`ConfigureSessionForRequest`**: رفع 419 روی HTTP حتی وقتی `SESSION_SECURE_COOKIE=true` (وب + Filament)
+- UI مدرن: پس‌زمینه aurora/grid، کارت‌های glow، هدر sticky، فرم‌های عمومی و login ادمین
+
 ## 1.1.13
 
 - **`AdminUserSeeder`**: مدیر پیش‌فرض `admin` / `admin` (ایمیل `admin@admin.com`؛ در فرم ورود می‌توانید فقط `admin` بزنید)

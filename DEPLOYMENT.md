@@ -99,7 +99,8 @@ php artisan config:clear
 | `APP_KEY` | base64:… (از `--show`) |
 | `APP_URL` | https://hooman.services |
 | `DB_*` | مطابق سرویس MySQL Runflare |
-| `SESSION_SECURE_COOKIE` | true فقط با **HTTPS**؛ اگر سایت با `http://` باز می‌شود `false` بگذارید وگرنه ورود admin **419** می‌دهد |
+| `SESSION_SECURE_COOKIE` | true با HTTPS؛ روی HTTP با **`CRM_SESSION_SECURE_AUTO=true`** (پیش‌فرض) کوکی خودکار غیر-Secure می‌شود |
+| `CRM_SESSION_SECURE_AUTO` | true (پیش‌فرض) — هماهنگ‌سازی کوکی با scheme واقعی درخواست |
 | `CRM_SEED_DEFAULT_ADMIN` | true برای نصب اول؛ بعد از ورود رمز را عوض کنید (`admin` / `admin` یا `admin@admin.com`) |
 | `SMS_GATEWAY` | sms_ir + `SMSIR_*` |
 

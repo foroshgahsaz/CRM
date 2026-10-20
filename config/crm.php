@@ -30,6 +30,9 @@ return [
     'otp_debug' => (bool) env('CRM_OTP_DEBUG', false),
 
     // مدیر پیش‌فرض (فقط نصب اولیه / محیط تست — در production رمز را عوض کنید)
+    // کوکی Secure را با scheme واقعی درخواست هماهنگ می‌کند (رفع 419 روی HTTP)
+    'session_secure_auto' => (bool) env('CRM_SESSION_SECURE_AUTO', true),
+
     'seed_default_admin' => (bool) env('CRM_SEED_DEFAULT_ADMIN', true),
     'default_admin' => [
         'name' => env('CRM_DEFAULT_ADMIN_NAME', 'admin'),
