@@ -1,13 +1,32 @@
 # استقرار
 
-نسخهٔ فعلی سامانه: **1.1.6** (فایل `VERSION`).
+نسخهٔ فعلی سامانه: **1.1.7** (فایل `VERSION`).
 
 **روی سرور:**
 
 ```bash
 git fetch origin
-git checkout v1.1.6
+git checkout v1.1.7
 ```
+
+### نصب اولیه پایگاه (migrate + seed)
+
+```bash
+php artisan config:clear
+php artisan crm:install --fresh
+# یا: migrate --force && db:seed --force && crm:create-admin
+```
+
+بدون **`db:seed`** جدول `request_types` خالی می‌ماند و صفحهٔ ثبت درخواست خطای SQL می‌دهد.
+
+### ورود کارکنان vs مشتری
+
+| مسیر | روش ورود |
+| --- | --- |
+| **`/admin/login`** | **ایمیل + رمز** (Filament) — نه OTP موبایل |
+| **`/requests/new`** و **`/track`** | **موبایل + OTP** برای مشتری |
+
+موبایل روی کاربر staff در پنل اختیاری است؛ برای ورود admin استفاده نمی‌شود.
 
 ### فایل `.env` (الزامی)
 

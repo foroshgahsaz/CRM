@@ -1,5 +1,12 @@
 # تغییرات
 
+## 1.1.7
+
+- **`php artisan crm:install`** — migrate (+ اختیاری `--fresh`) و **`db:seed`** کامل (نوع درخواست، قالب پیامک، …)
+- **`crm:create-admin`** دیگر فقط نقش seed نمی‌کند؛ کل `DatabaseSeeder` را اجرا می‌کند
+- **`crm:check-env`**: بررسی وجود `request_types` و هشدار seed خالی
+- مستند: ورود admin با **ایمیل**؛ OTP موبایل فقط بخش مشتری
+
 ## 1.1.6
 
 - راهنمای **Runflare / متغیرهای محلی** و پر کردن **`APP_KEY`** با `php artisan key:generate --show`

@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\RequestType;
 use App\Support\MysqlConnectionConfig;
 use Illuminate\Console\Command;
 use Illuminate\Database\Migrations\Migrator;
@@ -92,6 +93,18 @@ class CheckEnvironmentCommand extends Command
             $this->error('خطا: '.$exception->getMessage());
 
             return self::FAILURE;
+        }
+
+        if (Schema::hasTable('migrations') && ! Schema::hasTable('request_types')) {
+            $this->error('جدول request_types وجود ندارد — migrate ناقص است یا CRM migrationها اجرا نشده‌اند.');
+            $this->line('  php artisan crm:install --fresh   # نصب تازه بدون داده');
+            $this->line('  php artisan migrate --force && php artisan db:seed --force');
+
+            return self::FAILURE;
+        }
+
+        if (Schema::hasTable('request_types') && RequestType::query()->count() === 0) {
+            $this->warn('نوع درخواست seed نشده. php artisan db:seed --force');
         }
 
         $partial = $this->partialMigrationMessage();
