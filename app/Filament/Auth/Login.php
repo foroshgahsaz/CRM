@@ -11,27 +11,39 @@ use Filament\Auth\Pages\Login as BaseLogin;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
+use Filament\Schemas\Components\View as SchemaView;
 use Filament\Schemas\Schema;
 use Illuminate\Validation\ValidationException;
 
 class Login extends BaseLogin
 {
-    public string $loginMethod = 'email';
+    public string $loginMethod = 'mobile';
 
     public bool $mobileOtpSent = false;
+
+    public function mount(): void
+    {
+        parent::mount();
+
+        $this->loginMethod = 'mobile';
+    }
 
     public function switchToEmailLogin(): void
     {
         $this->loginMethod = 'email';
         $this->mobileOtpSent = false;
+        $this->clearFormSchemaCache();
         $this->form->fill();
+        $this->resetErrorBag();
     }
 
     public function switchToMobileLogin(): void
     {
         $this->loginMethod = 'mobile';
         $this->mobileOtpSent = false;
+        $this->clearFormSchemaCache();
         $this->form->fill();
+        $this->resetErrorBag();
     }
 
     public function sendStaffLoginOtp(OtpService $otp): void
@@ -44,7 +56,7 @@ class Login extends BaseLogin
             return;
         }
 
-        $mobile = (string) ($this->data['mobile'] ?? '');
+        $mobile = (string) ($this->form->getState()['mobile'] ?? $this->data['mobile'] ?? '');
 
         if ($mobile === '') {
             throw ValidationException::withMessages([
@@ -61,6 +73,7 @@ class Login extends BaseLogin
         }
 
         $this->mobileOtpSent = true;
+        $this->clearFormSchemaCache();
 
         Notification::make()
             ->title('رمز یک‌بارمصرف ارسال شد')
@@ -116,13 +129,18 @@ class Login extends BaseLogin
 
     public function form(Schema $schema): Schema
     {
+        $tabs = SchemaView::make('filament.auth.login-method-tabs')
+            ->viewData(fn (): array => ['loginMethod' => $this->loginMethod]);
+
         if ($this->loginMethod === 'mobile') {
             return $schema->components([
+                $tabs,
                 TextInput::make('mobile')
                     ->label('شماره موبایل')
                     ->tel()
                     ->required()
-                    ->maxLength(20),
+                    ->maxLength(20)
+                    ->autofocus(),
                 TextInput::make('code')
                     ->label('رمز یک‌بارمصرف')
                     ->numeric()
@@ -135,6 +153,7 @@ class Login extends BaseLogin
         }
 
         return $schema->components([
+            $tabs,
             parent::getEmailFormComponent()->label('ایمیل (نام کاربری)'),
             $this->getPasswordFormComponent()->label('رمز عبور'),
             $this->getRememberFormComponent(),
@@ -144,23 +163,14 @@ class Login extends BaseLogin
     protected function getFormActions(): array
     {
         if ($this->loginMethod === 'mobile') {
-            $actions = [
-                $this->getSwitchLoginMethodAction(),
-            ];
-
             if (! $this->mobileOtpSent) {
-                $actions[] = $this->getSendOtpFormAction();
-            } else {
-                $actions[] = $this->getAuthenticateFormAction()->label('ورود');
+                return [$this->getSendOtpFormAction()];
             }
 
-            return $actions;
+            return [$this->getAuthenticateFormAction()->label('ورود')];
         }
 
-        return [
-            $this->getAuthenticateFormAction(),
-            $this->getSwitchLoginMethodAction(),
-        ];
+        return [$this->getAuthenticateFormAction()];
     }
 
     protected function getSendOtpFormAction(): Action
@@ -170,18 +180,8 @@ class Login extends BaseLogin
             ->action('sendStaffLoginOtp');
     }
 
-    protected function getSwitchLoginMethodAction(): Action
+    protected function clearFormSchemaCache(): void
     {
-        if ($this->loginMethod === 'email') {
-            return Action::make('useMobile')
-                ->label('ورود با موبایل')
-                ->link()
-                ->action('switchToMobileLogin');
-        }
-
-        return Action::make('useEmail')
-            ->label('ورود با ایمیل و رمز')
-            ->link()
-            ->action('switchToEmailLogin');
+        unset($this->cachedSchemas['form']);
     }
 }

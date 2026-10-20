@@ -1,15 +1,16 @@
 # استقرار
 
-نسخهٔ فعلی سامانه: **1.1.9** (فایل `VERSION`).
+نسخهٔ فعلی سامانه: **1.1.10** (فایل `VERSION`).
 
-**روی سرور — فقط branch (بدون tag):**
+**روی سرور:**
 
 ```bash
 git fetch origin
-git checkout cursor/release-v1-1-9-6a95
+git checkout main
+git pull origin main
 ```
 
-شماره نسخه در `VERSION` است. انتشارهای بعدی: `cursor/release-v1-1-10-6a95` و … — از **tag استفاده نمی‌شود**.
+بعد از به‌روزرسانی migrate ناقص: `php artisan crm:install --fresh` (بدون دادهٔ مهم).
 
 ### تست OTP بدون الگوی SMS.ir
 

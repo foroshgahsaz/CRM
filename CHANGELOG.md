@@ -1,5 +1,11 @@
 # تغییرات
 
+## 1.1.10
+
+- رفع **1071** روی ایندекс `failed_jobs` (طول `connection`/`queue` = 100)
+- ورود پنل: **پیش‌فرض تب موبایل** + سوئیچ واقعی (Livewire)
+- `crm:install --fresh` دوباره کامل migrate می‌کند (شامل `deleted_at` روی users)
+
 ## 1.1.9
 
 - سیاست انتشار: **فقط branch** `cursor/release-v1-1-9-6a95` — **بدون git tag**
