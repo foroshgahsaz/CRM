@@ -14,7 +14,7 @@
 
 ## نصب محلی
 
-فقط برای توسعه روی SQLite. استقرار تولید با MySQL در `DEPLOYMENT.md` است (نسخه **1.1.5**، tag **`v1.1.5`** — روی سرور حتماً `.env` بسازید؛ در Git نیست). قبل از migrate: `php artisan crm:check-env`.
+فقط برای توسعه روی SQLite. استقرار تولید با MySQL در `DEPLOYMENT.md` است (نسخه **1.1.6** — env روی Runflare: متغیرهای محلی؛ `APP_KEY` با `key:generate --show`). قبل از migrate: `php artisan crm:check-env`.
 
 ```bash
 composer install

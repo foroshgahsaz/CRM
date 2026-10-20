@@ -1,5 +1,9 @@
 # تغییرات
 
+## 1.1.6
+
+- راهنمای **Runflare / متغیرهای محلی** و پر کردن **`APP_KEY`** با `php artisan key:generate --show`
+
 ## 1.1.5
 
 - دستور **`php artisan crm:bootstrap-env`** برای ساخت `.env` از `.env.example`

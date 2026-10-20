@@ -1,12 +1,12 @@
 # استقرار
 
-نسخهٔ فعلی سامانه: **1.1.5** (فایل `VERSION`).
+نسخهٔ فعلی سامانه: **1.1.6** (فایل `VERSION`).
 
 **روی سرور:**
 
 ```bash
 git fetch origin
-git checkout v1.1.5
+git checkout v1.1.6
 ```
 
 ### فایل `.env` (الزامی)
@@ -21,7 +21,40 @@ php artisan key:generate
 php artisan config:clear
 ```
 
-اگر `key:generate` خطای «No such file .env» داد، یعنی هنوز `.env` ساخته نشده است. در Kubernetes می‌توانید `APP_KEY` را از Secret تزریق کنید ولی برای `key:generate` باز هم فایل `.env` لازم است مگر کلید را دستی در فایل بگذارید.
+اگر `key:generate` خطای «No such file .env» داد، یعنی هنوز `.env` ساخته نشده است.
+
+### Runflare (متغیرهای محلی)
+
+اگر env را فقط در پنل Runflare → **متغیرهای محلی** می‌گذارید و روی دیسک `.env` ندارید، Laravel از همان متغیرهای محیطی می‌خواند؛ **فقط `php artisan key:generate` بدون فایل `.env` کار نمی‌کند** چون می‌خواهد داخل فایل بنویسد.
+
+**`APP_KEY` خالی در Runflare:**
+
+1. یک‌بار در ترمinal پروژه (لوکال یا SSH/Console همان سرویس):
+
+   ```bash
+   php artisan key:generate --show
+   ```
+
+2. خروجی را کامل کپی کنید (شکل `base64:....`).
+
+3. در Runflare → متغیرهای محلی → **`APP_KEY`** = همان مقدار (بدون فاصله اضافه).
+
+4. سرویس را **Restart/Redeploy** کنید.
+
+5. اگر `config:cache` زده‌اید، بعد از تغییر متغیرها دوباره `php artisan config:clear` و در صورت نیاز `config:cache`.
+
+بقیهٔ مقادیر `.env` (مثل `DB_HOST`, `DB_DATABASE`, `APP_URL`, `SMS_*`) را هم در **متغیرهای محلی** با **همان نام** بگذارید. `APP_NAME` را فراموش نکنید.
+
+| متغیر | مثال |
+| --- | --- |
+| `APP_NAME` | سامانه درخواست‌ها |
+| `APP_ENV` | production |
+| `APP_DEBUG` | false |
+| `APP_KEY` | base64:… (از `--show`) |
+| `APP_URL` | https://hooman.services |
+| `DB_*` | مطابق سرویس MySQL Runflare |
+| `SESSION_SECURE_COOKIE` | true |
+| `SMS_GATEWAY` | sms_ir + `SMSIR_*` |
 
 این سند برای سرور لینوکس با PHP، MySQL یا MariaDB، Composer و Nginx یا Apache است. Docker الزامی نیست.
 
