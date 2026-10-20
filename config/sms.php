@@ -13,4 +13,9 @@ return [
         'timeout' => (int) env('SMS_HTTP_TIMEOUT', 10),
     ],
 
+    'smsir' => [
+        'api_key' => env('SMSIR_API_KEY'),
+        'line_number' => env('SMSIR_LINE_NUMBER'),
+    ],
+
 ];

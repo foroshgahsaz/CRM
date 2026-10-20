@@ -17,6 +17,7 @@ use App\Services\SettingsService;
 use App\Sms\HttpSmsGateway;
 use App\Sms\LogSmsGateway;
 use App\Sms\SmsGateway;
+use App\Sms\SmsIrGateway;
 use App\Support\MobileNumber;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
@@ -34,6 +35,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(SmsGateway::class, function (): SmsGateway {
             return match (config('sms.gateway')) {
                 'http' => new HttpSmsGateway,
+                'sms_ir' => new SmsIrGateway,
                 default => new LogSmsGateway,
             };
         });
