@@ -4,6 +4,7 @@ namespace App\Providers\Filament;
 
 use App\Filament\Auth\Login;
 use App\Filament\Widgets\OperationsOverview;
+use App\Http\Middleware\ConfigureSessionForRequest;
 use App\Http\Middleware\EnsureStaffIsActive;
 use Filament\FontProviders\LocalFontProvider;
 use Filament\Http\Middleware\Authenticate;
@@ -56,6 +57,7 @@ class AdminPanelProvider extends PanelProvider
                 OperationsOverview::class,
             ])
             ->middleware([
+                ConfigureSessionForRequest::class,
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
                 StartSession::class,

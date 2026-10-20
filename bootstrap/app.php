@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\ConfigureSessionForRequest;
 use App\Http\Middleware\SecurityHeaders;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -14,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->trustProxies(at: '*');
+        $middleware->prependToGroup('web', ConfigureSessionForRequest::class);
         $middleware->append(SecurityHeaders::class);
         $middleware->redirectGuestsTo('/admin/login');
     })
