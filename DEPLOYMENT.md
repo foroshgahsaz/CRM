@@ -1,14 +1,15 @@
 # استقرار
 
-نسخهٔ فعلی سامانه: **1.1.2** (فایل `VERSION` و `CHANGELOG.md`).
+نسخهٔ فعلی سامانه: **1.1.4** (شماره انتشار **۴** — فایل `VERSION`).
 
-دریافت روی سرور:
+**فقط این tag را روی سرور بگیرید:**
 
 ```bash
 git fetch origin
-git checkout v1.1.2
-# یا: git checkout cursor/release-v1-1-2-6a95
+git checkout v1.1.4
 ```
+
+(Branch: `cursor/release-v1-1-4-6a95`)
 
 این سند برای سرور لینوکس با PHP، MySQL یا MariaDB، Composer و Nginx یا Apache است. Docker الزامی نیست.
 
@@ -167,6 +168,21 @@ php artisan up
 اگر migration داده را تغییر داده، به‌جای rollback از پشتیبان همان نسخه استفاده کنید.
 
 ## عیب‌یابی
+
+### `1050 Table 'users' already exists` / `cache doesn't exist`
+
+یعنی یک **migrate قبلی نیمه‌کاره** مانده: جدول `users` ساخته شده ولی migrationها تمام نشده‌اند (مثلاً بعد از خطای 1071).
+
+**نصب تازه بدون داده:**
+
+```bash
+php artisan config:clear
+php artisan migrate:fresh --force
+php artisan crm:create-admin --name="مدیر سامانه" --email="admin@example.com"
+php artisan config:cache
+```
+
+`crm:check-env` (1.1.3+) همین وضعیت را گزارش می‌کند. تا migrate کامل نشود `crm:create-admin` اجرا نکنید.
 
 ### `1071 Specified key was too long` (MySQL / MariaDB)
 

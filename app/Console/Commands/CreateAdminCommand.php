@@ -7,6 +7,7 @@ use App\Services\AuditLogService;
 use App\Support\MobileNumber;
 use Database\Seeders\RoleAndPermissionSeeder;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
@@ -23,6 +24,12 @@ class CreateAdminCommand extends Command
 
     public function handle(AuditLogService $audit): int
     {
+        if (! Schema::hasTable('roles') || ! Schema::hasTable('cache')) {
+            $this->error('پایگاه داده آماده نیست. ابتدا migrate را کامل کنید (در نصب تازه: php artisan migrate:fresh --force).');
+
+            return self::FAILURE;
+        }
+
         $this->call('db:seed', ['--class' => RoleAndPermissionSeeder::class, '--force' => true]);
 
         $name = (string) ($this->option('name') ?: $this->ask('نام'));
