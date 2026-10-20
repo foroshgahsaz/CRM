@@ -1,6 +1,18 @@
 # استقرار
 
+نسخهٔ فعلی سامانه: **1.1.0** (فایل `VERSION` و `CHANGELOG.md`).
+
+دریافت روی سرور:
+
+```bash
+git fetch origin
+git checkout v1.1.0
+# یا: git checkout cursor/release-v1-1-0-6a95
+```
+
 این سند برای سرور لینوکس با PHP، MySQL یا MariaDB، Composer و Nginx یا Apache است. Docker الزامی نیست.
+
+**نصب محلی** (SQLite و `php artisan serve`) در `README.md` است؛ روی سرور تولید همان مراحل را با MySQL و بدون `serve` اجرا نکنید — از وب‌سرور + PHP-FPM و دستورهای بخش «انتشار نسخه» استفاده کنید.
 
 ## سرور
 
@@ -152,6 +164,31 @@ php artisan up
 ```
 
 اگر migration داده را تغییر داده، به‌جای rollback از پشتیبان همان نسخه استفاده کنید.
+
+## عیب‌یابی
+
+### `SQLSTATE[HY000] [2002] Connection refused` (MySQL)
+
+لاراول به `DB_HOST`/`DB_PORT` وصل نمی‌شود. در پاد Kubernetes یا هاست اشتراکی، MySQL معمولاً روی **`127.0.0.1` نیست**.
+
+1. در `.env` مقدار درست را بگذارید: نام سرویس داخلی (مثلاً `mysql`، `mariadb`)، hostname ارائه‌شده توسط هاست، یا IP سرور دیتابیس.
+2. از داخل همان کانتینر/سرور وب تست کنید: `php artisan db:show` یا `mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USERNAME" -p`.
+3. فایروال و ACL: پورت 3306 فقط از همان شبکهٔ مجاز باز باشد.
+4. `DB_DATABASE`، `DB_USERNAME` و `DB_PASSWORD` را با پنل/MySQL هم‌خوان کنید (در لاگ شما نام `crmdbcot_db` دیده می‌شود — باید روی سرور MySQL واقعاً ساخته شده باشد).
+
+تا وقتی اتصال برقرار نشود، `migrate`، `db:seed` و `crm:create-admin` همگی شکست می‌خورند.
+
+### مخلوط کردن دستورهای README با MySQL
+
+اگر `DB_CONNECTION=mysql` است، **`touch database/database.sqlite` لازم نیست** و کمکی به migrate نمی‌کند. برای تولید:
+
+- `.env` را دستی بسازید (یا از `.env.example` کپی و مقادیر MySQL و `APP_URL` را پر کنید).
+- `composer install --no-dev --optimize-autoloader` (نه نصب dev روی production).
+- `php artisan migrate --force` (با `APP_ENV=production` بدون `--force` تأیید تعاملی می‌خواهد).
+
+### `php artisan serve`
+
+فقط برای توسعه است. در production Document Root را روی `public` بگذارید؛ `serve` را به‌عنوان سرویس دائمی اجرا نکنید.
 
 ## سلامت بعد از انتشار
 

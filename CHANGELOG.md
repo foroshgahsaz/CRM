@@ -1,5 +1,18 @@
 # تغییرات
 
+## 1.1.0
+
+- درگاه **`sms_ir`** برای [SMS.ir](https://sms.ir) (متد REST `send/bulk`، هدر `X-API-KEY`)؛ متغیرهای `SMSIR_API_KEY` و `SMSIR_LINE_NUMBER`
+- به‌روزرسانی `DEPLOYMENT.md` و `.env.example` برای استقرار با SMS.ir
+- بخش عیب‌یابی اتصال MySQL و تفکیک نصب محلی از تولید
+
+آزمون: `tests/Unit/SmsIrGatewayTest.php` و مجموعه قبلی (`php artisan test --compact`).
+
+### محدودیت‌های شناخته‌شده (1.1.0)
+
+- در production `SMS_GATEWAY=sms_ir` (یا `http`) و مقادیر مربوطه را تنظیم کنید؛ `log` فقط برای توسعه است.
+- ارسال با پترن verify در SMS.ir در این نسخه استفاده نمی‌شود؛ متن از قالب‌های CRM ساخته می‌شود.
+
 ## 1.0.0
 
 سامانه عملیاتی ثبت و رسیدگی به درخواست مشتری:
