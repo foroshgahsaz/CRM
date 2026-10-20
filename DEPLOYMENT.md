@@ -283,7 +283,7 @@ php artisan config:cache
 اگر migrate وسط کار fail شده (مثلاً جدول `users` ناقص مانده):
 
 ```bash
-git checkout v1.1.2
+git checkout cursor/release-v1-1-9-6a95
 php artisan config:clear
 php artisan migrate:fresh --force    # فقط وقتی دادهٔ production ندارید
 php artisan db:seed --force          # در صورت نیاز
