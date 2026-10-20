@@ -5,7 +5,7 @@ namespace App\Console\Commands;
 use App\Models\User;
 use App\Services\AuditLogService;
 use App\Support\MobileNumber;
-use Database\Seeders\RoleAndPermissionSeeder;
+use Database\Seeders\DatabaseSeeder;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
@@ -24,13 +24,13 @@ class CreateAdminCommand extends Command
 
     public function handle(AuditLogService $audit): int
     {
-        if (! Schema::hasTable('roles') || ! Schema::hasTable('cache')) {
-            $this->error('پایگاه داده آماده نیست. ابتدا migrate را کامل کنید (در نصب تازه: php artisan migrate:fresh --force).');
+        if (! Schema::hasTable('roles') || ! Schema::hasTable('cache') || ! Schema::hasTable('request_types')) {
+            $this->error('پایگاه داده آماده نیست. migrate کامل + seed: php artisan crm:install --fresh');
 
             return self::FAILURE;
         }
 
-        $this->call('db:seed', ['--class' => RoleAndPermissionSeeder::class, '--force' => true]);
+        $this->call('db:seed', ['--class' => DatabaseSeeder::class, '--force' => true]);
 
         $name = (string) ($this->option('name') ?: $this->ask('نام'));
         $email = (string) ($this->option('email') ?: $this->ask('ایمیل'));

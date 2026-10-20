@@ -1,5 +1,33 @@
 # تغییرات
 
+## 1.1.9
+
+- سیاست انتشار: **فقط branch** `cursor/release-v1-1-9-6a95` — **بدون git tag**
+- محتوا همان 1.1.8 (ورود موبایل پنل، OTP debug، reset admin، crm:install)
+
+## 1.1.8
+
+- ورود پنل **`/admin/login`**: **ایمیل + رمز** یا **موبایل + OTP** (کاربر staff باید `mobile` و نقش داشته باشد)
+- **`CRM_OTP_DEBUG=true`**: دیدن OTP در `storage/logs/laravel.log` (تست بدون الگوی SMS.ir)
+- **`php artisan crm:reset-admin-password {email}`** برای بازیابی رمز admin
+
+## 1.1.7
+
+- **`php artisan crm:install`** — migrate (+ اختیاری `--fresh`) و **`db:seed`** کامل (نوع درخواست، قالب پیامک، …)
+- **`crm:create-admin`** دیگر فقط نقش seed نمی‌کند؛ کل `DatabaseSeeder` را اجرا می‌کند
+- **`crm:check-env`**: بررسی وجود `request_types` و هشدار seed خالی
+- مستند: ورود admin با **ایمیل**؛ OTP موبایل فقط بخش مشتری
+
+## 1.1.6
+
+- راهنمای **Runflare / متغیرهای محلی** و پر کردن **`APP_KEY`** با `php artisan key:generate --show`
+
+## 1.1.5
+
+- دستور **`php artisan crm:bootstrap-env`** برای ساخت `.env` از `.env.example`
+- **`crm:check-env`**: هشدار نبود `.env` یا خالی بودن `APP_KEY`
+- مستند استقرار: `.env` در Git نیست
+
 ## 1.1.4
 
 شمارهٔ انتشار برای **pull روی سرور** — tag **`v1.1.4`**.

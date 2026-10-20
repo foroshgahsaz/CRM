@@ -1,15 +1,105 @@
 # استقرار
 
-نسخهٔ فعلی سامانه: **1.1.4** (شماره انتشار **۴** — فایل `VERSION`).
+نسخهٔ فعلی سامانه: **1.1.9** (فایل `VERSION`).
 
-**فقط این tag را روی سرور بگیرید:**
+**روی سرور — فقط branch (بدون tag):**
 
 ```bash
 git fetch origin
-git checkout v1.1.4
+git checkout cursor/release-v1-1-9-6a95
 ```
 
-(Branch: `cursor/release-v1-1-4-6a95`)
+شماره نسخه در `VERSION` است. انتشارهای بعدی: `cursor/release-v1-1-10-6a95` و … — از **tag استفاده نمی‌شود**.
+
+### تست OTP بدون الگوی SMS.ir
+
+در متغیرهای محلی Runflare (موقت):
+
+```dotenv
+CRM_OTP_DEBUG=true
+```
+
+بعد از «دریافت رمز»، در Console پاد:
+
+```bash
+tail -n 30 storage/logs/laravel.log | grep crm.otp_debug
+```
+
+خروجی شامل `"code":"123456"` است. **بعد از تست `CRM_OTP_DEBUG=false` بگذارید.**
+
+### رمز admin
+
+رمز فقط هنگام `crm:create-admin` یک‌بار چاپ می‌شود. فراموشی:
+
+```bash
+php artisan crm:reset-admin-password admin@example.com
+```
+
+ورود پنل: **ایمیل + رمز** یا **موبایل staff + OTP** (موبایل را هنگام ساخت کاربر در پنل یا `--mobile` در create-admin ست کنید).
+
+### نصب اولیه پایگاه (migrate + seed)
+
+```bash
+php artisan config:clear
+php artisan crm:install --fresh
+# یا: migrate --force && db:seed --force && crm:create-admin
+```
+
+بدون **`db:seed`** جدول `request_types` خالی می‌ماند و صفحهٔ ثبت درخواست خطای SQL می‌دهد.
+
+### ورود کارکنان vs مشتری
+
+| مسیر | روش ورود |
+| --- | --- |
+| **`/admin/login`** | **ایمیل + رمز** یا **موبایل + OTP** (موبایل باید روی کاربر staff ثبت شده باشد) |
+| **`/requests/new`** و **`/track`** | **موبایل + OTP** برای مشتری |
+
+### فایل `.env` (الزامی)
+
+`.env` در مخزن Git **نیست**. هر پاد/سرور باید خودش داشته باشد (Volume پایدار یا کپی دستی).
+
+```bash
+cp .env.example .env
+# یا: php artisan crm:bootstrap-env
+# سپس DB_*، APP_URL، SMS را ویرایش کنید
+php artisan key:generate
+php artisan config:clear
+```
+
+اگر `key:generate` خطای «No such file .env» داد، یعنی هنوز `.env` ساخته نشده است.
+
+### Runflare (متغیرهای محلی)
+
+اگر env را فقط در پنل Runflare → **متغیرهای محلی** می‌گذارید و روی دیسک `.env` ندارید، Laravel از همان متغیرهای محیطی می‌خواند؛ **فقط `php artisan key:generate` بدون فایل `.env` کار نمی‌کند** چون می‌خواهد داخل فایل بنویسد.
+
+**`APP_KEY` خالی در Runflare:**
+
+1. یک‌بار در ترمinal پروژه (لوکال یا SSH/Console همان سرویس):
+
+   ```bash
+   php artisan key:generate --show
+   ```
+
+2. خروجی را کامل کپی کنید (شکل `base64:....`).
+
+3. در Runflare → متغیرهای محلی → **`APP_KEY`** = همان مقدار (بدون فاصله اضافه).
+
+4. سرویس را **Restart/Redeploy** کنید.
+
+5. اگر `config:cache` زده‌اید، بعد از تغییر متغیرها دوباره `php artisan config:clear` و در صورت نیاز `config:cache`.
+
+بقیهٔ مقادیر `.env` (مثل `DB_HOST`, `DB_DATABASE`, `APP_URL`, `SMS_*`) را هم در **متغیرهای محلی** با **همان نام** بگذارید. `APP_NAME` را فراموش نکنید.
+
+| متغیر | مثال |
+| --- | --- |
+| `APP_NAME` | سامانه درخواست‌ها |
+| `APP_ENV` | production |
+| `APP_DEBUG` | false |
+| `APP_KEY` | base64:… (از `--show`) |
+| `APP_URL` | https://hooman.services |
+| `DB_*` | مطابق سرویس MySQL Runflare |
+| `SESSION_SECURE_COOKIE` | true |
+| `SMS_GATEWAY` | sms_ir + `SMSIR_*` |
 
 این سند برای سرور لینوکس با PHP، MySQL یا MariaDB، Composer و Nginx یا Apache است. Docker الزامی نیست.
 
@@ -193,7 +283,7 @@ php artisan config:cache
 اگر migrate وسط کار fail شده (مثلاً جدول `users` ناقص مانده):
 
 ```bash
-git checkout v1.1.2
+git checkout cursor/release-v1-1-9-6a95
 php artisan config:clear
 php artisan migrate:fresh --force    # فقط وقتی دادهٔ production ندارید
 php artisan db:seed --force          # در صورت نیاز
