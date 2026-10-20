@@ -1,5 +1,11 @@
 # تغییرات
 
+## 1.1.1
+
+- خواندن تنظیم MySQL از **`MYSQL_*`** / **`CRM_DB_*`** وقتی `DB_HOST` هنوز `127.0.0.1` یا خالی است (مناسب Kubernetes)
+- دستور **`php artisan crm:check-env`** برای تشخیص Connection refused قبل از migrate
+- به‌روزرسانی `.env.example` و `DEPLOYMENT.md`
+
 ## 1.1.0
 
 - درگاه **`sms_ir`** برای [SMS.ir](https://sms.ir) (متد REST `send/bulk`، هدر `X-API-KEY`)؛ متغیرهای `SMSIR_API_KEY` و `SMSIR_LINE_NUMBER`
