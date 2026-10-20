@@ -14,6 +14,7 @@ class DatabaseSeeder extends Seeder
             RequestTypeSeeder::class,
             MessageTemplateSeeder::class,
             SlaPolicySeeder::class,
+            AdminUserSeeder::class,
         ]);
     }
 }

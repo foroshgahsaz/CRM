@@ -17,7 +17,7 @@ use Illuminate\Validation\ValidationException;
 
 class Login extends BaseLogin
 {
-    public string $loginMethod = 'mobile';
+    public string $loginMethod = 'email';
 
     public bool $mobileOtpSent = false;
 
@@ -25,7 +25,26 @@ class Login extends BaseLogin
     {
         parent::mount();
 
-        $this->loginMethod = 'mobile';
+        $this->loginMethod = 'email';
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    protected function getCredentialsFromFormData(array $data): array
+    {
+        $login = trim((string) ($data['email'] ?? ''));
+        $configuredEmail = (string) config('crm.default_admin.email');
+
+        if ($login !== '' && strcasecmp($login, 'admin') === 0) {
+            $login = $configuredEmail;
+        }
+
+        return [
+            'email' => $login,
+            'password' => $data['password'] ?? '',
+        ];
     }
 
     public function switchToEmailLogin(): void
@@ -154,7 +173,12 @@ class Login extends BaseLogin
 
         return $schema->components([
             $tabs,
-            parent::getEmailFormComponent()->label('ایمیل (نام کاربری)'),
+            TextInput::make('email')
+                ->label('ایمیل (نام کاربری)')
+                ->placeholder('admin یا admin@admin.com')
+                ->required()
+                ->maxLength(190)
+                ->autofocus(),
             $this->getPasswordFormComponent()->label('رمز عبور'),
             $this->getRememberFormComponent(),
         ]);

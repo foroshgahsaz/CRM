@@ -118,7 +118,24 @@ class CheckEnvironmentCommand extends Command
             return self::FAILURE;
         }
 
+        $this->warnSessionCookieMismatch();
+
         return self::SUCCESS;
+    }
+
+    private function warnSessionCookieMismatch(): void
+    {
+        $appUrl = (string) config('app.url');
+        $secure = config('session.secure');
+
+        if ($secure === true && str_starts_with($appUrl, 'http://')) {
+            $this->warn('SESSION_SECURE_COOKIE=true ولی APP_URL با http:// — کوکی سشن روی HTTP ست نمی‌شود و ورود admin خطای «صفحه منقضی شد» (419) می‌دهد.');
+            $this->line('  HTTPS فعال کنید، یا SESSION_SECURE_COOKIE=false تا زمانی که فقط HTTP دارید.');
+        }
+
+        if ($secure === true && ! str_starts_with($appUrl, 'https://')) {
+            $this->line('  اگر پشت پروکسی HTTPS هستید: APP_URL=https://دامنه و trustProxies (پیش‌فرض فعال) کافی است.');
+        }
     }
 
     private function partialMigrationMessage(): ?string

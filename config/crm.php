@@ -29,4 +29,12 @@ return [
     // فقط برای تست بدون SMS.ir — OTP در storage/logs/laravel.log نوشته می‌شود. در go-live خاموش کنید.
     'otp_debug' => (bool) env('CRM_OTP_DEBUG', false),
 
+    // مدیر پیش‌فرض (فقط نصب اولیه / محیط تست — در production رمز را عوض کنید)
+    'seed_default_admin' => (bool) env('CRM_SEED_DEFAULT_ADMIN', true),
+    'default_admin' => [
+        'name' => env('CRM_DEFAULT_ADMIN_NAME', 'admin'),
+        'email' => env('CRM_DEFAULT_ADMIN_EMAIL', 'admin@admin.com'),
+        'password' => env('CRM_DEFAULT_ADMIN_PASSWORD', 'admin'),
+    ],
+
 ];
