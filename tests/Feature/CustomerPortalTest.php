@@ -29,9 +29,7 @@ class CustomerPortalTest extends CrmTestCase
         $payload = [
             'full_name' => 'نسترن کریمی',
             'request_type_id' => $type->id,
-            'purchase_year' => $year,
-            'purchase_month' => $month,
-            'purchase_day' => $day,
+            'purchase_jalali' => "{$year}/{$month}/{$day}",
             'description' => 'کالای دریافتی شکسته است و نیاز به رسیدگی دارد.',
             'submission_key' => $key,
         ];
@@ -68,9 +66,7 @@ class CustomerPortalTest extends CrmTestCase
         $this->post(route('requests.store'), [
             'full_name' => 'مشتری آزمایشی',
             'request_type_id' => $type->id,
-            'purchase_year' => $year,
-            'purchase_month' => $month,
-            'purchase_day' => $day,
+            'purchase_jalali' => "{$year}/{$month}/{$day}",
             'description' => 'شرح کافی برای ثبت درخواست آزمایشی.',
             'submission_key' => session('submission.key'),
         ])->assertSessionHasErrors('request_type_id');
@@ -85,9 +81,7 @@ class CustomerPortalTest extends CrmTestCase
         $this->post(route('requests.store'), [
             'full_name' => 'مشتری آزمایشی',
             'request_type_id' => $type->id,
-            'purchase_year' => $year,
-            'purchase_month' => $month,
-            'purchase_day' => $day,
+            'purchase_jalali' => "{$year}/{$month}/{$day}",
             'description' => 'شرح کافی برای ثبت درخواست آزمایشی.',
             'submission_key' => session('submission.key'),
             'attachments' => [UploadedFile::fake()->create('shell.php', 20, 'application/x-php')],
@@ -189,9 +183,7 @@ class CustomerPortalTest extends CrmTestCase
         $this->post(route('requests.store'), [
             'full_name' => 'مشتری پیگیری',
             'request_type_id' => $type->id,
-            'purchase_year' => $year,
-            'purchase_month' => $month,
-            'purchase_day' => $day,
+            'purchase_jalali' => "{$year}/{$month}/{$day}",
             'description' => $description,
             'submission_key' => session('submission.key'),
         ])->assertRedirect(route('requests.success'));

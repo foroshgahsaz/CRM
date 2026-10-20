@@ -9,8 +9,8 @@ use App\Services\ReportService;
 use App\Support\JalaliDate;
 use BackedEnum;
 use Filament\Actions\Action;
+use App\Filament\Forms\Components\JalaliDateInput;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\EmbeddedSchema;
@@ -61,8 +61,8 @@ class Reports extends Page
     public function form(Schema $schema): Schema
     {
         return $schema->components([
-            TextInput::make('from_jalali')->label('از تاریخ شمسی')->required()->placeholder('1404/01/01'),
-            TextInput::make('to_jalali')->label('تا تاریخ شمسی')->required()->placeholder('1404/12/29'),
+            JalaliDateInput::make('from_jalali')->label('از تاریخ')->required()->minJalali('1390/01/01'),
+            JalaliDateInput::make('to_jalali')->label('تا تاریخ')->required()->maxToday(),
             Select::make('request_type_id')->label('نوع درخواست')->options(fn () => RequestType::query()->orderBy('name')->pluck('name', 'id'))->searchable(),
             Select::make('unit_id')->label('واحد')->options(fn () => OrganizationalUnit::query()->orderBy('name')->pluck('name', 'id'))->searchable(),
         ])->columns(2);

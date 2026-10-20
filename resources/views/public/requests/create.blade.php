@@ -49,24 +49,13 @@
                     </select>
                 </label>
 
-                <fieldset class="crm-form-section grid gap-2">
-                    <legend class="text-sm font-semibold text-brand-900">تاریخ خرید</legend>
-                    <div class="grid grid-cols-3 gap-2">
-                        <label class="grid gap-1 text-xs text-slate-600" for="purchase_day">روز
-                            <input id="purchase_day" name="purchase_day" value="{{ old('purchase_day') }}" inputmode="numeric" class="crm-input" required>
-                        </label>
-                        <label class="grid gap-1 text-xs text-slate-600" for="purchase_month">ماه
-                            <select id="purchase_month" name="purchase_month" class="crm-input" required>
-                                @foreach ($months as $number => $name)
-                                    <option value="{{ $number }}" @selected(old('purchase_month') == $number)>{{ $name }}</option>
-                                @endforeach
-                            </select>
-                        </label>
-                        <label class="grid gap-1 text-xs text-slate-600" for="purchase_year">سال
-                            <input id="purchase_year" name="purchase_year" value="{{ old('purchase_year', $year) }}" inputmode="numeric" class="crm-input" required>
-                        </label>
-                    </div>
-                </fieldset>
+                <x-jalali-date-input
+                    name="purchase_jalali"
+                    label="تاریخ خرید"
+                    :value="old('purchase_jalali', $defaultPurchaseJalali)"
+                    :max-today="true"
+                    required
+                />
 
                 <label class="grid gap-1.5 text-sm font-semibold text-brand-900" for="invoice_number">شماره فاکتور
                     <input id="invoice_number" name="invoice_number" value="{{ old('invoice_number') }}" class="crm-input font-normal">
@@ -99,6 +88,15 @@
                                             <option value="{{ $option }}">{{ $option }}</option>
                                         @endforeach
                                     </select>
+                                @elseif ($field->field_type->value === 'date')
+                                    <input
+                                        name="fields[{{ $field->field_key }}]"
+                                        class="crm-input crm-jalali-input font-normal"
+                                        data-jdp
+                                        autocomplete="off"
+                                        placeholder="انتخاب از تقویم"
+                                        @required($field->is_required)
+                                    >
                                 @else
                                     <input name="fields[{{ $field->field_key }}]" class="crm-input font-normal" @required($field->is_required)>
                                 @endif

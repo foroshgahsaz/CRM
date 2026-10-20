@@ -1,5 +1,10 @@
 # تغییرات
 
+## 1.1.15
+
+- **Date picker شمسی** (`@majidh1/jalalidatepicker`) در فرم ثبت درخواست، گزارش‌ها و Filament (تاریخ خرید + فیلدهای نوع `date`)
+- کامپوننت `JalaliDateInput` برای پنل admin
+
 ## 1.1.14
 
 - **`ConfigureSessionForRequest`**: رفع 419 روی HTTP حتی وقتی `SESSION_SECURE_COOKIE=true` (وب + Filament)

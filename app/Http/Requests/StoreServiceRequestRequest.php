@@ -26,9 +26,7 @@ class StoreServiceRequestRequest extends FormRequest
         return [
             'full_name' => ['required', 'string', 'max:120'],
             'request_type_id' => ['required', 'integer', Rule::exists('request_types', 'id')->where('is_active', true)],
-            'purchase_year' => ['required', 'integer'],
-            'purchase_month' => ['required', 'integer', 'between:1,12'],
-            'purchase_day' => ['required', 'integer', 'between:1,31'],
+            'purchase_jalali' => ['required', 'string', 'max:20'],
             'invoice_number' => ['nullable', 'string', 'max:50'],
             'product_name' => ['nullable', 'string', 'max:190'],
             'purchased_quantity' => ['nullable', 'integer', 'min:1', 'max:100000'],
@@ -43,18 +41,17 @@ class StoreServiceRequestRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
-        $normalized = [];
+        $jalali = MobileNumber::toEnglishDigits(trim((string) $this->input('purchase_jalali')));
 
-        foreach (['purchase_year', 'purchase_month', 'purchase_day'] as $field) {
-            $value = MobileNumber::toEnglishDigits((string) $this->input($field));
-
-            if ($value !== '') {
-                $normalized[$field] = (int) $value;
-            }
+        if ($jalali === '' && $this->filled(['purchase_year', 'purchase_month', 'purchase_day'])) {
+            $year = MobileNumber::toEnglishDigits((string) $this->input('purchase_year'));
+            $month = MobileNumber::toEnglishDigits((string) $this->input('purchase_month'));
+            $day = MobileNumber::toEnglishDigits((string) $this->input('purchase_day'));
+            $jalali = sprintf('%s/%s/%s', $year, (int) $month, (int) $day);
         }
 
-        if ($normalized !== []) {
-            $this->merge($normalized);
+        if ($jalali !== '') {
+            $this->merge(['purchase_jalali' => $jalali]);
         }
     }
 
@@ -69,18 +66,16 @@ class StoreServiceRequestRequest extends FormRequest
                 $validator->errors()->add('submission_key', 'این فرم قبلاً ارسال شده یا نشست آن منقضی شده است.');
             }
 
-            $date = JalaliDate::toGregorianDate(
-                $this->input('purchase_year').'/'.$this->input('purchase_month').'/'.$this->input('purchase_day')
-            );
+            $date = JalaliDate::toGregorianDate((string) $this->input('purchase_jalali'));
 
             if ($date === null) {
-                $validator->errors()->add('purchase_day', 'تاریخ خرید معتبر نیست.');
+                $validator->errors()->add('purchase_jalali', 'تاریخ خرید معتبر نیست.');
 
                 return;
             }
 
             if ($date > now()->toDateString()) {
-                $validator->errors()->add('purchase_day', 'تاریخ خرید نمی‌تواند در آینده باشد.');
+                $validator->errors()->add('purchase_jalali', 'تاریخ خرید نمی‌تواند در آینده باشد.');
             }
 
             $this->merge(['purchase_date' => $date]);
