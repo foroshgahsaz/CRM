@@ -99,7 +99,8 @@ php artisan config:clear
 | `APP_KEY` | base64:… (از `--show`) |
 | `APP_URL` | https://hooman.services |
 | `DB_*` | مطابق سرویس MySQL Runflare |
-| `SESSION_SECURE_COOKIE` | true |
+| `SESSION_SECURE_COOKIE` | true فقط با **HTTPS**؛ اگر سایت با `http://` باز می‌شود `false` بگذارید وگرنه ورود admin **419** می‌دهد |
+| `CRM_SEED_DEFAULT_ADMIN` | true برای نصب اول؛ بعد از ورود رمز را عوض کنید (`admin` / `admin` یا `admin@admin.com`) |
 | `SMS_GATEWAY` | sms_ir + `SMSIR_*` |
 
 این سند برای سرور لینوکس با PHP، MySQL یا MariaDB، Composer و Nginx یا Apache است. Docker الزامی نیست.

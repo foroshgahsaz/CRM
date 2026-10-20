@@ -32,6 +32,13 @@ class InstallCommand extends Command
         $this->info('Seed اولیه انجام شد (نوع درخواست، تنظیمات، قالب پیامک، SLA).');
 
         if (! $this->option('skip-admin')) {
+            if (config('crm.seed_default_admin')) {
+                $email = (string) config('crm.default_admin.email');
+                $this->info("مدیر پیش‌فرض از seed: نام کاربری admin یا ایمیل {$email} — رمز در config/crm (CRM_DEFAULT_ADMIN_PASSWORD).");
+
+                return self::SUCCESS;
+            }
+
             return $this->call('crm:create-admin');
         }
 

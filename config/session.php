@@ -169,6 +169,7 @@ return [
     |
     */
 
+    // null = فقط روی HTTPS کوکی Secure (Laravel). اگر سایت با http باز می‌شود، SESSION_SECURE_COOKIE=false بگذارید.
     'secure' => env('SESSION_SECURE_COOKIE'),
 
     /*

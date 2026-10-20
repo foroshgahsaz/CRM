@@ -1,5 +1,12 @@
 # تغییرات
 
+## 1.1.13
+
+- **`AdminUserSeeder`**: مدیر پیش‌فرض `admin` / `admin` (ایمیل `admin@admin.com`؛ در فرم ورود می‌توانید فقط `admin` بزنید)
+- ورود پنل: **پیش‌فرض تب ایمیل/رمز** (برای bypass OTP)
+- رفع **419 صفحه منقضی شد**: `trustProxies` + هشدار `crm:check-env` برای `SESSION_SECURE_COOKIE` روی HTTP
+- استایل `/admin/login`: کارت سفید روی گرادیان (خوانایی label و عنوان)
+
 ## 1.1.12
 
 - هویت بصری جدید: گرادیان **آبی–بنفش**، glassmorphism، دکمه‌های pill (صفحات عمومی + Filament admin theme)
