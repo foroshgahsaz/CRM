@@ -63,6 +63,16 @@ SESSION_SECURE_COOKIE=true
 QUEUE_CONNECTION=database
 CACHE_STORE=database
 
+SMS_GATEWAY=sms_ir
+SMSIR_API_KEY=
+SMSIR_LINE_NUMBER=
+```
+
+برای **SMS.ir** کلید را از پنل «برنامه‌نویسان» بگیرید و `SMSIR_LINE_NUMBER` را همان شماره خط ارسال (فقط رقم، مثلاً `30004505000017`) بگذارید. متن OTP و سایر پیام‌ها از قالب‌های داخل سامانه ساخته می‌شود و با متد `send/bulk` ارسال می‌گردد.
+
+درگاه عمومی `http` (Bearer و فیلدهای `to`/`message`/`sender`) همچنان برای سرویس‌های دیگر در دسترس است:
+
+```dotenv
 SMS_GATEWAY=http
 SMS_HTTP_URL=https://sms.example.com/send
 SMS_HTTP_TOKEN=
