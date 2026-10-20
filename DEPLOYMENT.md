@@ -1,13 +1,13 @@
 # استقرار
 
-نسخهٔ فعلی سامانه: **1.1.0** (فایل `VERSION` و `CHANGELOG.md`).
+نسخهٔ فعلی سامانه: **1.1.1** (فایل `VERSION` و `CHANGELOG.md`).
 
 دریافت روی سرور:
 
 ```bash
 git fetch origin
-git checkout v1.1.0
-# یا: git checkout cursor/release-v1-1-0-6a95
+git checkout v1.1.1
+# یا: git checkout cursor/release-v1-1-1-6a95
 ```
 
 این سند برای سرور لینوکس با PHP، MySQL یا MariaDB، Composer و Nginx یا Apache است. Docker الزامی نیست.
@@ -99,6 +99,7 @@ SMS_SENDER=
 composer install --no-dev --optimize-autoloader
 npm ci
 npm run build
+php artisan crm:check-env
 php artisan migrate --force
 php artisan storage:link
 php artisan config:cache
@@ -171,12 +172,14 @@ php artisan up
 
 لاراول به `DB_HOST`/`DB_PORT` وصل نمی‌شود. در پاد Kubernetes یا هاست اشتراکی، MySQL معمولاً روی **`127.0.0.1` نیست**.
 
-1. در `.env` مقدار درست را بگذارید: نام سرویس داخلی (مثلاً `mysql`، `mariadb`)، hostname ارائه‌شده توسط هاست، یا IP سرور دیتابیس.
-2. از داخل همان کانتینر/سرور وب تست کنید: `php artisan db:show` یا `mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USERNAME" -p`.
-3. فایروال و ACL: پورت 3306 فقط از همان شبکهٔ مجاز باز باشد.
-4. `DB_DATABASE`، `DB_USERNAME` و `DB_PASSWORD` را با پنل/MySQL هم‌خوان کنید (در لاگ شما نام `crmdbcot_db` دیده می‌شود — باید روی سرور MySQL واقعاً ساخته شده باشد).
+1. **`php artisan crm:check-env`** — host مؤثر و علت خطا را نشان می‌دهد.
+2. در `.env` **`DB_HOST`** را درست کنید (نام Service در K8s، hostname هاست، یا IP دیتابیس — نه `127.0.0.1` مگر MySQL واقعاً کنار همان پاد باشد).
+3. **نسخه 1.1.1+:** اگر `DB_HOST=127.0.0.1` مانده، می‌توانید در Deployment **`MYSQL_HOST`** یا **`CRM_DB_HOST`** تزریق کنید؛ اپ host را از آن می‌گیرد. نام DB/کاربر/رمز را با **`MYSQL_DATABASE`** / **`MYSQL_USER`** / **`MYSQL_PASSWORD`** هم می‌توان هم‌تراز کرد.
+4. **`DB_DATABASE`** (مثلاً `crmdbcot_db`) و کاربر MySQL باید از قبل ساخته شده باشند.
+5. بعد از تغییر env: **`php artisan config:clear`** (اگر قبلاً `config:cache` زده‌اید).
+6. تست دستی: `mysql -h HOST -P 3306 -u USER -p`.
 
-تا وقتی اتصال برقرار نشود، `migrate`، `db:seed` و `crm:create-admin` همگی شکست می‌خورند.
+تا وقتی **`crm:check-env`** موفق نشود، `migrate`، `db:seed` و `crm:create-admin` خطا می‌دهند.
 
 ### مخلوط کردن دستورهای README با MySQL
 
