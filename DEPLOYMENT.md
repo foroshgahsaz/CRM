@@ -1,6 +1,6 @@
 # استقرار
 
-نسخهٔ فعلی سامانه: **1.2.15** (فایل `VERSION`).
+نسخهٔ فعلی سامانه: **1.2.16** (فایل `VERSION`).
 
 **سیاست نسخه:** هر تغییر قابل deploy باید `VERSION` را یک پله جلو ببرد (مثلاً 1.2.12) و در `CHANGELOG.md` ثبت شود تا روی سرور با `cat VERSION` بعد از pull مشخص باشد.
 
@@ -44,7 +44,7 @@ cat storage/app/demo-credentials.txt
    SMSIR_OTP_PARAMETER_NAME=CODE    # همان نام متغیر در پنل، بدون #
    ```
 
-   با `SMSIR_OTP_TEMPLATE_ID`، OTP از **`POST /v1/send/verify`** (خط خدماتی/الگو) ارسال می‌شود؛ بدون آن OTP مثل قبل از **`send/bulk`** و قالب CRM در admin استفاده می‌شود.
+   OTP همیشه از **`POST /v1/send/verify`** (همان الگوی `foroshgahsaz/mainshop` → `SmsIrOtpSender`) ارسال می‌شود؛ `SMSIR_OTP_TEMPLATE_ID` اجباری است.
 3. **Runflare** — همان نام‌ها در **متغیرهای محلی**؛ بعد `php artisan config:clear && php artisan config:cache`.
 4. **سشن** — `SESSION_DRIVER=database` و migrate اجرا شده باشد؛ برای جلوگیری از 419: HTTPS یا `CRM_SESSION_SECURE_AUTO=true` (پیش‌فرض).
 5. **ورود staff با OTP** — در پنل برای کاربر `mobile` + نقش + `is_active` ست شود.
@@ -263,7 +263,7 @@ SMSIR_API_KEY=
 SMSIR_LINE_NUMBER=
 ```
 
-برای **SMS.ir** کلید را از پنل «برنامه‌نویسان» بگیرید و `SMSIR_LINE_NUMBER` را همان شماره خط ارسال (فقط رقم، مثلاً `30004505000017`) بگذارید. متن OTP و سایر پیام‌ها از قالب‌های داخل سامانه ساخته می‌شود و با متد `send/bulk` ارسال می‌گردد.
+برای **SMS.ir** کلید را از پنل «برنامه‌نویسان» بگیرید. **OTP** فقط با verify + `SMSIR_OTP_TEMPLATE_ID`؛ **سایر پیامک‌ها** با `SMSIR_LINE_NUMBER` و `send/bulk`.
 
 درگاه عمومی `http` (Bearer و فیلدهای `to`/`message`/`sender`) همچنان برای سرویس‌های دیگر در دسترس است:
 

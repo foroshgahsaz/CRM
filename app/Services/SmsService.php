@@ -10,8 +10,6 @@ use App\Models\MessageTemplate;
 use App\Models\NotificationDelivery;
 use App\Models\SmsLog;
 use App\Sms\SmsGateway;
-use App\Sms\SmsIrGateway;
-use App\Sms\SmsResult;
 use Illuminate\Database\QueryException;
 
 class SmsService
@@ -26,7 +24,11 @@ class SmsService
      */
     public function queue(string $mobile, string $eventKey, array $variables, ?int $serviceRequestId, string $idempotencyKey): void
     {
-        if ($eventKey !== 'otp' && ! $this->settings->getBool('sms_enabled', false)) {
+        if ($eventKey === 'otp') {
+            throw new WorkflowException('OTP از مسیر OtpSmsDelivery ارسال می‌شود.');
+        }
+
+        if (! $this->settings->getBool('sms_enabled', false)) {
             $this->writeLog($mobile, $eventKey, $serviceRequestId, SmsStatus::Skipped, $idempotencyKey, null, null, 'پیامک غیرفعال است.');
 
             return;
@@ -58,13 +60,18 @@ class SmsService
             return $existing->status === SmsStatus::Sent;
         }
 
-        if ($eventKey !== 'otp' && ! $this->settings->getBool('sms_enabled', false)) {
+        if ($eventKey === 'otp') {
+            throw new WorkflowException('OTP از مسیر OtpSmsDelivery ارسال می‌شود.');
+        }
+
+        if (! $this->settings->getBool('sms_enabled', false)) {
             $this->writeLog($mobile, $eventKey, $serviceRequestId, SmsStatus::Skipped, $idempotencyKey, null, null, 'پیامک غیرفعال است.');
 
             return false;
         }
 
-        $result = $this->dispatchToGateway($mobile, $eventKey, $variables);
+        $message = $this->render($eventKey, $variables);
+        $result = $this->gateway->send($mobile, $message);
         $status = $result->successful ? SmsStatus::Sent : SmsStatus::Failed;
 
         $log = $this->writeLog(
@@ -98,35 +105,6 @@ class SmsService
         }
 
         return $log->status === SmsStatus::Sent;
-    }
-
-    /**
-     * @param  array<string, scalar|null>  $variables
-     */
-    /**
-     * @param  array<string, scalar|null>  $variables
-     */
-    private function dispatchToGateway(string $mobile, string $eventKey, array $variables): SmsResult
-    {
-        if ($eventKey === 'otp' && $this->gateway instanceof SmsIrGateway) {
-            $templateId = $this->gateway->otpTemplateId();
-
-            if ($templateId !== null) {
-                if (! array_key_exists('otp_code', $variables)) {
-                    throw new WorkflowException('اطلاعات لازم برای قالب پیامک کامل نیست.');
-                }
-
-                $parameterName = (string) config('sms.smsir.otp_parameter_name', 'CODE');
-
-                return $this->gateway->sendVerify($mobile, $templateId, [
-                    ['name' => $parameterName, 'value' => (string) $variables['otp_code']],
-                ]);
-            }
-        }
-
-        $message = $this->render($eventKey, $variables);
-
-        return $this->gateway->send($mobile, $message);
     }
 
     public function render(string $eventKey, array $variables): string

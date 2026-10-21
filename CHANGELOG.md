@@ -1,5 +1,10 @@
 # تغییرات
 
+## 1.2.16
+
+- OTP مطابق **`foroshgahsaz/mainshop`**: `SmsIrOtpSender` + `OtpSmsDelivery` و `POST /v1/send/verify` (الگوی CRM: **235057** / **CODE**)
+- پیامک‌های غیر OTP همچنان `SmsIrGateway` / `send/bulk`
+
 ## 1.2.15
 
 - **صفحهٔ اصلی:** حذف باکس‌های عمودی مرحله ۱–۳؛ رادار وسط و سه مرحلهٔ افقی؛ پس‌زمینهٔ گرادیان بدون باکس سفید `main`

@@ -14,7 +14,7 @@ class OtpService
 {
     public function __construct(
         private SettingsService $settings,
-        private SmsService $sms,
+        private OtpSmsDelivery $otpSms,
     ) {}
 
     public function issue(string $mobile, OtpPurpose $purpose, ?string $trackingCode, ?string $ip): void
@@ -49,11 +49,7 @@ class OtpService
             'ip_address' => $ip,
         ]);
 
-        $this->sms->sendImmediately($mobile, 'otp', [
-            'otp_code' => $code,
-            'company_name' => (string) $this->settings->get('company_name'),
-            'tracking_code' => $trackingCode ?? '',
-        ], null, 'otp:'.$challenge->id);
+        $this->otpSms->send($mobile, $code, 'otp:'.$challenge->id);
 
         if (config('crm.otp_debug')) {
             Log::warning('crm.otp_debug', [
