@@ -1,6 +1,6 @@
 # استقرار
 
-نسخهٔ فعلی سامانه: **1.2.12** (فایل `VERSION`).
+نسخهٔ فعلی سامانه: **1.2.13** (فایل `VERSION`).
 
 **سیاست نسخه:** هر تغییر قابل deploy باید `VERSION` را یک پله جلو ببرد (مثلاً 1.2.12) و در `CHANGELOG.md` ثبت شود تا روی سرور با `cat VERSION` بعد از pull مشخص باشد.
 
@@ -18,7 +18,17 @@ php artisan filament:upgrade
 php artisan optimize:clear && php artisan config:cache && php artisan route:cache && php artisan view:cache
 ```
 
-Branch جایگزین: `cursor/release-v1-2-12-6a95`.
+Branch جایگزین: `cursor/release-v1-2-13-6a95`.
+
+### دادهٔ نمایشی (demo)
+
+```bash
+php artisan db:seed --force          # نقش‌ها و admin
+php artisan crm:seed-demo              # ۱۰ درخواست + کارشناس + ارجاع
+cat storage/app/demo-credentials.txt
+```
+
+اجرای مجدد `crm:seed-demo` دادهٔ demo قبلی (`demo-seed-*` و `@demo.local`) را پاک و دوباره می‌سازد.
 
 بعد از به‌روزرسانی migrate ناقص: `php artisan crm:install --fresh` (بدون دادهٔ مهم).
 

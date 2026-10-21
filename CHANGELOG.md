@@ -1,5 +1,10 @@
 # تغییرات
 
+## 1.2.13
+
+- **`crm:seed-demo`** / `DemoScenarioSeeder`: ۱۰ درخواست، ۴ واحد، ۸ کاربر staff، ارجاعات و پیام‌ها
+- خروجی حساب‌ها: `storage/app/demo-credentials.txt`
+
 ## 1.2.12
 
 - صفحات عمومی برای تأیید SMS.ir: `/about`, `/contact`, `/privacy` (OTP و حریم خصوصی)
