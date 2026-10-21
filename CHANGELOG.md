@@ -1,26 +1,14 @@
 # تغییرات
 
-## 1.2.20
-
-- ثبت درخواست: نگه‌داشتن مرحله OTP در سشن + `/requests/access/bootstrap` بعد از verify (رفع برگشت به همان فرم موبایل روی `requests/new?`)
-
-## 1.2.19
-
-- حذف عبارت «پیگیری امن» از مرحلهٔ ۳ صفحهٔ اصلی و صفحهٔ درباره ما
-
-## 1.2.18
-
-- رفع حلقهٔ پیگیری پس از OTP: کوکی دسترسی با `/track/access/bootstrap` (Livewire کوکی را مستقیم ست نمی‌کند)
-- نرمال ارقام فارسی OTP؛ نمایش خطای verify
-
-## 1.2.17
-
-- UX ورود OTP مشتری (ثبت درخواست + پیگیری) مثل **mainshop**: مرحله موبایل/کد رهگیری مخفی پس از ارسال، تایمر ارسال مجدد، ویرایش شماره/کد، Livewire
-
 ## 1.2.16
 
-- OTP مطابق **`foroshgahsaz/mainshop`**: `SmsIrOtpSender` + `OtpSmsDelivery` و `POST /v1/send/verify` (الگوی CRM: **235057** / **CODE**)
-- پیامک‌های غیر OTP همچنان `SmsIrGateway` / `send/bulk`
+**انتشار استقرار روی سرور** (`git pull origin main` — `cat VERSION` → `1.2.16`):
+
+- OTP **SMS.ir Verify** (mainshop): `SmsIrOtpSender` + `OtpSmsDelivery`، `SMSIR_OTP_TEMPLATE_ID=235057` / **CODE**
+- UX OTP مشتری (ثبت + پیگیری) با Livewire: مخفی شدن فرم قبلی، تایمر ارسال مجدد، ویرایش شماره/کد
+- `/track/access/bootstrap` و `/requests/access/bootstrap` برای کوکی/سشن بعد از verify
+- صفحهٔ اصلی تیره (رادار وسط)، حذف «پیگیری امن» از عناوین
+- ثبت درخواست: `submission.flow_step` — رفع برگشت به فرم موبایل روی `requests/new?`
 
 ## 1.2.15
 

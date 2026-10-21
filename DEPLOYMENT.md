@@ -18,7 +18,7 @@ php artisan filament:upgrade
 php artisan optimize:clear && php artisan config:cache && php artisan route:cache && php artisan view:cache
 ```
 
-Branch جایگزین: `cursor/release-v1-2-13-6a95`.
+Branch جایگزین: `cursor/release-v1-2-16-6a95`.
 
 ### دادهٔ نمایشی (demo)
 
