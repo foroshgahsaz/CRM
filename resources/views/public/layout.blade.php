@@ -40,7 +40,10 @@
         </div>
     </header>
 
-    <main class="crm-content-area relative z-10 mx-auto max-w-6xl px-4 py-8 sm:py-10 md:px-8 md:py-10">
+    <main @class([
+        'relative z-10 mx-auto max-w-6xl px-4 py-8 sm:py-10 md:px-8 md:py-10',
+        'crm-content-area' => ! View::hasSection('bare_main'),
+    ])>
         @if (session('status'))
             <div class="crm-alert-success mb-5 px-4 py-3 text-sm shadow-lg" role="status">{{ session('status') }}</div>
         @endif

@@ -1,6 +1,6 @@
 # استقرار
 
-نسخهٔ فعلی سامانه: **1.2.14** (فایل `VERSION`).
+نسخهٔ فعلی سامانه: **1.2.15** (فایل `VERSION`).
 
 **سیاست نسخه:** هر تغییر قابل deploy باید `VERSION` را یک پله جلو ببرد (مثلاً 1.2.12) و در `CHANGELOG.md` ثبت شود تا روی سرور با `cat VERSION` بعد از pull مشخص باشد.
 
@@ -39,8 +39,12 @@ cat storage/app/demo-credentials.txt
    ```dotenv
    SMS_GATEWAY=sms_ir
    SMSIR_API_KEY=کلید_از_پنل_SMS.ir
-   SMSIR_LINE_NUMBER=3000xxxxxxxx   # فقط رقم، خط فعال
+   SMSIR_LINE_NUMBER=3000xxxxxxxx   # فقط رقم، خط فعال (پیامک‌های غیر OTP)
+   SMSIR_OTP_TEMPLATE_ID=235057     # الگوی Verify تأیید‌شده (#CODE#)
+   SMSIR_OTP_PARAMETER_NAME=CODE    # همان نام متغیر در پنل، بدون #
    ```
+
+   با `SMSIR_OTP_TEMPLATE_ID`، OTP از **`POST /v1/send/verify`** (خط خدماتی/الگو) ارسال می‌شود؛ بدون آن OTP مثل قبل از **`send/bulk`** و قالب CRM در admin استفاده می‌شود.
 3. **Runflare** — همان نام‌ها در **متغیرهای محلی**؛ بعد `php artisan config:clear && php artisan config:cache`.
 4. **سشن** — `SESSION_DRIVER=database` و migrate اجرا شده باشد؛ برای جلوگیری از 419: HTTPS یا `CRM_SESSION_SECURE_AUTO=true` (پیش‌فرض).
 5. **ورود staff با OTP** — در پنل برای کاربر `mobile` + نقش + `is_active` ست شود.
@@ -60,7 +64,7 @@ SMS.ir دامنه را بازبینی می‌کند. قبل از ارسال در
    - `/privacy` — توضیح OTP و حریم خصوصی
 4. **ثبت درخواست / پیگیری** — `/requests/new` و `/track` باید باز شوند (حتی بدون login admin).
 5. **پنل admin** — `/admin` جدا است؛ برای مشتری لازم نیست. در فرم SMS.ir **آدرس سایت مشتری** را root بگذارید (`https://hooman.services`) نه `/admin`.
-6. **متن الگو** — همان متن CRM، مثلاً: `{company_name}: رمز تأیید شما {code} است. این رمز را در اختیار دیگران نگذارید.` (در CRM متغیر `{otp_code}` است.)
+6. **متن الگو در پنل SMS.ir** — مثلاً: `کد ورود شما: #CODE#` + نام برند (هومن سرویس). در `.env` همان `SMSIR_OTP_TEMPLATE_ID` و `CODE` را ست کنید.
 7. **نام سامانه در پنل** — با `company_name` در تنظیمات یکی باشد.
 
 اگر رد شد: تماس و آدرس را در تنظیمات پر کنید، SSL را فعال کنید، دوباره درخواست دهید و در توضیحات SMS.ir لینک `/privacy` را بفرستید.

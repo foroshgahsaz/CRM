@@ -16,6 +16,8 @@ return [
     'smsir' => [
         'api_key' => env('SMSIR_API_KEY'),
         'line_number' => env('SMSIR_LINE_NUMBER'),
+        'otp_template_id' => env('SMSIR_OTP_TEMPLATE_ID'),
+        'otp_parameter_name' => env('SMSIR_OTP_PARAMETER_NAME', 'CODE'),
     ],
 
 ];

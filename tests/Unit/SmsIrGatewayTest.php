@@ -59,4 +59,36 @@ class SmsIrGatewayTest extends TestCase
         $this->assertFalse($result->successful);
         $this->assertSame('کلید وب سرویس نامعتبر است', $result->errorMessage);
     }
+
+    public function test_sends_verify_request_for_otp_template(): void
+    {
+        Config::set('sms.smsir.api_key', 'test-api-key');
+        Config::set('sms.smsir.line_number', '30004505000017');
+
+        Http::fake([
+            'api.sms.ir/v1/send/verify' => Http::response([
+                'status' => 1,
+                'message' => 'موفق',
+                'data' => [
+                    'messageId' => 89545112,
+                    'cost' => 1.0,
+                ],
+            ]),
+        ]);
+
+        $result = (new SmsIrGateway)->sendVerify('09121234567', 235057, [
+            ['name' => 'CODE', 'value' => '654321'],
+        ]);
+
+        $this->assertTrue($result->successful);
+        $this->assertSame('89545112', $result->providerReference);
+
+        Http::assertSent(function ($request): bool {
+            return $request->url() === 'https://api.sms.ir/v1/send/verify'
+                && $request->hasHeader('X-API-KEY', 'test-api-key')
+                && $request['mobile'] === '9121234567'
+                && $request['templateId'] === 235057
+                && $request['parameters'] === [['name' => 'CODE', 'value' => '654321']];
+        });
+    }
 }
