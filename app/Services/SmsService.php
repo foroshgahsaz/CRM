@@ -24,7 +24,11 @@ class SmsService
      */
     public function queue(string $mobile, string $eventKey, array $variables, ?int $serviceRequestId, string $idempotencyKey): void
     {
-        if ($eventKey !== 'otp' && ! $this->settings->getBool('sms_enabled', false)) {
+        if ($eventKey === 'otp') {
+            throw new WorkflowException('OTP از مسیر OtpSmsDelivery ارسال می‌شود.');
+        }
+
+        if (! $this->settings->getBool('sms_enabled', false)) {
             $this->writeLog($mobile, $eventKey, $serviceRequestId, SmsStatus::Skipped, $idempotencyKey, null, null, 'پیامک غیرفعال است.');
 
             return;
@@ -56,7 +60,11 @@ class SmsService
             return $existing->status === SmsStatus::Sent;
         }
 
-        if ($eventKey !== 'otp' && ! $this->settings->getBool('sms_enabled', false)) {
+        if ($eventKey === 'otp') {
+            throw new WorkflowException('OTP از مسیر OtpSmsDelivery ارسال می‌شود.');
+        }
+
+        if (! $this->settings->getBool('sms_enabled', false)) {
             $this->writeLog($mobile, $eventKey, $serviceRequestId, SmsStatus::Skipped, $idempotencyKey, null, null, 'پیامک غیرفعال است.');
 
             return false;
@@ -99,9 +107,6 @@ class SmsService
         return $log->status === SmsStatus::Sent;
     }
 
-    /**
-     * @param  array<string, scalar|null>  $variables
-     */
     public function render(string $eventKey, array $variables): string
     {
         $template = MessageTemplate::query()->where('event_key', $eventKey)->where('is_active', true)->first();

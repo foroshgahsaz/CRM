@@ -9,6 +9,8 @@ use App\Models\RequestType;
 use App\Models\SmsLog;
 use App\Services\ReportService;
 use App\Services\RequestSubmissionService;
+use App\Services\OtpSmsDelivery;
+use App\Services\SettingsService;
 use App\Services\SmsService;
 use App\Sms\SmsGateway;
 use App\Sms\SmsResult;
@@ -35,17 +37,9 @@ class SmsReportAndPanelTest extends CrmTestCase
             'status' => SmsStatus::Skipped->value,
         ]);
 
-        $sms = app(SmsService::class);
-        $sms->deliver('09124000000', 'otp', [
-            'company_name' => 'آزمون',
-            'otp_code' => '123456',
-            'tracking_code' => '',
-        ], null, 'otp-once');
-        $sms->deliver('09124000000', 'otp', [
-            'company_name' => 'آزمون',
-            'otp_code' => '123456',
-            'tracking_code' => '',
-        ], null, 'otp-once');
+        $otpSms = app(OtpSmsDelivery::class);
+        $otpSms->send('09124000000', '123456', 'otp-once');
+        $otpSms->send('09124000000', '123456', 'otp-once');
 
         $this->assertSame(1, SmsLog::query()->where('idempotency_key', 'otp-once')->count());
     }
@@ -69,13 +63,13 @@ class SmsReportAndPanelTest extends CrmTestCase
             }
         });
         $this->app->forgetInstance(SmsService::class);
+        app(SettingsService::class)->set('sms_enabled', true, 'sms', false);
 
         $this->expectException(RetryableSmsException::class);
-        app(SmsService::class)->deliver('09124000001', 'otp', [
+        app(SmsService::class)->deliver('09124000001', 'request_submitted', [
             'company_name' => 'آزمون',
-            'otp_code' => '654321',
-            'tracking_code' => '',
-        ], null, 'otp-retry');
+            'tracking_code' => 'RQ-TEST01',
+        ], null, 'sms-retry');
     }
 
     public function test_report_uses_real_requests_and_defines_handling_time(): void

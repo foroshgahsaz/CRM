@@ -16,7 +16,7 @@ class SmsIrGatewayTest extends TestCase
         Config::set('sms.http.timeout', 10);
 
         Http::fake([
-            'api.sms.ir/v1/send/bulk' => Http::response([
+            SmsIrGateway::BULK_URL => Http::response([
                 'status' => 1,
                 'message' => 'موفق',
                 'data' => [
@@ -33,7 +33,7 @@ class SmsIrGatewayTest extends TestCase
         $this->assertSame('pack-uuid', $result->providerReference);
 
         Http::assertSent(function ($request): bool {
-            return $request->url() === 'https://api.sms.ir/v1/send/bulk'
+            return $request->url() === SmsIrGateway::BULK_URL
                 && $request->hasHeader('X-API-KEY', 'test-api-key')
                 && $request['lineNumber'] === 30004505000017
                 && $request['messageText'] === 'کد: 123456'
@@ -47,7 +47,7 @@ class SmsIrGatewayTest extends TestCase
         Config::set('sms.smsir.line_number', '30004505000017');
 
         Http::fake([
-            'api.sms.ir/v1/send/bulk' => Http::response([
+            SmsIrGateway::BULK_URL => Http::response([
                 'status' => 10,
                 'message' => 'کلید وب سرویس نامعتبر است',
                 'data' => null,
@@ -59,4 +59,5 @@ class SmsIrGatewayTest extends TestCase
         $this->assertFalse($result->successful);
         $this->assertSame('کلید وب سرویس نامعتبر است', $result->errorMessage);
     }
+
 }

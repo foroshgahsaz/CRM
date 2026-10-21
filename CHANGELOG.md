@@ -1,5 +1,15 @@
 # تغییرات
 
+## 1.2.16
+
+- OTP مطابق **`foroshgahsaz/mainshop`**: `SmsIrOtpSender` + `OtpSmsDelivery` و `POST /v1/send/verify` (الگوی CRM: **235057** / **CODE**)
+- پیامک‌های غیر OTP همچنان `SmsIrGateway` / `send/bulk`
+
+## 1.2.15
+
+- **صفحهٔ اصلی:** حذف باکس‌های عمودی مرحله ۱–۳؛ رادار وسط و سه مرحلهٔ افقی؛ پس‌زمینهٔ گرادیان بدون باکس سفید `main`
+- **OTP SMS.ir:** ارسال با **`send/verify`** و `SMSIR_OTP_TEMPLATE_ID` (پیش‌فرض **235057**، پارامتر **CODE**)
+
 ## 1.2.14
 
 - راهنمای **دیسک پایدار Runflare** برای `storage/app` (مدارک + لوگو) در `DEPLOYMENT.md`

@@ -31,6 +31,20 @@ body {
     box-shadow: 0 28px 70px rgb(15 23 42 / 0.18);
 }
 
+main:not(.crm-content-area) .crm-alert-success {
+    border-color: rgb(255 255 255 / 0.35);
+    background: rgb(255 255 255 / 0.12);
+    color: white;
+    backdrop-filter: blur(12px);
+}
+
+main:not(.crm-content-area) .crm-alert-error {
+    border-color: rgb(254 202 202 / 0.55);
+    background: rgb(127 29 29 / 0.55);
+    color: rgb(254 226 226);
+    backdrop-filter: blur(12px);
+}
+
 .crm-page-bg {
     position: relative;
     isolation: isolate;
@@ -164,14 +178,13 @@ body {
 }
 
 .crm-hero-radar {
-    position: absolute;
-    left: 0;
-    top: 50%;
-    width: 14rem;
-    height: 14rem;
-    opacity: 0.4;
-    transform: translateY(-50%);
     pointer-events: none;
+}
+
+.crm-hero-radar-center {
+    width: min(12rem, 42vw);
+    height: min(12rem, 42vw);
+    opacity: 0.55;
 }
 
 .crm-card {

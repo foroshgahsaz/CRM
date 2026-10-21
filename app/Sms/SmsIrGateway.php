@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Http;
 
 class SmsIrGateway implements SmsGateway
 {
-    private const API_URL = 'https://api.sms.ir/v1/send/bulk';
+    public const BULK_URL = 'https://api.sms.ir/v1/send/bulk';
 
     public function send(string $mobile, string $message): SmsResult
     {
@@ -25,8 +25,12 @@ class SmsIrGateway implements SmsGateway
         try {
             $response = Http::timeout((int) config('sms.http.timeout', 10))
                 ->acceptJson()
-                ->withHeaders(['X-API-KEY' => $apiKey])
-                ->post(self::API_URL, [
+                ->withHeaders([
+                    'X-API-KEY' => $apiKey,
+                    'Content-Type' => 'application/json',
+                    'Accept' => 'application/json',
+                ])
+                ->post(self::BULK_URL, [
                     'lineNumber' => (int) $lineNumber,
                     'messageText' => $message,
                     'mobiles' => [$mobile],

@@ -29,6 +29,16 @@ class MobileNumber
         return $digits;
     }
 
+    /** شماره برای REST SMS.ir (بدون صفر ابتدایی، مثلاً 9121234567). */
+    public static function forSmsIrApi(string $normalizedIranMobile): string
+    {
+        if (str_starts_with($normalizedIranMobile, '0')) {
+            return substr($normalizedIranMobile, 1);
+        }
+
+        return $normalizedIranMobile;
+    }
+
     public static function toEnglishDigits(string $value): string
     {
         return strtr($value, [
