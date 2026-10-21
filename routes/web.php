@@ -2,11 +2,15 @@
 
 use App\Http\Controllers\AttachmentController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\SitePageController;
 use App\Http\Controllers\SubmissionController;
 use App\Http\Controllers\TrackingController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/about', [SitePageController::class, 'about'])->name('site.about');
+Route::get('/contact', [SitePageController::class, 'contact'])->name('site.contact');
+Route::get('/privacy', [SitePageController::class, 'privacy'])->name('site.privacy');
 
 Route::middleware('throttle:otp-send')->group(function () {
     Route::post('/requests/otp', [SubmissionController::class, 'sendOtp'])->name('requests.otp.send');

@@ -1,6 +1,6 @@
 # استقرار
 
-نسخهٔ فعلی سامانه: **1.2.11** (فایل `VERSION`).
+نسخهٔ فعلی سامانه: **1.2.12** (فایل `VERSION`).
 
 **سیاست نسخه:** هر تغییر قابل deploy باید `VERSION` را یک پله جلو ببرد (مثلاً 1.2.12) و در `CHANGELOG.md` ثبت شود تا روی سرور با `cat VERSION` بعد از pull مشخص باشد.
 
@@ -18,7 +18,7 @@ php artisan filament:upgrade
 php artisan optimize:clear && php artisan config:cache && php artisan route:cache && php artisan view:cache
 ```
 
-Branch جایگزین: `cursor/release-v1-2-11-6a95`.
+Branch جایگزین: `cursor/release-v1-2-12-6a95`.
 
 بعد از به‌روزرسانی migrate ناقص: `php artisan crm:install --fresh` (بدون دادهٔ مهم).
 
@@ -37,6 +37,23 @@ Branch جایگزین: `cursor/release-v1-2-11-6a95`.
 6. **تست** — یک بار `CRM_OTP_DEBUG=true`، OTP را از لاگ ببینید، سپس **`CRM_OTP_DEBUG=false`** و **`SMS_LOG_CODES=false`**.
 
 قالب OTP در admin: **تنظیمات → قالب پیامک** (`event_key`: `otp`) — متغیرها: `{otp_code}`, `{company_name}`, `{tracking_code}`.
+
+### تأیید الگوی OTP در SMS.ir («سایت باید فعال و دارای محتوا باشد»)
+
+SMS.ir دامنه را بازبینی می‌کند. قبل از ارسال درخواست الگو:
+
+1. **HTTPS** — `https://hooman.services` (بدون «Not secure»). `APP_URL` همان آدرس.
+2. **صفحهٔ اصلی** — `/` با نام واقعی کسب‌وکار (نه صفحهٔ خالی یا فقط login).
+3. **صفحات عمومی** (از نسخه 1.2.12):
+   - `/about` — درباره ما
+   - `/contact` — تماس (تلفن، ایمیل، آدرس از **پنل → تنظیمات**)
+   - `/privacy` — توضیح OTP و حریم خصوصی
+4. **ثبت درخواست / پیگیری** — `/requests/new` و `/track` باید باز شوند (حتی بدون login admin).
+5. **پنل admin** — `/admin` جدا است؛ برای مشتری لازم نیست. در فرم SMS.ir **آدرس سایت مشتری** را root بگذارید (`https://hooman.services`) نه `/admin`.
+6. **متن الگو** — همان متن CRM، مثلاً: `{company_name}: رمز تأیید شما {code} است. این رمز را در اختیار دیگران نگذارید.` (در CRM متغیر `{otp_code}` است.)
+7. **نام سامانه در پنل** — با `company_name` در تنظیمات یکی باشد.
+
+اگر رد شد: تماس و آدرس را در تنظیمات پر کنید، SSL را فعال کنید، دوباره درخواست دهید و در توضیحات SMS.ir لینک `/privacy` را بفرستید.
 
 ### تست OTP بدون الگوی SMS.ir
 

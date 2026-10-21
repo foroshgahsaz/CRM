@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="jalali-today" content="{{ \App\Support\JalaliDate::formatDate(now()) }}">
-    <title>{{ $title ?? $company['company_name'] }}</title>
+    <title>{{ isset($title) ? $title.' | '.$company['company_name'] : $company['company_name'] }}</title>
+    <meta name="description" content="{{ $metaDescription ?? $company['company_tagline'] }}">
     <link rel="stylesheet" href="{{ asset('fonts/yekan/fonts.css') }}">
     @include('partials.jalali-datepicker-assets')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -62,6 +63,11 @@
     <footer class="crm-footer-glass relative z-10 mt-10 border-t">
         <div class="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-8 text-sm text-white/75 sm:flex-row sm:items-center sm:justify-between">
             <p class="font-medium text-white/90">{{ $company['company_name'] }}</p>
+            <nav class="flex flex-wrap gap-x-4 gap-y-2 text-white/85">
+                <a href="{{ route('site.about') }}" class="hover:text-white">درباره ما</a>
+                <a href="{{ route('site.contact') }}" class="hover:text-white">تماس</a>
+                <a href="{{ route('site.privacy') }}" class="hover:text-white">حریم خصوصی و OTP</a>
+            </nav>
             <div class="flex flex-col gap-1 sm:text-left">
                 @if ($company['contact_phone'])<span>تلفن: {{ $company['contact_phone'] }}</span>@endif
                 @if ($company['contact_email'])<span>ایمیل: {{ $company['contact_email'] }}</span>@endif
