@@ -24,23 +24,17 @@ class TrackingController extends Controller
 
     public function show(Request $request): View
     {
+        $case = $this->access->resolve($request);
+        $pending = $case === null ? $this->pendingRequest($request) : null;
+
         return view('public.track.form', [
-            'case' => $this->access->resolve($request),
+            'case' => $case,
+            'pendingCode' => $pending?->tracking_code,
+            'otpLength' => $this->otp->otpLength(),
+            'resendRemaining' => $pending
+                ? $this->otp->resendCooldownRemainingSeconds($pending->customer->mobile, OtpPurpose::Track, $pending->tracking_code)
+                : 0,
         ]);
-    }
-
-    public function bootstrapAccess(Request $request): RedirectResponse
-    {
-        $token = $request->session()->pull('customer_access_bootstrap');
-
-        if (! is_string($token) || $token === '') {
-            return redirect()->route('track.show');
-        }
-
-        return redirect()
-            ->route('track.show')
-            ->withCookie($this->access->accessCookie($token, $request))
-            ->with('status', 'دسترسی به پرونده برقرار شد.');
     }
 
     public function sendOtp(Request $request): RedirectResponse
@@ -51,19 +45,47 @@ class TrackingController extends Controller
 
         $code = TrackingCode::normalize($data['tracking_code']);
         $serviceRequest = ServiceRequest::query()->where('tracking_code', $code)->with('customer')->first();
+        $neutral = 'اگر کد رهگیری معتبر باشد، رمز یک‌بارمصرف به شماره ثبت‌شده ارسال می‌شود.';
 
-        if ($serviceRequest) {
-            try {
-                $this->otp->issue($serviceRequest->customer->mobile, OtpPurpose::Track, $serviceRequest->tracking_code, $request->ip());
-                $request->session()->put('tracking.pending_code', $serviceRequest->tracking_code);
-            } catch (WorkflowException) {
-                $request->session()->put('tracking.pending_code', $serviceRequest->tracking_code);
-            }
-        } else {
+        if ($serviceRequest === null) {
             $request->session()->forget('tracking.pending_code');
+
+            return redirect()->route('track.show')->with('status', $neutral)->withInput();
         }
 
-        return back()->with('status', 'اگر کد رهگیری معتبر باشد، رمز یک‌بارمصرف به شماره ثبت‌شده ارسال می‌شود.');
+        $request->session()->put('tracking.pending_code', $serviceRequest->tracking_code);
+        $mobile = $serviceRequest->customer->mobile;
+
+        if ($this->otp->resendCooldownRemainingSeconds($mobile, OtpPurpose::Track, $serviceRequest->tracking_code) > 0) {
+            return redirect()->route('track.show')
+                ->with('error', 'رمز قبلاً ارسال شده است. تا پایان شمارنده صبر کنید یا همان رمز را وارد کنید.');
+        }
+
+        try {
+            $this->otp->issue($mobile, OtpPurpose::Track, $serviceRequest->tracking_code, $request->ip());
+        } catch (WorkflowException $exception) {
+            return redirect()->route('track.show')->with('error', $exception->getMessage());
+        }
+
+        return redirect()->route('track.show')->with('status', $neutral);
+    }
+
+    public function editCode(Request $request): RedirectResponse
+    {
+        $code = $request->session()->pull('tracking.pending_code');
+
+        return redirect()->route('track.show')->withInput(['tracking_code' => $code]);
+    }
+
+    private function pendingRequest(Request $request): ?ServiceRequest
+    {
+        $code = $request->session()->get('tracking.pending_code');
+
+        if (! is_string($code) || $code === '') {
+            return null;
+        }
+
+        return ServiceRequest::query()->where('tracking_code', $code)->with('customer')->first();
     }
 
     public function verifyOtp(Request $request): RedirectResponse
@@ -78,13 +100,13 @@ class TrackingController extends Controller
             : null;
 
         if ($serviceRequest === null) {
-            return back()->with('error', 'رمز یک‌بارمصرف نامعتبر یا منقضی شده است.');
+            return redirect()->route('track.show')->with('error', 'رمز یک‌بارمصرف نامعتبر یا منقضی شده است.');
         }
 
         try {
             $this->otp->verify($serviceRequest->customer->mobile, OtpPurpose::Track, $serviceRequest->tracking_code, $data['code']);
         } catch (WorkflowException $exception) {
-            return back()->with('error', $exception->getMessage());
+            return redirect()->route('track.show')->with('error', $exception->getMessage());
         }
 
         $request->session()->regenerate();

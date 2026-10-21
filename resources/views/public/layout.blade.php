@@ -10,7 +10,6 @@
     <link rel="stylesheet" href="{{ asset('fonts/yekan/fonts.css') }}">
     @include('partials.jalali-datepicker-assets')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    @livewireStyles
 </head>
 <body class="crm-page-bg min-h-screen antialiased">
     <div class="crm-ambient" aria-hidden="true">
@@ -79,7 +78,5 @@
             </div>
         </div>
     </footer>
-    @livewireScriptConfig
-    @livewireScripts
 </body>
 </html>

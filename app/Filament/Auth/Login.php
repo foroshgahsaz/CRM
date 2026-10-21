@@ -162,7 +162,8 @@ class Login extends BaseLogin
                     ->autofocus(),
                 TextInput::make('code')
                     ->label('رمز یک‌بارمصرف')
-                    ->numeric()
+                    ->inputMode('numeric')
+                    ->extraInputAttributes(['autocomplete' => 'one-time-code', 'dir' => 'ltr'])
                     ->minLength(4)
                     ->maxLength(8)
                     ->visible($this->mobileOtpSent)
