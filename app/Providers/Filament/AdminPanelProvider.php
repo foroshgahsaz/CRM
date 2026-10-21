@@ -35,7 +35,7 @@ class AdminPanelProvider extends PanelProvider
             ->passwordReset()
             ->profile()
             ->brandName('سامانه درخواست‌ها')
-            ->font('Vazirmatn', url: asset('fonts/vazirmatn/vazirmatn.css'), provider: LocalFontProvider::class)
+            ->font('YekanBakh', url: asset('fonts/yekan/fonts.css'), provider: LocalFontProvider::class)
             ->viteTheme('resources/css/filament/admin/theme.css')
             ->renderHook(PanelsRenderHook::BODY_END, fn (): string => view('filament.partials.jalali-assets')->render())
             ->databaseNotifications()

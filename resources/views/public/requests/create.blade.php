@@ -92,7 +92,7 @@
                                     <input
                                         name="fields[{{ $field->field_key }}]"
                                         class="crm-input crm-jalali-input font-normal"
-                                        data-jdp
+                                        data-jdp=""
                                         autocomplete="off"
                                         placeholder="انتخاب از تقویم"
                                         @required($field->is_required)
