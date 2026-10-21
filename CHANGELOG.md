@@ -1,5 +1,9 @@
 # تغییرات
 
+## 1.2.17
+
+- UX ورود OTP مشتری (ثبت درخواست + پیگیری) مثل **mainshop**: مرحله موبایل/کد رهگیری مخفی پس از ارسال، تایمر ارسال مجدد، ویرایش شماره/کد، Livewire
+
 ## 1.2.16
 
 - OTP مطابق **`foroshgahsaz/mainshop`**: `SmsIrOtpSender` + `OtpSmsDelivery` و `POST /v1/send/verify` (الگوی CRM: **235057** / **CODE**)

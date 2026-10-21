@@ -63,7 +63,9 @@ class SubmissionController extends Controller
         $request->session()->put('submission.mobile', $mobile);
         $request->session()->forget('submission.verified');
 
-        return back()->with('status', 'اگر ارسال پیامک ممکن باشد، رمز تأیید برای این شماره ارسال می‌شود.');
+        return back()
+            ->with('otp_status', 'کد تأیید به شماره شما ارسال شد.')
+            ->with('status', 'اگر ارسال پیامک ممکن باشد، رمز تأیید برای این شماره ارسال می‌شود.');
     }
 
     public function verifyOtp(Request $request): RedirectResponse
