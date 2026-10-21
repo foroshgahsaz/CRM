@@ -5,7 +5,7 @@
 @source '../views/**/*.blade.php';
 
 @theme {
-    --font-sans: Vazirmatn, ui-sans-serif, system-ui, sans-serif;
+    --font-sans: YekanBakh, Yekan, ui-sans-serif, system-ui, sans-serif;
     --color-brand-50: oklch(0.97 0.02 280);
     --color-brand-100: oklch(0.93 0.04 280);
     --color-brand-200: oklch(0.88 0.06 280);
@@ -21,7 +21,14 @@
 }
 
 body {
-    font-family: Vazirmatn, ui-sans-serif, system-ui, sans-serif;
+    font-family: YekanBakh, Yekan, ui-sans-serif, system-ui, sans-serif;
+}
+
+.crm-content-area {
+    background: #ffffff;
+    color: #1e1b4b;
+    border-radius: 1.75rem;
+    box-shadow: 0 28px 70px rgb(15 23 42 / 0.18);
 }
 
 .crm-page-bg {
@@ -414,8 +421,8 @@ body {
 }
 
 jdp-container {
-    z-index: 99999 !important;
-    font-family: Vazirmatn, ui-sans-serif, system-ui, sans-serif !important;
+    z-index: 100000 !important;
+    font-family: YekanBakh, Yekan, ui-sans-serif, system-ui, sans-serif !important;
     border-radius: 1rem !important;
     box-shadow: 0 24px 60px rgb(15 23 42 / 0.35) !important;
 }

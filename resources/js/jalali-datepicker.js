@@ -1,6 +1,3 @@
-import '@majidh1/jalalidatepicker/dist/jalalidatepicker.min.css';
-import '@majidh1/jalalidatepicker/dist/jalalidatepicker.min.js';
-
 function parseJalaliDate(value) {
     if (! value) {
         return null;
@@ -21,14 +18,32 @@ function todayFromMeta() {
     return parseJalaliDate(meta ?? '');
 }
 
+function prepareInputs(root = document) {
+    root.querySelectorAll('input[data-jdp]').forEach((input) => {
+        if (input.dataset.jdpMaxDate === 'today') {
+            const today = todayFromMeta();
+
+            if (today) {
+                input.setAttribute('data-jdp-max-date', `${today.year}/${today.month}/${today.day}`);
+            }
+        }
+
+        if (! input.hasAttribute('readonly')) {
+            input.setAttribute('readonly', 'readonly');
+        }
+    });
+}
+
 let started = false;
 
 export function initJalaliDatepickers() {
     const picker = window.jalaliDatepicker;
 
     if (! picker) {
-        return;
+        return false;
     }
+
+    prepareInputs();
 
     const options = {
         selector: 'input[data-jdp]',
@@ -38,20 +53,25 @@ export function initJalaliDatepickers() {
         autoShow: true,
         minDate: 'attr',
         maxDate: 'attr',
+        zIndex: 100000,
     };
 
     if (! started) {
         picker.startWatch(options);
         started = true;
-
-        return;
+    } else {
+        picker.updateOptions(options);
     }
 
-    picker.updateOptions(options);
+    return true;
 }
 
 export function bindJalaliDatepickers(root = document) {
-    initJalaliDatepickers();
+    prepareInputs(root);
+
+    if (! initJalaliDatepickers()) {
+        return;
+    }
 
     root.querySelectorAll('input[data-jdp]').forEach((input) => {
         if (input.dataset.jdpBound === '1') {
@@ -60,18 +80,29 @@ export function bindJalaliDatepickers(root = document) {
 
         input.dataset.jdpBound = '1';
 
-        if (input.dataset.jdpMaxDate === 'today') {
-            const today = todayFromMeta();
-
-            if (today) {
-                input.setAttribute('data-jdp-max-date', `${today.year}/${today.month}/${today.day}`);
-            }
-        }
+        input.addEventListener('click', () => {
+            window.jalaliDatepicker?.show(input);
+        });
     });
 }
 
 function boot() {
-    bindJalaliDatepickers();
+    if (initJalaliDatepickers()) {
+        bindJalaliDatepickers();
+        return;
+    }
+
+    let attempts = 0;
+    const timer = window.setInterval(() => {
+        attempts += 1;
+
+        if (initJalaliDatepickers()) {
+            bindJalaliDatepickers();
+            window.clearInterval(timer);
+        } else if (attempts > 40) {
+            window.clearInterval(timer);
+        }
+    }, 100);
 }
 
 if (document.readyState === 'loading') {

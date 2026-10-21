@@ -6,7 +6,8 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="jalali-today" content="{{ \App\Support\JalaliDate::formatDate(now()) }}">
     <title>{{ $title ?? $company['company_name'] }}</title>
-    <link rel="stylesheet" href="{{ asset('fonts/vazirmatn/vazirmatn.css') }}">
+    <link rel="stylesheet" href="{{ asset('fonts/yekan/fonts.css') }}">
+    @include('partials.jalali-datepicker-assets')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="crm-page-bg min-h-screen antialiased">
@@ -38,7 +39,7 @@
         </div>
     </header>
 
-    <main class="relative z-10 mx-auto max-w-6xl px-4 py-8 sm:py-10">
+    <main class="crm-content-area relative z-10 mx-auto max-w-6xl px-4 py-8 sm:py-10 md:px-8 md:py-10">
         @if (session('status'))
             <div class="crm-alert-success mb-5 px-4 py-3 text-sm shadow-lg" role="status">{{ session('status') }}</div>
         @endif

@@ -16,7 +16,7 @@ class JalaliDateInput extends TextInput
         $this
             ->placeholder('1404/07/27')
             ->extraInputAttributes([
-                'data-jdp' => true,
+                'data-jdp' => '',
                 'autocomplete' => 'off',
             ], merge: true);
     }

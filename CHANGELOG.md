@@ -1,5 +1,11 @@
 # تغییرات
 
+## 1.1.17
+
+- فونت **Yekan Bakh** از mainshop (`public/fonts/yekan`)
+- پس‌زمینه **سفید** برای ناحیه محتوا (`main`)
+- Date picker: بارگذاری JS/CSS از `public/vendor/jalali-datepicker` + init پایدار
+
 ## 1.1.16
 
 - منوی **گزارش‌ها** در گروه «نظارت»: `navigationSort = 10`

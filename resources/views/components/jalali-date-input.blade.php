@@ -18,7 +18,7 @@
             name="{{ $name }}"
             type="text"
             value="{{ $value }}"
-            data-jdp
+            data-jdp=""
             autocomplete="off"
             @if ($maxToday) data-jdp-max-date="today" @endif
             @required($required)

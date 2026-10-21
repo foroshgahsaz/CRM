@@ -96,6 +96,6 @@ input[data-jdp] {
 }
 
 jdp-container {
-    z-index: 99999 !important;
-    font-family: Vazirmatn, ui-sans-serif, system-ui, sans-serif !important;
+    z-index: 100000 !important;
+    font-family: YekanBakh, Yekan, ui-sans-serif, system-ui, sans-serif !important;
 }
