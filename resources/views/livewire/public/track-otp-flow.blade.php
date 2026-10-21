@@ -10,6 +10,10 @@
         <div class="crm-alert-success mb-4 px-4 py-3 text-sm" role="status">{{ session('otp_status') }}</div>
     @endif
 
+    @error('otp')
+        <div class="crm-alert-error mb-4 px-4 py-3 text-sm" role="alert">{{ $message }}</div>
+    @enderror
+
     @if ($step === 'tracking')
         <form wire:submit="sendOtp" class="crm-form-section grid gap-3">
             <label class="grid gap-1.5 text-sm font-semibold text-brand-900" for="track-code">کد رهگیری</label>

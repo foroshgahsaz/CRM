@@ -27,6 +27,7 @@ Route::post('/requests', [SubmissionController::class, 'store'])->middleware('th
 Route::get('/requests/success', [SubmissionController::class, 'success'])->name('requests.success');
 
 Route::get('/track', [TrackingController::class, 'show'])->name('track.show');
+Route::get('/track/access/bootstrap', [TrackingController::class, 'bootstrapAccess'])->name('track.access.bootstrap');
 Route::post('/track/attachments', [TrackingController::class, 'upload'])->middleware('throttle:10,1')->name('track.attachments.store');
 Route::post('/track/logout', [TrackingController::class, 'logout'])->name('track.logout');
 Route::get('/track/attachments/{attachment}', [AttachmentController::class, 'customer'])->name('track.attachments.show');

@@ -29,6 +29,20 @@ class TrackingController extends Controller
         ]);
     }
 
+    public function bootstrapAccess(Request $request): RedirectResponse
+    {
+        $token = $request->session()->pull('customer_access_bootstrap');
+
+        if (! is_string($token) || $token === '') {
+            return redirect()->route('track.show');
+        }
+
+        return redirect()
+            ->route('track.show')
+            ->withCookie($this->access->accessCookie($token, $request))
+            ->with('status', 'دسترسی به پرونده برقرار شد.');
+    }
+
     public function sendOtp(Request $request): RedirectResponse
     {
         $data = $request->validate([

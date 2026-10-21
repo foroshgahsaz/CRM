@@ -106,6 +106,8 @@ class SubmissionOtpFlow extends Component
 
         $this->mobile = $normalized;
 
+        $this->otp = MobileNumber::toEnglishDigits(trim($this->otp));
+
         $length = $otp->otpLength();
 
         $this->validate([

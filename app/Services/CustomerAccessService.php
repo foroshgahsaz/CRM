@@ -27,6 +27,13 @@ class CustomerAccessService
             'user_agent' => Str::limit((string) $http->userAgent(), 255, ''),
         ]);
 
+        return $this->accessCookie($token, $http);
+    }
+
+    public function accessCookie(string $token, Request $http): Cookie
+    {
+        $minutes = $this->settings->getInt('customer_session_ttl_minutes', 30);
+
         return cookie(
             self::COOKIE,
             $token,
