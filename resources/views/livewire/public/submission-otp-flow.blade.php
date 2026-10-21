@@ -10,6 +10,10 @@
         <div class="crm-alert-success mb-4 px-4 py-3 text-sm" role="status">{{ session('otp_status') }}</div>
     @endif
 
+    @error('otp')
+        <div class="crm-alert-error mb-4 px-4 py-3 text-sm" role="alert">{{ $message }}</div>
+    @enderror
+
     <ol class="flex flex-wrap gap-2 text-sm">
         <li class="{{ $step === 'phone' ? 'crm-pill-active' : 'crm-pill-idle' }}">۱. موبایل</li>
         <li class="{{ $step === 'otp' ? 'crm-pill-active' : 'crm-pill-idle' }}">۲. رمز تأیید</li>

@@ -29,11 +29,19 @@ class SubmissionOtpFlowLivewireTest extends CrmTestCase
         $code = $matches[0] ?? null;
         $this->assertNotEmpty($code);
 
-        $component
+        Livewire::test(SubmissionOtpFlow::class)
+            ->set('mobile', '09121112233')
+            ->set('step', 'otp')
             ->set('otp', $code)
             ->call('verifyOtp')
+            ->assertRedirect(route('requests.access.bootstrap'));
+
+        $this->get(route('requests.access.bootstrap'))
             ->assertRedirect(route('requests.create'));
 
         $this->assertTrue(session('submission.verified') === true);
+        $this->get(route('requests.create'))
+            ->assertOk()
+            ->assertSee('نام و نام خانوادگی خریدار');
     }
 }

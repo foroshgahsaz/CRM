@@ -23,6 +23,24 @@ class SubmissionController extends Controller
         private RequestSubmissionService $submissions,
     ) {}
 
+    public function bootstrapSubmissionAccess(Request $request): RedirectResponse
+    {
+        $payload = $request->session()->pull('submission_bootstrap');
+
+        if (! is_array($payload) || ! is_string($payload['mobile'] ?? null) || ! is_string($payload['key'] ?? null)) {
+            return redirect()->route('requests.create');
+        }
+
+        $request->session()->put('submission.mobile', $payload['mobile']);
+        $request->session()->put('submission.verified', true);
+        $request->session()->put('submission.key', $payload['key']);
+        $request->session()->forget('submission.flow_step');
+
+        return redirect()
+            ->route('requests.create')
+            ->with('status', 'شماره موبایل تأیید شد. فرم درخواست را تکمیل کنید.');
+    }
+
     public function create(): View
     {
         $purchaseJalali = old('purchase_jalali');
@@ -61,6 +79,7 @@ class SubmissionController extends Controller
         }
 
         $request->session()->put('submission.mobile', $mobile);
+        $request->session()->put('submission.flow_step', 'otp');
         $request->session()->forget('submission.verified');
 
         return back()

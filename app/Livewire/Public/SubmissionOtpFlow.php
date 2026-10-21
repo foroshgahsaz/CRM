@@ -24,10 +24,18 @@ class SubmissionOtpFlow extends Component
 
     public function mount(): void
     {
+        if (session('submission.verified') === true) {
+            return;
+        }
+
         $sessionMobile = session('submission.mobile');
 
         if (is_string($sessionMobile)) {
             $this->mobile = $sessionMobile;
+        }
+
+        if (session('submission.flow_step') === 'otp' && preg_match('/^09\d{9}$/', $this->mobile)) {
+            $this->step = 'otp';
         }
 
         $this->advanceToOtpIfPending();
@@ -72,7 +80,7 @@ class SubmissionOtpFlow extends Component
         }
 
         if ($otp->resendCooldownRemainingSeconds($this->mobile, OtpPurpose::Submit, null) > 0) {
-            $this->advanceToOtpIfPending();
+            $this->markOtpStep();
 
             return;
         }
@@ -80,17 +88,23 @@ class SubmissionOtpFlow extends Component
         try {
             $otp->issue($this->mobile, OtpPurpose::Submit, null, request()->ip());
         } catch (WorkflowException $exception) {
+            if ($otp->hasPendingOtp($this->mobile, OtpPurpose::Submit, null)) {
+                $this->markOtpStep();
+
+                throw ValidationException::withMessages([
+                    'otp' => $exception->getMessage(),
+                ]);
+            }
+
             throw ValidationException::withMessages([
                 'mobile' => $exception->getMessage(),
-                'otp' => $exception->getMessage(),
             ]);
         }
 
         RateLimiter::hit($rateKey, 300);
         session()->put('submission.mobile', $this->mobile);
         session()->forget('submission.verified');
-        $this->step = 'otp';
-        $this->otp = '';
+        $this->markOtpStep();
         session()->flash('otp_status', 'کد تأیید به شماره شما ارسال شد.');
     }
 
@@ -135,20 +149,29 @@ class SubmissionOtpFlow extends Component
         }
 
         RateLimiter::clear($rateKey);
+        session()->put('submission_bootstrap', [
+            'mobile' => $this->mobile,
+            'key' => Str::random(40),
+        ]);
         session()->regenerate();
-        session()->put('submission.mobile', $this->mobile);
-        session()->put('submission.verified', true);
-        session()->put('submission.key', Str::random(40));
-        session()->flash('status', 'شماره موبایل تأیید شد. فرم درخواست را تکمیل کنید.');
 
-        $this->redirectRoute('requests.create', navigate: false);
+        $this->redirectRoute('requests.access.bootstrap', navigate: false);
     }
 
     public function backToPhone(): void
     {
         $this->step = 'phone';
         $this->otp = '';
+        session()->forget('submission.flow_step');
         $this->resetValidation();
+    }
+
+    protected function markOtpStep(): void
+    {
+        $this->step = 'otp';
+        $this->otp = '';
+        session()->put('submission.flow_step', 'otp');
+        $this->advanceToOtpIfPending();
     }
 
     protected function otpPurpose(): OtpPurpose
