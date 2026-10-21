@@ -25,10 +25,20 @@ class SubmissionController extends Controller
 
     public function create(): View
     {
+        $purchaseJalali = old('purchase_jalali');
+
+        if ($purchaseJalali === null && old('purchase_year')) {
+            $purchaseJalali = sprintf(
+                '%s/%s/%s',
+                old('purchase_year'),
+                (int) old('purchase_month'),
+                (int) old('purchase_day'),
+            );
+        }
+
         return view('public.requests.create', [
             'types' => RequestType::query()->active()->with('activeFields')->get(),
-            'months' => JalaliDate::months(),
-            'year' => JalaliDate::format(now(), 'Y'),
+            'defaultPurchaseJalali' => $purchaseJalali ?? JalaliDate::formatDate(now()),
         ]);
     }
 

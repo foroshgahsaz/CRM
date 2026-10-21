@@ -15,6 +15,7 @@ use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\View\PanelsRenderHook;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
@@ -36,6 +37,7 @@ class AdminPanelProvider extends PanelProvider
             ->brandName('سامانه درخواست‌ها')
             ->font('Vazirmatn', url: asset('fonts/vazirmatn/vazirmatn.css'), provider: LocalFontProvider::class)
             ->viteTheme('resources/css/filament/admin/theme.css')
+            ->renderHook(PanelsRenderHook::BODY_END, fn (): string => view('filament.partials.jalali-assets')->render())
             ->databaseNotifications()
             ->colors([
                 'primary' => Color::Violet,

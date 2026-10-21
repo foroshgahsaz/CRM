@@ -1,1 +1,1 @@
-//
+import './jalali-datepicker.js';

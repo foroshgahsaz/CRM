@@ -4,6 +4,7 @@ namespace App\Filament\Resources\ServiceRequests\Schemas;
 
 use App\Enums\FieldType;
 use App\Enums\RequestPriority;
+use App\Filament\Forms\Components\JalaliDateInput;
 use App\Models\RequestField;
 use App\Services\SettingsService;
 use Filament\Forms\Components\FileUpload;
@@ -24,7 +25,7 @@ class ServiceRequestForm
             Select::make('request_type_id')->label('نوع درخواست')
                 ->relationship('requestType', 'name', fn ($query) => $query->where('is_active', true)->orderBy('sort_order'))
                 ->required()->live(),
-            TextInput::make('purchase_jalali')->label('تاریخ خرید شمسی')->placeholder('1404/07/27')->required(),
+            JalaliDateInput::make('purchase_jalali')->label('تاریخ خرید')->required()->maxToday(),
             TextInput::make('invoice_number')->label('شماره فاکتور')->maxLength(50),
             TextInput::make('product_name')->label('محصول')->maxLength(190),
             TextInput::make('purchased_quantity')->label('تعداد خرید')->numeric()->minValue(1),
@@ -57,6 +58,7 @@ class ServiceRequestForm
                         $input = match ($field->field_type) {
                             FieldType::Textarea => Textarea::make($name),
                             FieldType::Select => Select::make($name)->options(collect($field->options ?? [])->mapWithKeys(fn ($option) => [$option => $option])),
+                            FieldType::Date => JalaliDateInput::make($name),
                             default => TextInput::make($name),
                         };
 

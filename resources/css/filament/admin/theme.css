@@ -90,3 +90,12 @@
 .fi-simple-page .fi-ac-btn-action:hover {
     filter: brightness(1.05);
 }
+
+input[data-jdp] {
+    cursor: pointer;
+}
+
+jdp-container {
+    z-index: 99999 !important;
+    font-family: Vazirmatn, ui-sans-serif, system-ui, sans-serif !important;
+}

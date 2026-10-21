@@ -408,3 +408,18 @@ body {
     line-height: 1.85;
     color: #64748b;
 }
+
+.crm-jalali-input {
+    cursor: pointer;
+}
+
+jdp-container {
+    z-index: 99999 !important;
+    font-family: Vazirmatn, ui-sans-serif, system-ui, sans-serif !important;
+    border-radius: 1rem !important;
+    box-shadow: 0 24px 60px rgb(15 23 42 / 0.35) !important;
+}
+
+jdp-container .jdp-day.selected {
+    background: linear-gradient(135deg, #4f46e5, #7c3aed) !important;
+}
