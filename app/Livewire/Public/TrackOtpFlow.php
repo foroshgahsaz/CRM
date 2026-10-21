@@ -8,8 +8,8 @@ use App\Livewire\Public\Concerns\InteractsWithOtpResendTimer;
 use App\Models\ServiceRequest;
 use App\Services\CustomerAccessService;
 use App\Services\OtpService;
+use App\Support\MobileNumber;
 use App\Support\TrackingCode;
-use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
 use Livewire\Component;
@@ -82,25 +82,35 @@ class TrackOtpFlow extends Component
             ]);
         }
 
-        if ($otp->resendCooldownRemainingSeconds($this->caseMobile, OtpPurpose::Track, $this->trackingCode) > 0) {
-            session()->put('tracking.pending_code', $this->trackingCode);
+        if ($otp->resendCooldownRemainingSeconds($this->caseMobile, OtpPurpose::Track, $serviceRequest->tracking_code) > 0) {
+            session()->put('tracking.pending_code', $serviceRequest->tracking_code);
+            $this->trackingCode = $serviceRequest->tracking_code;
             $this->advanceToOtpIfPending();
 
             return;
         }
 
         try {
-            $otp->issue($this->caseMobile, OtpPurpose::Track, $this->trackingCode, request()->ip());
-        } catch (WorkflowException) {
-            session()->put('tracking.pending_code', $this->trackingCode);
-            $this->step = 'otp';
-            session()->flash('status', 'اگر کد رهگیری معتبر باشد، رمز یک‌بارمصرف به شماره ثبت‌شده ارسال می‌شود.');
+            $otp->issue($this->caseMobile, OtpPurpose::Track, $serviceRequest->tracking_code, request()->ip());
+        } catch (WorkflowException $exception) {
+            if ($otp->hasPendingOtp($this->caseMobile, OtpPurpose::Track, $serviceRequest->tracking_code)) {
+                session()->put('tracking.pending_code', $serviceRequest->tracking_code);
+                $this->trackingCode = $serviceRequest->tracking_code;
+                $this->step = 'otp';
 
-            return;
+                throw ValidationException::withMessages([
+                    'otp' => $exception->getMessage(),
+                ]);
+            }
+
+            throw ValidationException::withMessages([
+                'trackingCode' => $exception->getMessage(),
+            ]);
         }
 
         RateLimiter::hit($rateKey, 300);
-        session()->put('tracking.pending_code', $this->trackingCode);
+        session()->put('tracking.pending_code', $serviceRequest->tracking_code);
+        $this->trackingCode = $serviceRequest->tracking_code;
         $this->step = 'otp';
         $this->otp = '';
         session()->flash('otp_status', 'کد تأیید به شماره ثبت‌شده در پرونده ارسال شد.');
@@ -109,6 +119,7 @@ class TrackOtpFlow extends Component
     public function verifyOtp(OtpService $otp, CustomerAccessService $access): void
     {
         $this->trackingCode = TrackingCode::normalize($this->trackingCode);
+        $this->otp = MobileNumber::toEnglishDigits(trim($this->otp));
         $this->resolveCaseMobile();
 
         $serviceRequest = ServiceRequest::query()
@@ -139,7 +150,12 @@ class TrackOtpFlow extends Component
         }
 
         try {
-            $otp->verify($this->caseMobile, OtpPurpose::Track, $this->trackingCode, $this->otp);
+            $otp->verify(
+                $serviceRequest->customer->mobile,
+                OtpPurpose::Track,
+                $serviceRequest->tracking_code,
+                $this->otp,
+            );
         } catch (WorkflowException $exception) {
             RateLimiter::hit($rateKey, 120);
             throw ValidationException::withMessages([
@@ -148,18 +164,19 @@ class TrackOtpFlow extends Component
         }
 
         RateLimiter::clear($rateKey);
-        session()->regenerate();
         session()->forget('tracking.pending_code');
         $cookie = $access->start($serviceRequest, request());
-        session()->flash('status', 'دسترسی به پرونده برقرار شد.');
-        Cookie::queue($cookie);
-        $this->redirectRoute('track.show', navigate: false);
+        session()->put('customer_access_bootstrap', $cookie->getValue());
+        session()->regenerate();
+
+        $this->redirectRoute('track.access.bootstrap', navigate: false);
     }
 
     public function backToTracking(): void
     {
         $this->step = 'tracking';
         $this->otp = '';
+        session()->forget('tracking.pending_code');
         $this->resetValidation();
     }
 
