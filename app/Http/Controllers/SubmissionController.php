@@ -23,26 +23,15 @@ class SubmissionController extends Controller
         private RequestSubmissionService $submissions,
     ) {}
 
-    public function bootstrapSubmissionAccess(Request $request): RedirectResponse
+    public function create(Request $request): View
     {
-        $payload = $request->session()->pull('submission_bootstrap');
+        $verified = $request->session()->get('submission.verified') === true;
+        $mobile = $request->session()->get('submission.mobile');
+        $mobile = is_string($mobile) ? $mobile : null;
+        $otpStep = ! $verified
+            && $mobile !== null
+            && $request->session()->get('submission.flow_step') === 'otp';
 
-        if (! is_array($payload) || ! is_string($payload['mobile'] ?? null) || ! is_string($payload['key'] ?? null)) {
-            return redirect()->route('requests.create');
-        }
-
-        $request->session()->put('submission.mobile', $payload['mobile']);
-        $request->session()->put('submission.verified', true);
-        $request->session()->put('submission.key', $payload['key']);
-        $request->session()->forget('submission.flow_step');
-
-        return redirect()
-            ->route('requests.create')
-            ->with('status', 'شماره موبایل تأیید شد. فرم درخواست را تکمیل کنید.');
-    }
-
-    public function create(): View
-    {
         $purchaseJalali = old('purchase_jalali');
 
         if ($purchaseJalali === null && old('purchase_year')) {
@@ -57,6 +46,13 @@ class SubmissionController extends Controller
         return view('public.requests.create', [
             'types' => RequestType::query()->active()->with('activeFields')->get(),
             'defaultPurchaseJalali' => $purchaseJalali ?? JalaliDate::formatDate(now()),
+            'verified' => $verified,
+            'mobile' => $mobile,
+            'otpStep' => $otpStep,
+            'otpLength' => $this->otp->otpLength(),
+            'resendRemaining' => $otpStep
+                ? $this->otp->resendCooldownRemainingSeconds($mobile, OtpPurpose::Submit, null)
+                : 0,
         ]);
     }
 
@@ -69,22 +65,31 @@ class SubmissionController extends Controller
         $mobile = MobileNumber::normalize($data['mobile']);
 
         if ($mobile === null) {
-            return back()->withErrors(['mobile' => 'شماره موبایل معتبر نیست.'])->withInput();
+            return redirect()->route('requests.create')
+                ->withErrors(['mobile' => 'شماره موبایل باید با 09 شروع شود و ۱۱ رقم باشد.'])
+                ->withInput();
+        }
+
+        $request->session()->forget('submission.verified');
+
+        if ($this->otp->resendCooldownRemainingSeconds($mobile, OtpPurpose::Submit, null) > 0) {
+            $this->enterOtpStep($request, $mobile);
+
+            return redirect()->route('requests.create')
+                ->with('error', 'کد قبلاً برای این شماره ارسال شده است. تا پایان شمارنده صبر کنید یا همان کد را وارد کنید.');
         }
 
         try {
             $this->otp->issue($mobile, OtpPurpose::Submit, null, $request->ip());
         } catch (WorkflowException $exception) {
-            return back()->with('error', $exception->getMessage())->withInput();
+            return redirect()->route('requests.create')
+                ->with('error', $exception->getMessage())
+                ->withInput();
         }
 
-        $request->session()->put('submission.mobile', $mobile);
-        $request->session()->put('submission.flow_step', 'otp');
-        $request->session()->forget('submission.verified');
+        $this->enterOtpStep($request, $mobile);
 
-        return back()
-            ->with('otp_status', 'کد تأیید به شماره شما ارسال شد.')
-            ->with('status', 'اگر ارسال پیامک ممکن باشد، رمز تأیید برای این شماره ارسال می‌شود.');
+        return redirect()->route('requests.create')->with('status', 'کد تأیید به شماره شما ارسال شد.');
     }
 
     public function verifyOtp(Request $request): RedirectResponse
@@ -96,21 +101,36 @@ class SubmissionController extends Controller
         $mobile = $request->session()->get('submission.mobile');
 
         if (! is_string($mobile)) {
-            return back()->with('error', 'ابتدا شماره موبایل را وارد کنید.');
+            return redirect()->route('requests.create')->with('error', 'ابتدا شماره موبایل را وارد کنید.');
         }
 
         try {
             $this->otp->verify($mobile, OtpPurpose::Submit, null, $data['code']);
         } catch (WorkflowException $exception) {
-            return back()->with('error', $exception->getMessage());
+            return redirect()->route('requests.create')->with('error', $exception->getMessage());
         }
 
         $request->session()->regenerate();
+        $request->session()->forget('submission.flow_step');
         $request->session()->put('submission.mobile', $mobile);
         $request->session()->put('submission.verified', true);
         $request->session()->put('submission.key', Str::random(40));
 
         return redirect()->route('requests.create')->with('status', 'شماره موبایل تأیید شد. فرم درخواست را تکمیل کنید.');
+    }
+
+    public function editMobile(Request $request): RedirectResponse
+    {
+        $request->session()->forget(['submission.flow_step', 'submission.verified', 'submission.key']);
+
+        return redirect()->route('requests.create')
+            ->withInput(['mobile' => $request->session()->get('submission.mobile')]);
+    }
+
+    private function enterOtpStep(Request $request, string $mobile): void
+    {
+        $request->session()->put('submission.mobile', $mobile);
+        $request->session()->put('submission.flow_step', 'otp');
     }
 
     public function store(StoreServiceRequestRequest $request): RedirectResponse
