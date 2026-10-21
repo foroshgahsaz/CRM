@@ -1,8 +1,10 @@
 # استقرار
 
-نسخهٔ فعلی سامانه: **1.2.0** (فایل `VERSION`).
+نسخهٔ فعلی سامانه: **1.2.11** (فایل `VERSION`).
 
-**روی سرور (به‌روزرسانی به 1.2.0):**
+**سیاست نسخه:** هر تغییر قابل deploy باید `VERSION` را یک پله جلو ببرد (مثلاً 1.2.12) و در `CHANGELOG.md` ثبت شود تا روی سرور با `cat VERSION` بعد از pull مشخص باشد.
+
+**روی سرور (به‌روزرسانی):**
 
 ```bash
 git fetch origin
@@ -16,7 +18,7 @@ php artisan filament:upgrade
 php artisan optimize:clear && php artisan config:cache && php artisan route:cache && php artisan view:cache
 ```
 
-Branch جایگزین: `cursor/release-v1-2-0-6a95` (همان محتوا).
+Branch جایگزین: `cursor/release-v1-2-11-6a95`.
 
 بعد از به‌روزرسانی migrate ناقص: `php artisan crm:install --fresh` (بدون دادهٔ مهم).
 
