@@ -1,5 +1,16 @@
 # تغییرات
 
+## 1.2.0
+
+**انتشار تجمیعی برای استقرار روی سرور** (شامل 1.1.12 → 1.1.17):
+
+- UI: گرادیان، محتوای سفید، فونت **Yekan Bakh**
+- ورود admin: `admin` / `admin`، رفع **419** سشن، استایل login
+- **Date picker شمسی** (vendor در `public/vendor/jalali-datepicker`)
+- **AdminUserSeeder**، گزارش‌ها sort=10، مستند OTP
+
+روی سرور: `git pull origin main` (یا این branch) + `npm ci && npm run build` + migrate/seed.
+
 ## 1.1.17
 
 - فونت **Yekan Bakh** از mainshop (`public/fonts/yekan`)

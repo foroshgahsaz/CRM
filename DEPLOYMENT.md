@@ -1,14 +1,22 @@
 # استقرار
 
-نسخهٔ فعلی سامانه: **1.1.11** (فایل `VERSION`).
+نسخهٔ فعلی سامانه: **1.2.0** (فایل `VERSION`).
 
-**روی سرور:**
+**روی سرور (به‌روزرسانی به 1.2.0):**
 
 ```bash
 git fetch origin
 git checkout main
 git pull origin main
+composer install --no-dev --optimize-autoloader
+npm ci && npm run build
+php artisan migrate --force
+php artisan db:seed --force
+php artisan filament:upgrade
+php artisan optimize:clear && php artisan config:cache && php artisan route:cache && php artisan view:cache
 ```
+
+Branch جایگزین: `cursor/release-v1-2-0-6a95` (همان محتوا).
 
 بعد از به‌روزرسانی migrate ناقص: `php artisan crm:install --fresh` (بدون دادهٔ مهم).
 
