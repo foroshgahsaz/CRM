@@ -23,6 +23,7 @@ Route::middleware('throttle:otp-verify')->group(function () {
 });
 
 Route::get('/requests/new', [SubmissionController::class, 'create'])->name('requests.create');
+Route::get('/requests/access/bootstrap', [SubmissionController::class, 'bootstrapSubmissionAccess'])->name('requests.access.bootstrap');
 Route::post('/requests', [SubmissionController::class, 'store'])->middleware('throttle:10,1')->name('requests.store');
 Route::get('/requests/success', [SubmissionController::class, 'success'])->name('requests.success');
 
