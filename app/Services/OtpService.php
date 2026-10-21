@@ -100,6 +100,41 @@ class OtpService
         return $user;
     }
 
+    public function resendCooldownRemainingSeconds(string $mobile, OtpPurpose $purpose, ?string $trackingCode): int
+    {
+        $mobile = MobileNumber::normalize($mobile);
+
+        if ($mobile === null) {
+            return 0;
+        }
+
+        $latest = $this->latestOpen($mobile, $purpose, $trackingCode);
+
+        if ($latest === null || $latest->resend_available_at === null || $latest->resend_available_at->isPast()) {
+            return 0;
+        }
+
+        return max(0, (int) now()->diffInSeconds($latest->resend_available_at));
+    }
+
+    public function hasPendingOtp(string $mobile, OtpPurpose $purpose, ?string $trackingCode): bool
+    {
+        $mobile = MobileNumber::normalize($mobile);
+
+        if ($mobile === null) {
+            return false;
+        }
+
+        $latest = $this->latestOpen($mobile, $purpose, $trackingCode);
+
+        return $latest !== null && $latest->expires_at->isFuture();
+    }
+
+    public function otpLength(): int
+    {
+        return max(4, min(8, $this->settings->getInt('otp_length', 6)));
+    }
+
     public function verify(string $mobile, OtpPurpose $purpose, ?string $trackingCode, string $code): void
     {
         $mobile = MobileNumber::normalize($mobile);

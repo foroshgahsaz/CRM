@@ -24,6 +24,10 @@ body {
     font-family: YekanBakh, Yekan, ui-sans-serif, system-ui, sans-serif;
 }
 
+[x-cloak] {
+    display: none !important;
+}
+
 .crm-content-area {
     background: #ffffff;
     color: #1e1b4b;

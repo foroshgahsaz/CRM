@@ -8,29 +8,15 @@
         <h1 class="crm-page-title">ثبت درخواست</h1>
         <p class="crm-page-lead">در سه مرحله ساده درخواست خود را ثبت کنید. اطلاعات شما محرمانه می‌ماند.</p>
 
-        <ol class="mt-6 flex flex-wrap gap-2 text-sm">
-            <li class="crm-pill-active">۱. موبایل</li>
-            <li class="{{ $verified ? 'crm-pill-active' : 'crm-pill-idle' }}">۲. رمز تأیید</li>
-            <li class="{{ $verified ? 'crm-pill-active' : 'crm-pill-idle' }}">۳. فرم و مدارک</li>
-        </ol>
-
         @unless ($verified)
-            <form method="POST" action="{{ route('requests.otp.send') }}" class="crm-form-section mt-6 grid gap-3">
-                @csrf
-                <label class="grid gap-1.5 text-sm font-semibold text-brand-900" for="mobile">شماره موبایل</label>
-                <input id="mobile" name="mobile" inputmode="numeric" autocomplete="tel" value="{{ old('mobile', $mobile) }}" class="crm-input" placeholder="مثال: 09121234567" required>
-                <button class="crm-btn-solid mt-1">دریافت رمز یک‌بارمصرف</button>
-            </form>
-
-            @if ($mobile)
-                <form method="POST" action="{{ route('requests.otp.verify') }}" class="crm-form-section mt-5 grid gap-3">
-                    @csrf
-                    <label class="grid gap-1.5 text-sm font-semibold text-brand-900" for="code">رمز یک‌بارمصرف ارسال‌شده به {{ $mobile }}</label>
-                    <input id="code" name="code" inputmode="numeric" autocomplete="one-time-code" class="crm-input" required>
-                    <button type="submit" class="crm-btn-outline">تأیید شماره</button>
-                </form>
-            @endif
+            <livewire:public.submission-otp-flow />
         @else
+            <ol class="mt-6 flex flex-wrap gap-2 text-sm">
+                <li class="crm-pill-active">۱. موبایل</li>
+                <li class="crm-pill-active">۲. رمز تأیید</li>
+                <li class="crm-pill-active">۳. فرم و مدارک</li>
+            </ol>
+
             <form method="POST" action="{{ route('requests.store') }}" enctype="multipart/form-data" class="mt-6 grid gap-4">
                 @csrf
                 <input type="hidden" name="submission_key" value="{{ session('submission.key') }}">
