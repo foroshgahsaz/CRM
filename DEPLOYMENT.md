@@ -1,6 +1,6 @@
 # استقرار
 
-نسخهٔ فعلی سامانه: **1.2.13** (فایل `VERSION`).
+نسخهٔ فعلی سامانه: **1.2.14** (فایل `VERSION`).
 
 **سیاست نسخه:** هر تغییر قابل deploy باید `VERSION` را یک پله جلو ببرد (مثلاً 1.2.12) و در `CHANGELOG.md` ثبت شود تا روی سرور با `cat VERSION` بعد از pull مشخص باشد.
 
@@ -156,6 +156,38 @@ php artisan config:clear
 | `CRM_SESSION_SECURE_AUTO` | true (پیش‌فرض) — هماهنگ‌سازی کوکی با scheme واقعی درخواست |
 | `CRM_SEED_DEFAULT_ADMIN` | true برای نصب اول؛ بعد از ورود رمز را عوض کنید (`admin` / `admin` یا `admin@admin.com`) |
 | `SMS_GATEWAY` | sms_ir + `SMSIR_*` |
+
+### دیسک پایدار Runflare (مدارک و فایل‌ها)
+
+در CRM فایل‌ها این‌جا ذخیره می‌شوند:
+
+| محتوا | مسیر داخل پروژه |
+| --- | --- |
+| **مدارک درخواست مشتری** (PDF/عکس، خصوصی) | `storage/app/private/attachments/...` |
+| **لوگو / branding** (عمومی از `/storage`) | `storage/app/public/...` |
+| پایگاه داده | سرویس MySQL جدا — **روی این دیسک نیست** |
+
+**تنظیم «افزودن دیسک» در پنل:**
+
+1. **اپلیکیشن:** `crm` (همان سرویس Laravel).
+2. **مسیر دایرکتوری:** مسیر **absolute** داخل کانتینر که به `storage/app` پروژه می‌رسد، مثلاً:
+   - اگر ریشهٔ پروژه `/app` است → **`/app/storage/app`**
+   - اگر ریشه `/var/www/html` است → **`/var/www/html/storage/app`**
+
+   در Console Runflare با `pwd` از داخل پوشهٔ پروژه (کنار `artisan`) بروید؛ مسیر = `{pwd}/storage/app`.
+
+   **پیشنهاد:** کل **`storage/app`** را persistent کنید (هم `private` مدارک، هم `public` لوگو). فقط `private` هم برای مدارک کافی است؛ آن‌وقت لوگو بعد از redeploy پاک می‌شود.
+
+3. **حجم:** شروع **۲ تا ۵ GB** (بعداً فقط افزایش ممکن است؛ کاهش نه).
+4. بعد از attach، یک‌بار در Console:
+   ```bash
+   mkdir -p storage/app/private storage/app/public
+   chmod -R 775 storage/app
+   php artisan storage:link
+   ```
+5. **پشتیبان:** علاوه بر MySQL، پوشهٔ `storage/app/private` را دوره‌ای کپی کنید.
+
+**اشتباه رایج:** mount کردن فقط `public` یا ریشهٔ کل پروژه — مدارک در `storage/app/private` هستند و بدون mount درست از بین می‌روند.
 
 این سند برای سرور لینوکس با PHP، MySQL یا MariaDB، Composer و Nginx یا Apache است. Docker الزامی نیست.
 

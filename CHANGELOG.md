@@ -1,5 +1,9 @@
 # تغییرات
 
+## 1.2.14
+
+- راهنمای **دیسک پایدار Runflare** برای `storage/app` (مدارک + لوگو) در `DEPLOYMENT.md`
+
 ## 1.2.13
 
 - **`crm:seed-demo`** / `DemoScenarioSeeder`: ۱۰ درخواست، ۴ واحد، ۸ کاربر staff، ارجاعات و پیام‌ها
