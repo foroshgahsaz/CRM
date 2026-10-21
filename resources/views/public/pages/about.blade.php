@@ -14,7 +14,7 @@
             <h2 class="text-lg font-bold text-brand-900">خدمات</h2>
             <ul class="list-disc pe-6">
                 <li>ثبت درخواست پس از خرید (شکستگی، کمبود، مغایرت و …)</li>
-                <li>پیگیری امن با کد رهگیری</li>
+                <li>پیگیری با کد رهگیری</li>
                 <li>بارگذاری مدارک و تکمیل اطلاعات</li>
             </ul>
             <p class="text-slate-600">
