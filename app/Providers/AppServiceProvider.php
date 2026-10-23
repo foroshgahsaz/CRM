@@ -6,6 +6,7 @@ use App\Events\AssignmentCompleted;
 use App\Events\AssignmentFirstViewed;
 use App\Events\CustomerInformationRequested;
 use App\Events\CustomerSupplementReceived;
+use App\Events\InventoryAllocated;
 use App\Events\ServiceRequestApproved;
 use App\Events\ServiceRequestAssigned;
 use App\Events\ServiceRequestClosed;
@@ -58,6 +59,7 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(ServiceRequestApproved::class, [$listener, 'handleApproved']);
         Event::listen(ServiceRequestClosed::class, [$listener, 'handleClosed']);
         Event::listen(CustomerInformationRequested::class, [$listener, 'handleInfo']);
+        Event::listen(InventoryAllocated::class, [$listener, 'handleInventoryAllocated']);
 
         RateLimiter::for('otp-send', function (Request $request) {
             $mobile = MobileNumber::normalize($request->string('mobile')->toString()) ?? 'unknown';
