@@ -5,13 +5,16 @@ namespace App\Filament\Resources\ServiceRequests\Pages;
 use App\Enums\AttachmentCategory;
 use App\Enums\AttachmentVisibility;
 use App\Exceptions\WorkflowException;
+use App\Filament\Actions\InventoryActions;
 use App\Filament\Resources\ServiceRequests\ServiceRequestResource;
 use App\Models\OrganizationalUnit;
 use App\Models\User;
+use App\Models\WarehouseProduct;
 use App\Services\AssignmentService;
 use App\Services\AttachmentService;
 use App\Services\AuditLogService;
 use App\Services\FinalApprovalService;
+use App\Services\InventoryService;
 use App\Services\RequestMessageService;
 use App\Services\RequestViewService;
 use App\Services\SettingsService;
@@ -131,6 +134,22 @@ class ViewServiceRequest extends ViewRecord
                         'درخواست مدرک ثبت شد.',
                     )),
             ])->label('پیام‌ها')->button(),
+            InventoryActions::allocateFromRequest()
+                ->visible(fn (): bool => (auth()->user()?->can('inventory.allocate') ?? false) && ! $this->getRecord()->status->isTerminal())
+                ->action(function (array $data): void {
+                    $product = WarehouseProduct::query()->find($data['warehouse_product_id'] ?? null);
+
+                    if (! $product) {
+                        Notification::make()->title('کالای انتخاب‌شده یافت نشد.')->danger()->send();
+
+                        return;
+                    }
+
+                    $this->run(
+                        fn () => app(InventoryService::class)->allocate($product, $this->getRecord(), auth()->user(), $data['note'] ?? null),
+                        'یک عدد «'.$product->displayLabel().'» به این درخواست ارجاع شد.',
+                    );
+                }),
             Action::make('upload')
                 ->label('پیوست داخلی')
                 ->visible(fn (): bool => $this->allowed('uploadInternalAttachment'))

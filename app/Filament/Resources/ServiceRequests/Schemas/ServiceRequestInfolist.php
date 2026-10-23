@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\ServiceRequests\Schemas;
 
 use App\Enums\MessageVisibility;
+use App\Models\InventoryAllocation;
 use App\Models\ServiceRequest;
 use App\Support\JalaliDate;
 use Filament\Infolists\Components\RepeatableEntry;
@@ -37,6 +38,24 @@ class ServiceRequestInfolist
                 TextEntry::make('purchased_quantity')->label('تعداد خرید')->placeholder('—'),
                 TextEntry::make('affected_quantity')->label('تعداد مشکل‌دار')->placeholder('—'),
             ])->columns(2),
+            Section::make('کالای ارجاع‌شده از انبار')
+                ->visible(fn (ServiceRequest $record): bool => $record->inventoryAllocations()->exists())
+                ->schema([
+                    RepeatableEntry::make('inventoryAllocations')->schema([
+                        TextEntry::make('product_name_snapshot')->label('کالا'),
+                        TextEntry::make('product_code_snapshot')->label('کد کالا'),
+                        TextEntry::make('warehouse_name_snapshot')->label('انبار'),
+                        TextEntry::make('allocator.name')->label('ارجاع‌دهنده')->placeholder('—'),
+                        TextEntry::make('created_at')->label('زمان ارجاع')->formatStateUsing(fn ($state) => JalaliDate::format($state)),
+                        TextEntry::make('state')->label('وضعیت')
+                            ->state(fn (InventoryAllocation $record): string => $record->isActive()
+                                ? 'فعال (۱ عدد)'
+                                : 'لغو شده: '.$record->cancel_reason)
+                            ->badge()
+                            ->color(fn (InventoryAllocation $record): string => $record->isActive() ? 'success' : 'gray'),
+                        TextEntry::make('note')->label('توضیح')->placeholder('—')->columnSpanFull(),
+                    ])->columns(2),
+                ]),
             Section::make('فیلدهای اختصاصی')->schema([
                 RepeatableEntry::make('fieldValues')->schema([
                     TextEntry::make('label_snapshot')->label('فیلد'),
