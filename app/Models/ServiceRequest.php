@@ -151,6 +151,11 @@ class ServiceRequest extends Model
         return $this->hasMany(ApprovalDecision::class)->orderBy('id');
     }
 
+    public function inventoryAllocations(): HasMany
+    {
+        return $this->hasMany(InventoryAllocation::class)->orderBy('id');
+    }
+
     /**
      * @param  Builder<ServiceRequest>  $query
      * @return Builder<ServiceRequest>

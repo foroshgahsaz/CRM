@@ -39,6 +39,10 @@ class PermissionCatalog
             'audit_logs.view' => 'مشاهده سوابق حسابرسی',
             'reports.view' => 'مشاهده گزارش‌ها',
             'sla.manage' => 'مدیریت مهلت رسیدگی',
+            'warehouses.manage' => 'تعریف و ویرایش انبار',
+            'inventory.view' => 'مشاهده و جستجوی موجودی انبار',
+            'inventory.manage' => 'افزودن و ویرایش موجودی انبار',
+            'inventory.allocate' => 'ارجاع کالای انبار به درخواست',
         ];
     }
 
@@ -52,6 +56,7 @@ class PermissionCatalog
             'system_administrator' => 'مدیر عملیاتی',
             'expert' => 'کارشناس',
             'auditor' => 'ناظر',
+            'warehouse_manager' => 'مدیر انبار',
         ];
     }
 
@@ -86,6 +91,8 @@ class PermissionCatalog
                 'users.view',
                 'reports.view',
                 'sla.manage',
+                'inventory.view',
+                'inventory.allocate',
             ],
             'expert' => [
                 'requests.view_related',
@@ -95,6 +102,7 @@ class PermissionCatalog
                 'requests.upload_internal_attachment',
                 'requests.complete_assignment',
                 'requests.reassign',
+                'inventory.view',
             ],
             'auditor' => [
                 'requests.view_all',
@@ -102,6 +110,13 @@ class PermissionCatalog
                 'requests.view_sensitive',
                 'reports.view',
                 'audit_logs.view',
+                'inventory.view',
+            ],
+            'warehouse_manager' => [
+                'warehouses.manage',
+                'inventory.view',
+                'inventory.manage',
+                'inventory.allocate',
             ],
             default => [],
         };

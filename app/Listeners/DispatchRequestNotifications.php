@@ -6,11 +6,13 @@ use App\Events\AssignmentCompleted;
 use App\Events\AssignmentFirstViewed;
 use App\Events\CustomerInformationRequested;
 use App\Events\CustomerSupplementReceived;
+use App\Events\InventoryAllocated;
 use App\Events\ServiceRequestApproved;
 use App\Events\ServiceRequestAssigned;
 use App\Events\ServiceRequestClosed;
 use App\Events\ServiceRequestRejected;
 use App\Events\ServiceRequestSubmitted;
+use App\Models\InventoryAllocation;
 use App\Models\RequestAssignment;
 use App\Models\ServiceRequest;
 use App\Models\User;
@@ -166,6 +168,25 @@ class DispatchRequestNotifications
             'tracking_code' => $request->tracking_code,
             'company_name' => (string) $this->settings->get('company_name'),
         ]);
+    }
+
+    public function handleInventoryAllocated(InventoryAllocated $event): void
+    {
+        $request = $this->request($event->serviceRequestId);
+        $allocation = InventoryAllocation::query()->findOrFail($event->allocationId);
+        $recipients = $request->currentOwner
+            ? collect([$request->currentOwner])
+            : $this->notifications->usersWith('requests.assign');
+
+        $this->notifications->notify(
+            $recipients,
+            'inventory.allocated',
+            'کالا از انبار ارجاع شد',
+            'یک عدد «'.$allocation->product_name_snapshot.'» از '.$allocation->warehouse_name_snapshot.' برای پرونده '.$request->tracking_code.' کنار گذاشته شد.',
+            $request,
+            $allocation->allocated_by,
+            'inventory:'.$allocation->id,
+        );
     }
 
     private function request(int $id): ServiceRequest
