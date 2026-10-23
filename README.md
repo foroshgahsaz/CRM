@@ -14,7 +14,9 @@
 
 ## نصب محلی
 
-فقط برای توسعه روی SQLite. استقرار تولید: `DEPLOYMENT.md` — نسخه **1.1.9**، pull با branch `cursor/release-v1-1-9-6a95` (بدون tag).
+فقط برای توسعه روی SQLite. استقرار تولید: `DEPLOYMENT.md` (نسخهٔ جاری در فایل `VERSION`).
+
+**مستند توسعه (معماری، مدل داده، گردش کار و اینکه برای هر تغییر کدام فایل‌ها را باید عوض کرد):** [`docs/DEVELOPER_GUIDE.md`](docs/DEVELOPER_GUIDE.md)
 
 ```bash
 composer install
@@ -79,4 +81,4 @@ php artisan test --compact
 - پیامک از اینترفیس `SmsGateway` می‌گذرد. در production از `sms_ir` (SMS.ir) یا `http` (Bearer سفارشی) استفاده کنید؛ `log` فقط برای توسعه است.
 - نشست مشتری یک کوکی HttpOnly با توکن تصادفی است که فقط هش آن ذخیره می‌شود و به همان پرونده محدود است.
 
-گردش کار، مجوزها و استقرار در `WORKFLOW.md`، `SECURITY.md` و `DEPLOYMENT.md` آمده است.
+گردش کار، مجوزها و استقرار در `WORKFLOW.md`، `SECURITY.md` و `DEPLOYMENT.md` آمده است. راهنمای کامل توسعه: `docs/DEVELOPER_GUIDE.md`.
