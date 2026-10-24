@@ -27,9 +27,12 @@ class TrackingController extends Controller
         $case = $this->access->resolve($request);
         $pending = $case === null ? $this->pendingRequest($request) : null;
 
+        $prefill = TrackingCode::normalize((string) $request->query('tracking_code', ''));
+
         return view('public.track.form', [
             'case' => $case,
             'pendingCode' => $pending?->tracking_code,
+            'prefillTrackingCode' => $prefill !== '' ? $prefill : null,
             'otpLength' => $this->otp->otpLength(),
             'resendRemaining' => $pending
                 ? $this->otp->resendCooldownRemainingSeconds($pending->customer->mobile, OtpPurpose::Track, $pending->tracking_code)

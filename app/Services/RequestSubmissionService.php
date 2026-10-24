@@ -131,7 +131,22 @@ class RequestSubmissionService
         }
 
         $fieldValues = $this->fields->validate($type, ['fields' => $input['fields'] ?? []]);
-        $this->assertQuantities($input);
+
+        if ($actor === null) {
+            $open = app(CustomerSubmissionGuard::class)->openRequestForMobile($mobile);
+
+            if ($open !== null) {
+                throw ValidationException::withMessages([
+                    'mobile' => 'برای این شماره موبایل یک درخواست باز دارید. از پیگیری با کد '.$open->tracking_code.' استفاده کنید.',
+                ]);
+            }
+
+            if ($files === []) {
+                throw ValidationException::withMessages([
+                    'attachments' => 'بارگذاری حداقل یک مدرک الزامی است.',
+                ]);
+            }
+        }
 
         return DB::transaction(function () use ($input, $files, $mobile, $submissionKey, $actor, $type, $fieldValues): ServiceRequest {
             $duplicate = ServiceRequest::query()->where('submission_key', $submissionKey)->lockForUpdate()->first();
@@ -157,8 +172,6 @@ class RequestSubmissionService
                 'purchase_date' => $input['purchase_date'],
                 'invoice_number' => $input['invoice_number'] ?? null,
                 'product_name' => $input['product_name'] ?? null,
-                'purchased_quantity' => $input['purchased_quantity'] ?? null,
-                'affected_quantity' => $input['affected_quantity'] ?? null,
                 'description' => $input['description'],
                 'status' => RequestStatus::PendingAssignment,
                 'priority' => $input['priority'] ?? RequestPriority::Normal,
@@ -198,18 +211,4 @@ class RequestSubmissionService
         });
     }
 
-    /**
-     * @param  array<string, mixed>  $input
-     */
-    private function assertQuantities(array $input): void
-    {
-        $purchased = $input['purchased_quantity'] ?? null;
-        $affected = $input['affected_quantity'] ?? null;
-
-        if ($purchased !== null && $affected !== null && (int) $affected > (int) $purchased) {
-            throw ValidationException::withMessages([
-                'affected_quantity' => 'تعداد اقلام مشکل‌دار نمی‌تواند از تعداد خرید بیشتر باشد.',
-            ]);
-        }
-    }
 }

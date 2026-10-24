@@ -37,11 +37,9 @@ class RequestWorkflowTest extends CrmTestCase
             'purchase_date' => now()->subDays(3)->toDateString(),
             'invoice_number' => 'F-100',
             'product_name' => 'بشقاب چینی',
-            'purchased_quantity' => 4,
-            'affected_quantity' => 1,
             'description' => 'یک عدد از بشقاب‌ها هنگام تحویل شکسته بود.',
             'fields' => [],
-        ], [], '09120000000', 'submit-key-1');
+        ], $this->publicSubmissionFiles(), '09120000000', 'submit-key-1');
 
         $this->assertSame(RequestStatus::PendingAssignment, $request->status);
         $this->assertMatchesRegularExpression('/^RQ-[A-Z0-9]{10}$/', $request->tracking_code);
@@ -181,8 +179,9 @@ class RequestWorkflowTest extends CrmTestCase
             'fields' => [],
         ];
 
-        $first = app(RequestSubmissionService::class)->submitPublic($payload, [], '09121111111', 'same-key');
-        $second = app(RequestSubmissionService::class)->submitPublic($payload, [], '09121111111', 'same-key');
+        $files = $this->publicSubmissionFiles();
+        $first = app(RequestSubmissionService::class)->submitPublic($payload, $files, '09121111111', 'same-key');
+        $second = app(RequestSubmissionService::class)->submitPublic($payload, $files, '09121111111', 'same-key');
 
         $this->assertSame($first->id, $second->id);
         $this->assertSame(1, ServiceRequest::query()->count());

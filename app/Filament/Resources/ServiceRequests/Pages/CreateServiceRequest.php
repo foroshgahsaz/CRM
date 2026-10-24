@@ -39,8 +39,6 @@ class CreateServiceRequest extends CreateRecord
             'purchase_date' => $date,
             'invoice_number' => $data['invoice_number'] ?? null,
             'product_name' => $data['product_name'] ?? null,
-            'purchased_quantity' => $data['purchased_quantity'] ?? null,
-            'affected_quantity' => $data['affected_quantity'] ?? null,
             'description' => $data['description'],
             'priority' => $data['priority'],
             'fields' => $data['fields'] ?? [],

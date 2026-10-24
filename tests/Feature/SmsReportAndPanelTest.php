@@ -29,7 +29,7 @@ class SmsReportAndPanelTest extends CrmTestCase
             'purchase_date' => now()->subDay()->toDateString(),
             'description' => 'شرح کافی برای آزمون پیامک و گزارش.',
             'fields' => [],
-        ], [], '09124000000', 'sms-key');
+        ], $this->publicSubmissionFiles(), '09124000000', 'sms-key');
 
         $this->assertDatabaseHas('sms_logs', [
             'event_key' => 'request_submitted',
@@ -81,7 +81,7 @@ class SmsReportAndPanelTest extends CrmTestCase
             'purchase_date' => now()->subDay()->toDateString(),
             'description' => 'شرح کافی برای محاسبه گزارش مدیریتی.',
             'fields' => [],
-        ], [], '09124000002', 'report-key');
+        ], $this->publicSubmissionFiles(), '09124000002', 'report-key');
 
         $summary = app(ReportService::class)->summary(now()->subDays(7), now()->addMinute(), $type->id);
 
@@ -102,7 +102,7 @@ class SmsReportAndPanelTest extends CrmTestCase
             'purchase_date' => now()->subDay()->toDateString(),
             'description' => 'شرح کافی برای آزمون دکمه‌های پنل.',
             'fields' => [],
-        ], [], '09124000003', 'panel-key');
+        ], $this->publicSubmissionFiles(), '09124000003', 'panel-key');
 
         $this->actingAs($admin);
         Livewire::test(ViewServiceRequest::class, ['record' => $request->id])

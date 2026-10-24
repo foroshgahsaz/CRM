@@ -34,6 +34,8 @@ class CustomerPortalTest extends CrmTestCase
             'submission_key' => $key,
         ];
 
+        $payload['attachments'] = [UploadedFile::fake()->image('invoice.jpg')];
+
         $this->post(route('requests.store'), $payload)->assertRedirect(route('requests.success'));
         $this->post(route('requests.store'), $payload)->assertSessionHasErrors('submission_key');
 
@@ -186,6 +188,7 @@ class CustomerPortalTest extends CrmTestCase
             'purchase_jalali' => "{$year}/{$month}/{$day}",
             'description' => $description,
             'submission_key' => session('submission.key'),
+            'attachments' => [UploadedFile::fake()->image('proof.jpg')],
         ])->assertRedirect(route('requests.success'));
 
         return ServiceRequest::query()->where('description', $description)->firstOrFail();

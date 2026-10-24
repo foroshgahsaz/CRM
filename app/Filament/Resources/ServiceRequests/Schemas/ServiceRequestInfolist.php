@@ -91,8 +91,6 @@ class ServiceRequestInfolist
                         TextEntry::make('purchase_date')->label('تاریخ خرید')->formatStateUsing(fn ($state) => JalaliDate::formatDate($state)),
                         TextEntry::make('invoice_number')->label('فاکتور')->placeholder('—'),
                         TextEntry::make('product_name')->label('محصول')->placeholder('—'),
-                        TextEntry::make('purchased_quantity')->label('تعداد خرید')->placeholder('—'),
-                        TextEntry::make('affected_quantity')->label('تعداد مشکل‌دار')->placeholder('—'),
                     ])->columns(2),
                 Section::make('پرونده')
                     ->icon('heroicon-o-folder')
