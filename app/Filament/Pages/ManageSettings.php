@@ -2,14 +2,18 @@
 
 namespace App\Filament\Pages;
 
+use App\Models\MessageTemplate;
 use App\Services\AuditLogService;
 use App\Services\SettingsService;
 use App\Services\SmsService;
 use App\Support\MobileNumber;
+use App\Support\SmsIrPattern;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -75,6 +79,15 @@ class ManageSettings extends Page
             'business_start' => $settings->get('business_start', '08:00'),
             'business_end' => $settings->get('business_end', '17:00'),
             'holidays' => $settings->get('holidays', []),
+            'sms_patterns' => MessageTemplate::query()->orderBy('event_key')->get()->map(fn (MessageTemplate $template): array => [
+                'event_key' => $template->event_key,
+                'title' => $template->title,
+                'sms_ir_template_id' => $template->sms_ir_template_id,
+                'sms_ir_parameter_map' => $template->sms_ir_parameter_map ?? SmsIrPattern::defaultMap(
+                    $template->event_key,
+                    $template->allowed_variables ?? [],
+                ),
+            ])->values()->all(),
         ]);
     }
 
@@ -99,6 +112,24 @@ class ManageSettings extends Page
                 Toggle::make('sms_enabled')->label('ارسال پیامک‌های اطلاع‌رسانی'),
                 Placeholder::make('gateway')->label('درگاه')->content(fn (): string => (string) config('sms.gateway')),
                 Placeholder::make('token_state')->label('توکن درگاه')->content(fn (): string => filled(config('sms.http.token')) ? 'در محیط تنظیم شده و نمایش داده نمی‌شود.' : 'در محیط تنظیم نشده است.'),
+                Placeholder::make('sms_ir_hint')->label('الگوی SMS.ir')->content(
+                    'برای هر نوع پیامک، آی‌دی الگوی Verify را از پنل sms.ir وارد کنید. نام پارامترها باید دقیقاً مطابق الگوی شما باشد (مثلاً CODE برای رمز یا کد رهگیری).'
+                )->columnSpanFull(),
+                Repeater::make('sms_patterns')
+                    ->label('الگوها')
+                    ->schema([
+                        TextInput::make('event_key')->label('رویداد')->disabled()->dehydrated(),
+                        TextInput::make('title')->label('عنوان')->disabled()->dehydrated(),
+                        TextInput::make('sms_ir_template_id')->label('آی‌دی الگو')->numeric()->minValue(1),
+                        KeyValue::make('sms_ir_parameter_map')
+                            ->label('پارامترها')
+                            ->keyLabel('متغیر')
+                            ->valueLabel('نام در sms.ir'),
+                    ])
+                    ->addable(false)
+                    ->deletable(false)
+                    ->reorderable(false)
+                    ->columnSpanFull(),
             ]),
             Section::make('امنیت مشتری و فایل')->visible($canSettings)->schema([
                 TextInput::make('otp_ttl_seconds')->label('اعتبار رمز (ثانیه)')->numeric()->required()->minValue(60)->maxValue(600),
@@ -208,6 +239,17 @@ class ManageSettings extends Page
 
         if ($user?->can('sms_settings.manage')) {
             $settings->set('sms_enabled', (bool) ($state['sms_enabled'] ?? false), 'sms', false);
+
+            foreach ($state['sms_patterns'] ?? [] as $row) {
+                if (! is_array($row) || empty($row['event_key'])) {
+                    continue;
+                }
+
+                MessageTemplate::query()->where('event_key', $row['event_key'])->update([
+                    'sms_ir_template_id' => filled($row['sms_ir_template_id'] ?? null) ? (int) $row['sms_ir_template_id'] : null,
+                    'sms_ir_parameter_map' => $row['sms_ir_parameter_map'] ?? null,
+                ]);
+            }
         }
 
         app(AuditLogService::class)->record('settings.updated', null, 'success', [
