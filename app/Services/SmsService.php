@@ -81,7 +81,10 @@ class SmsService
         $templateId = SmsIrPattern::templateId($template);
         $provider = $this->gateway->name();
 
-        if (config('sms.gateway') === 'sms_ir' && $templateId !== null) {
+        if (config('sms.gateway') === 'sms_ir') {
+            if ($templateId === null) {
+                throw new WorkflowException('آی‌دی الگوی SMS.ir برای رویداد «'.$eventKey.'» تنظیم نشده است. از منوی قالب پیامک یا تنظیمات سامانه الگو را وارد کنید.');
+            }
             try {
                 $parameters = SmsIrPattern::parameters($template, $variables);
             } catch (\InvalidArgumentException $exception) {

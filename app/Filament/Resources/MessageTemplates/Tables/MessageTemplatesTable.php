@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\MessageTemplates\Tables;
 
 use App\Filament\Actions\DeleteRecordAction;
+use App\Support\MessageTemplateCatalog;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -14,8 +15,15 @@ class MessageTemplatesTable
     {
         return $table
             ->columns([
-                TextColumn::make('event_key')->label('رویداد')->searchable(),
-                TextColumn::make('title')->label('عنوان')->searchable(),
+                TextColumn::make('event_key')
+                    ->label('رویداد')
+                    ->formatStateUsing(fn (string $state): string => MessageTemplateCatalog::eventLabel($state))
+                    ->searchable(),
+                TextColumn::make('sms_ir_template_id')
+                    ->label('آی‌دی الگو')
+                    ->placeholder('—')
+                    ->visible(MessageTemplateCatalog::usesSmsIrPatterns()),
+                TextColumn::make('title')->label('عنوان')->searchable()->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('channel')->label('کانال'),
                 IconColumn::make('is_active')->label('فعال')->boolean(),
             ])

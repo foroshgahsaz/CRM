@@ -122,4 +122,54 @@ class PermissionCatalog
             default => [],
         };
     }
+
+    /**
+     * @return array<string, array{label: string, description?: string, permissions: list<string>}>
+     */
+    public static function permissionGroups(): array
+    {
+        $names = function (string ...$prefixes): array {
+            return array_values(array_filter(
+                array_keys(self::permissions()),
+                function (string $key) use ($prefixes): bool {
+                    foreach ($prefixes as $prefix) {
+                        if (str_starts_with($key, $prefix)) {
+                            return true;
+                        }
+                    }
+
+                    return false;
+                },
+            ));
+        };
+
+        return [
+            'requests' => [
+                'label' => 'درخواست‌ها',
+                'description' => 'مشاهده، ارجاع، رسیدگی، تأیید و بایگانی پرونده‌ها',
+                'permissions' => $names('requests.'),
+            ],
+            'organization' => [
+                'label' => 'کاربران و سازمان',
+                'description' => 'کاربران، نقش‌ها و واحدهای سازمانی',
+                'permissions' => $names('users.', 'roles.', 'units.'),
+            ],
+            'warehouse' => [
+                'label' => 'انبار',
+                'permissions' => $names('warehouses.', 'inventory.'),
+            ],
+            'configuration' => [
+                'label' => 'تنظیمات و فرم',
+                'permissions' => $names('request_types.', 'form_fields.', 'settings.', 'sms_settings.', 'sla.'),
+            ],
+            'oversight' => [
+                'label' => 'گزارش و حسابرسی',
+                'permissions' => $names('audit_logs.', 'reports.'),
+            ],
+            'system' => [
+                'label' => 'سیستم',
+                'permissions' => $names('system.'),
+            ],
+        ];
+    }
 }

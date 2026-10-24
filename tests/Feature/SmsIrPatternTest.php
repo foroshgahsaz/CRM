@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Exceptions\WorkflowException;
 use App\Models\MessageTemplate;
 use App\Services\SettingsService;
 use App\Services\SmsService;
@@ -42,5 +43,24 @@ class SmsIrPatternTest extends CrmTestCase
         $map = SmsIrPattern::defaultMap('otp', ['otp_code', 'company_name']);
 
         $this->assertSame('CODE', $map['otp_code']);
+    }
+
+    public function test_sms_ir_requires_template_id(): void
+    {
+        config(['sms.gateway' => 'sms_ir', 'sms.smsir.api_key' => 'test-key']);
+
+        MessageTemplate::query()->where('event_key', 'request_submitted')->update([
+            'sms_ir_template_id' => null,
+        ]);
+
+        app(SettingsService::class)->set('sms_enabled', true, 'sms', false);
+
+        $this->expectException(WorkflowException::class);
+        $this->expectExceptionMessage('آی‌دی الگوی SMS.ir');
+
+        app(SmsService::class)->deliver('09121234567', 'request_submitted', [
+            'company_name' => 'آزمون',
+            'tracking_code' => 'RQ-TEST',
+        ], null, 'pattern-missing-'.uniqid());
     }
 }
