@@ -27,8 +27,14 @@ class RequestFieldPolicy
         return $user->can('form_fields.manage');
     }
 
+    public function deleteAny(User $user): bool
+    {
+        return $user->can('system.delete_any') || $user->can('form_fields.manage');
+    }
+
     public function delete(User $user, RequestField $field): bool
     {
-        return $user->can('form_fields.manage') && $field->values()->doesntExist();
+        return $user->can('system.delete_any')
+            || ($user->can('form_fields.manage') && $field->values()->doesntExist());
     }
 }

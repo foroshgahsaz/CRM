@@ -2,10 +2,10 @@
 
 namespace App\Filament\Resources\Roles\Pages;
 
+use App\Filament\Actions\DeleteRecordAction;
 use App\Filament\Resources\Roles\RoleResource;
 use App\Services\AuditLogService;
 use App\Support\PermissionCatalog;
-use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 use Spatie\Permission\PermissionRegistrar;
 
@@ -16,7 +16,7 @@ class EditRole extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            DeleteAction::make(),
+            DeleteRecordAction::make(),
         ];
     }
 

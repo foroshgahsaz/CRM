@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\SmsLogs\Tables;
 
 use App\Enums\SmsStatus;
+use App\Filament\Actions\DeleteRecordAction;
 use App\Support\JalaliDate;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -33,6 +34,12 @@ class SmsLogsTable
                     'customer_info_requested' => 'customer_info_requested',
                     'request_closed' => 'request_closed',
                 ]),
+            ])
+            ->recordActions([
+                DeleteRecordAction::make(),
+            ])
+            ->toolbarActions([
+                DeleteRecordAction::bulkGroup(),
             ]);
     }
 }

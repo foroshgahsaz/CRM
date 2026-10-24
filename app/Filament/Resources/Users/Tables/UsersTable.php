@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Users\Tables;
 
+use App\Filament\Actions\DeleteRecordAction;
 use App\Support\PermissionCatalog;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
@@ -23,6 +24,10 @@ class UsersTable
             ])
             ->recordActions([
                 EditAction::make(),
+                DeleteRecordAction::make(),
+            ])
+            ->toolbarActions([
+                DeleteRecordAction::bulkGroup(),
             ]);
     }
 }

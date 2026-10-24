@@ -330,7 +330,10 @@ erDiagram
 - **یک مأموریت فعال برای هر پرونده** در خود دیتابیس تضمین شده است. ستون `request_assignments.active_lock` یکتاست. برای مأموریت فعال مقدارش برابر `service_request_id` است و برای بقیه `null`. اگر دو ارجاع همزمان برسد، دومی با خطای unique شکست می‌خورد. `AssignmentService` این خطا را به پیام «قبلاً توسط کاربر دیگری تغییر کرده است» تبدیل می‌کند.
 - `service_requests.current_assignment_id` کلید خارجی ندارد (برای جلوگیری از وابستگی حلقوی). هماهنگی آن در تراکنش `AssignmentService` حفظ می‌شود.
 - مقدار فیلدهای پویا `label_snapshot` دارد تا اگر برچسب فیلد بعداً عوض شد، پرونده‌های قدیمی همان برچسب لحظهٔ ثبت را نشان دهند.
-- حذف پرونده در هیچ جای سامانه وجود ندارد (`ServiceRequestPolicy::delete` همیشه `false`). کاربران هم حذف نمی‌شوند و فقط غیرفعال می‌شوند.
+- حذف رکورد فقط از مسیر `app/Services/RecordDeletionService.php` انجام می‌شود و فقط دارندهٔ مجوز `system.delete_any` (پیش‌فرض: `super_admin`) می‌تواند پرونده، کاربر و سوابق را حذف کند. این سرویس وابستگی‌ها را به ترتیب پاک یا جدا می‌کند:
+  - برای پرونده: ارجاع‌های انبار (و برگرداندن موجودی)، فایل مدارک، اعلان‌ها و ارجاع‌های خودارجاع (`parent_assignment_id` و `corrects_message_id`). بقیهٔ جداول با `cascadeOnDelete` پاک می‌شوند.
+  - برای کاربر: ستون‌های `restrictOnDelete` (مسئول، ارجاع‌دهنده، فرستندهٔ پیام، تصمیم‌گیرنده) `null` می‌شوند و کاربر با `forceDelete` حذف می‌شود.
+  - اگر جدول تازه‌ای با کلید خارجی `restrictOnDelete` به `users` یا `service_requests` اضافه کردید، آن را در همین سرویس هم پوشش دهید.
 - `Schema::defaultStringLength(191)` در `AppServiceProvider` برای سازگاری با MySQLهای قدیمی تنظیم شده است.
 
 ---
@@ -663,7 +666,10 @@ Action::make('approve')
 | `close` | `close` | `approved` یا `pending_final_approval` |
 | `archive` | `archive` | `closed` |
 | `reopen` | `reopen` | `closed` یا `archived` |
-| `update` / `delete` | — | همیشه `false` |
+| `update` | — | همیشه `false` |
+| `delete` / `deleteAny` | `system.delete_any` | — |
+
+**حذف در همهٔ Resourceها:** همهٔ Policyها `deleteAny` و `delete` دارند و `system.delete_any` را می‌پذیرند (`UserPolicy` حذف خود کاربر و `RolePolicy` حذف نقش `super_admin` را رد می‌کند). در Filament به جای `DeleteAction` از `App\Filament\Actions\DeleteRecordAction::make()` و برای حذف گروهی از `DeleteRecordAction::bulkGroup()` در `toolbarActions` استفاده کنید. این‌ها حذف را به `RecordDeletionService` می‌سپارند و پیام خطای فارسی آن را نشان می‌دهند. اگر مدل تازه‌ای وابستگی خاص دارد، یک شاخه در `match` متد `delete()` همین سرویس اضافه کنید.
 
 ---
 
@@ -768,7 +774,7 @@ app(AuditLogService::class)->record('request.approved', $subjectModel, 'success'
 - `event`: نام نقطه‌دار (`request.assigned`، `user.updated`، `role.updated`، `settings.updated`، `attachment.downloaded`، `sms.test_sent`، ...).
 - IP و User-Agent خودکار ثبت می‌شوند.
 - `sanitize()` هر کلیدی را که شامل `password`، `otp`، `code`، `token`، `secret`، `api_key`، `authorization` یا `cookie` باشد حذف می‌کند. پس داده‌ای مثل `tracking_code` را با کلید دیگری بفرستید (مثلاً `tracking`).
-- حسابرسی هرگز حذف یا ویرایش نمی‌شود (Policy همه‌چیز را جز `view` رد می‌کند).
+- حسابرسی ویرایش نمی‌شود. فقط دارندهٔ `system.delete_any` می‌تواند آن را حذف کند و خودِ حذف با رویداد `record.deleted` دوباره ثبت می‌شود.
 
 ---
 
@@ -933,7 +939,7 @@ npm run build    # بعد از هر تغییر CSS/JS یا اضافه کردن �
 
 - فرم مشتری فیلدها را خودکار نمایش می‌دهد (برای هر نوع یک گروه `data-type-fields` که با JS نمایش/پنهان می‌شود).
 - فرم ثبت داخلی هم خودکار است (`ServiceRequestForm` ← `Section 'فیلدهای اختصاصی'`).
-- بعد از اینکه مقداری برای فیلد ثبت شد، `field_key` و `field_type` قفل می‌شوند و فیلد قابل حذف نیست (فقط غیرفعال می‌شود).
+- بعد از اینکه مقداری برای فیلد ثبت شد، `field_key` و `field_type` قفل می‌شوند و فیلد قابل حذف نیست (فقط غیرفعال می‌شود)؛ فقط مدیر ارشد با `system.delete_any` می‌تواند آن را حذف کند و مقدارهای ثبت‌شده با `label_snapshot` باقی می‌مانند.
 
 ### ۲۳.۳ افزودن نوع جدید فیلد پویا (مثلاً `email` یا `file`)
 
@@ -1113,7 +1119,7 @@ php artisan optimize:clear && php artisan config:cache && php artisan route:cach
 | معوق | `overdue` | از سررسید گذشته و باز |
 | نشست مشتری | `CustomerAccessSession` | دسترسی موقت پیگیری با کوکی |
 | رمز یک‌بارمصرف | OTP / `OtpChallenge` | کد پیامکی |
-| حسابرسی | `AuditLog` | ثبت غیرقابل حذف رویدادها |
+| حسابرسی | `AuditLog` | ثبت رویدادها (فقط مدیر ارشد می‌تواند حذف کند) |
 
 ---
 

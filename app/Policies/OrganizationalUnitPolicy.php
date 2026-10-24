@@ -27,8 +27,14 @@ class OrganizationalUnitPolicy
         return $user->can('units.manage');
     }
 
+    public function deleteAny(User $user): bool
+    {
+        return $user->can('system.delete_any') || $user->can('units.manage');
+    }
+
     public function delete(User $user, OrganizationalUnit $unit): bool
     {
-        return $user->can('units.manage') && $unit->users()->doesntExist() && $unit->children()->doesntExist();
+        return $user->can('system.delete_any')
+            || ($user->can('units.manage') && $unit->users()->doesntExist() && $unit->children()->doesntExist());
     }
 }

@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources\OrganizationalUnits\Pages;
 
+use App\Filament\Actions\DeleteRecordAction;
 use App\Filament\Resources\OrganizationalUnits\OrganizationalUnitResource;
 use App\Services\AuditLogService;
-use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 
 class EditOrganizationalUnit extends EditRecord
@@ -14,7 +14,7 @@ class EditOrganizationalUnit extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            DeleteAction::make(),
+            DeleteRecordAction::make(),
         ];
     }
 

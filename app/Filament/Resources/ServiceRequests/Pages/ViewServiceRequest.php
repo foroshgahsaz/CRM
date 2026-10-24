@@ -5,6 +5,7 @@ namespace App\Filament\Resources\ServiceRequests\Pages;
 use App\Enums\AttachmentCategory;
 use App\Enums\AttachmentVisibility;
 use App\Exceptions\WorkflowException;
+use App\Filament\Actions\DeleteRecordAction;
 use App\Filament\Actions\InventoryActions;
 use App\Filament\Resources\ServiceRequests\ServiceRequestResource;
 use App\Models\OrganizationalUnit;
@@ -267,6 +268,7 @@ class ViewServiceRequest extends ViewRecord
                     ),
                     'پرونده بازگشایی شد.',
                 )),
+            DeleteRecordAction::make()->label('حذف درخواست'),
         ];
     }
 

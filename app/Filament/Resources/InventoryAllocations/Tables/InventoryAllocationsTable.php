@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\InventoryAllocations\Tables;
 
+use App\Filament\Actions\DeleteRecordAction;
 use App\Filament\Actions\InventoryActions;
 use App\Filament\Resources\ServiceRequests\ServiceRequestResource;
 use App\Models\InventoryAllocation;
@@ -32,6 +33,10 @@ class InventoryAllocationsTable
             ])
             ->recordActions([
                 InventoryActions::cancelAllocation(),
+                DeleteRecordAction::make(),
+            ])
+            ->toolbarActions([
+                DeleteRecordAction::bulkGroup(),
             ]);
     }
 

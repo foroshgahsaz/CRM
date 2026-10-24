@@ -27,8 +27,13 @@ class AuditLogPolicy
         return false;
     }
 
+    public function deleteAny(User $user): bool
+    {
+        return $user->can('system.delete_any');
+    }
+
     public function delete(User $user, AuditLog $log): bool
     {
-        return false;
+        return $user->can('system.delete_any');
     }
 }

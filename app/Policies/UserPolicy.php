@@ -26,8 +26,13 @@ class UserPolicy
         return $user->can('users.manage');
     }
 
+    public function deleteAny(User $user): bool
+    {
+        return $user->can('system.delete_any');
+    }
+
     public function delete(User $user, User $model): bool
     {
-        return false;
+        return $user->can('system.delete_any') && $user->isNot($model);
     }
 }

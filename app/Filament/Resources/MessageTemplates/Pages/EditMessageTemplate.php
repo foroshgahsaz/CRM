@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\MessageTemplates\Pages;
 
+use App\Filament\Actions\DeleteRecordAction;
 use App\Filament\Resources\MessageTemplates\MessageTemplateResource;
 use App\Services\AuditLogService;
 use Filament\Resources\Pages\EditRecord;
@@ -12,7 +13,9 @@ class EditMessageTemplate extends EditRecord
 
     protected function getHeaderActions(): array
     {
-        return [];
+        return [
+            DeleteRecordAction::make(),
+        ];
     }
 
     protected function afterSave(): void

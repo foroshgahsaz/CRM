@@ -43,6 +43,7 @@ class PermissionCatalog
             'inventory.view' => 'مشاهده و جستجوی موجودی انبار',
             'inventory.manage' => 'افزودن و ویرایش موجودی انبار',
             'inventory.allocate' => 'ارجاع کالای انبار به درخواست',
+            'system.delete_any' => 'حذف کامل هر رکورد (درخواست، کاربر، تنظیمات و سوابق)',
         ];
     }
 

@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources\RequestTypes\Pages;
 
+use App\Filament\Actions\DeleteRecordAction;
 use App\Filament\Resources\RequestTypes\RequestTypeResource;
 use App\Services\AuditLogService;
-use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 
 class EditRequestType extends EditRecord
@@ -14,7 +14,7 @@ class EditRequestType extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            DeleteAction::make(),
+            DeleteRecordAction::make(),
         ];
     }
 

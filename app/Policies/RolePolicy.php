@@ -27,10 +27,14 @@ class RolePolicy
         return $user->can('roles.manage');
     }
 
+    public function deleteAny(User $user): bool
+    {
+        return $user->can('system.delete_any') || $user->can('roles.manage');
+    }
+
     public function delete(User $user, Role $role): bool
     {
-        return $user->can('roles.manage')
-            && $role->name !== 'super_admin'
-            && $role->users()->doesntExist();
+        return $role->name !== 'super_admin'
+            && ($user->can('system.delete_any') || ($user->can('roles.manage') && $role->users()->doesntExist()));
     }
 }
