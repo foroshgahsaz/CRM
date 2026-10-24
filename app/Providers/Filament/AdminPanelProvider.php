@@ -6,8 +6,6 @@ use App\Filament\Auth\Login;
 use App\Filament\Widgets\OperationsOverview;
 use App\Filament\Widgets\RequestStatusChart;
 use App\Filament\Widgets\RequestsSubmittedChart;
-use App\Filament\Widgets\RequestsSubmittedChart;
-use App\Filament\Widgets\RequestStatusChart;
 use App\Http\Middleware\ConfigureSessionForRequest;
 use App\Http\Middleware\EnsureStaffIsActive;
 use Filament\FontProviders\LocalFontProvider;
