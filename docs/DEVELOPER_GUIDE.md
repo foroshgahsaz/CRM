@@ -617,7 +617,14 @@ Action::make('approve')
 
 - `allowed($ability)` همان `$user->can($ability, $record)` است. نمایش دکمه و اجرای سرویس هر دو از **یک Policy** تبعیت می‌کنند.
 - `run()` استثناهای `WorkflowException`، `AuthorizationException` و `ValidationException` را به Notification فارسی تبدیل و رکورد را تازه می‌کند.
-- بخش‌های نمایش (پرونده، مشتری، خرید، فیلدهای اختصاصی، پیام‌ها، ارجاع‌ها، تاریخچه، مشاهده‌ها، تأیید و رد، مدارک) در `ServiceRequestInfolist.php` هستند. موبایل مشتری فقط با `viewSensitive` و یادداشت مدیریتی فقط با `viewAdminNotes` نمایش داده می‌شود.
+- ساختار نمایش در `ServiceRequestInfolist.php` است: کارت خلاصه (`View::make('filament.service-requests.header')`) و سپس `Tabs` با کلیدهای `timeline`، `info`، `assignments`، `messages`، `attachments`، `inventory` و `oversight` (تب فعال در `?tab=` می‌ماند).
+- محتوای هر تب (به جز «اطلاعات» که با `TextEntry` ساخته شده) یک Blade در `resources/views/filament/service-requests/` است. داده‌ها را `app/Filament/Support/RequestTimeline.php` می‌سازد:
+  - `header()` و `steps()` برای کارت خلاصه و نوار پیشرفت.
+  - `events()` و `grouped()` برای تایم‌لاین یکپارچه.
+  - `visibleMessages()`: یادداشت‌های «فقط مدیران» را برای کسی که `viewAdminNotes` ندارد حذف می‌کند. هر جا پیام نمایش می‌دهید از همین متد استفاده کنید.
+  - `tone()`: کلاس‌های رنگ.
+- برای افزودن نوع رویداد تازه به تایم‌لاین، یک حلقه در `RequestTimeline::events()` اضافه کنید و رابطهٔ لازم را در `RELATIONS` بگذارید. کلید فیلتر آن را هم در `filterKey()` و آرایهٔ `$filters` در `timeline.blade.php` تعریف کنید.
+- چون این Bladeها کلاس Tailwind دارند، بعد از تغییرشان `npm run build` لازم است (`theme.css` پوشه‌های `app/Filament` و `resources/views/filament` را اسکن می‌کند).
 
 ### محدودسازی لیست پرونده‌ها
 

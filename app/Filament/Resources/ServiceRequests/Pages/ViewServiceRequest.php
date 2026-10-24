@@ -50,6 +50,16 @@ class ViewServiceRequest extends ViewRecord
         }
     }
 
+    public function getTitle(): string
+    {
+        return 'پرونده '.$this->getRecord()->tracking_code;
+    }
+
+    public function getBreadcrumb(): string
+    {
+        return 'مشاهده';
+    }
+
     protected function getHeaderActions(): array
     {
         return [

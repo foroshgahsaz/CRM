@@ -35,7 +35,7 @@ class RequestPageTimelineTest extends CrmTestCase
         $this->actingAs($expert);
         Livewire::test(ViewServiceRequest::class, ['record' => $request->id])
             ->assertOk()
-            ->assertSee($request->tracking_code)
+            ->assertSee('پرونده '.$request->tracking_code)
             ->assertSee(['تایم‌لاین', 'اطلاعات', 'ارجاع‌ها', 'پیام‌ها', 'مدارک', 'تأیید و مشاهده'])
             ->assertSee(['ثبت درخواست', 'رسیدگی کارشناس', 'بسته شدن'])
             ->assertSee('درخواست ثبت شد')

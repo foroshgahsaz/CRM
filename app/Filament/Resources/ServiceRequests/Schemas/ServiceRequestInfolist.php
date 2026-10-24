@@ -26,37 +26,37 @@ class ServiceRequestInfolist
                 ->columnSpanFull()
                 ->tabs([
                     Tab::make('تایم‌لاین')
-                        ->id('timeline')
+                        ->key('timeline')
                         ->icon('heroicon-o-clock')
                         ->schema([View::make('filament.service-requests.timeline')]),
                     Tab::make('اطلاعات')
-                        ->id('info')
+                        ->key('info')
                         ->icon('heroicon-o-information-circle')
                         ->schema(self::infoSchema()),
                     Tab::make('ارجاع‌ها')
-                        ->id('assignments')
+                        ->key('assignments')
                         ->icon('heroicon-o-arrows-right-left')
                         ->badge(fn (ServiceRequest $record): ?int => self::count($record->assignments()->count()))
                         ->schema([View::make('filament.service-requests.assignments')]),
                     Tab::make('پیام‌ها')
-                        ->id('messages')
+                        ->key('messages')
                         ->icon('heroicon-o-chat-bubble-left-right')
                         ->badge(fn (ServiceRequest $record): ?int => self::count(RequestTimeline::visibleMessages($record, auth()->user())->count()))
                         ->schema([View::make('filament.service-requests.messages')]),
                     Tab::make('مدارک')
-                        ->id('attachments')
+                        ->key('attachments')
                         ->icon('heroicon-o-paper-clip')
                         ->badge(fn (ServiceRequest $record): ?int => self::count($record->attachments()->count()))
                         ->schema([View::make('filament.service-requests.attachments')]),
                     Tab::make('انبار')
-                        ->id('inventory')
+                        ->key('inventory')
                         ->icon('heroicon-o-archive-box')
                         ->visible(fn (ServiceRequest $record): bool => $record->inventoryAllocations()->exists())
                         ->badge(fn (ServiceRequest $record): ?int => self::count($record->inventoryAllocations()->whereNull('cancelled_at')->count()))
                         ->badgeColor('success')
                         ->schema([View::make('filament.service-requests.inventory')]),
                     Tab::make('تأیید و مشاهده')
-                        ->id('oversight')
+                        ->key('oversight')
                         ->icon('heroicon-o-shield-check')
                         ->schema([View::make('filament.service-requests.oversight')]),
                 ]),
