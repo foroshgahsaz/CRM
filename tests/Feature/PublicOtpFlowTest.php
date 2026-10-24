@@ -77,7 +77,7 @@ class PublicOtpFlowTest extends CrmTestCase
             'purchase_date' => now()->subDay()->toDateString(),
             'description' => 'آزمون جریان پیگیری سمت سرور.',
             'fields' => [],
-        ], [], '09123334455', 'track-server-key');
+        ], $this->publicSubmissionFiles(), '09123334455', 'track-server-key');
 
         LogSmsGateway::$captured = [];
         $this->post(route('track.otp.send'), ['tracking_code' => $request->tracking_code])
@@ -99,6 +99,39 @@ class PublicOtpFlowTest extends CrmTestCase
             ->assertOk()
             ->assertSee($request->tracking_code)
             ->assertDontSee('name="code"', false);
+    }
+
+    public function test_open_request_shows_modal_after_otp_and_blocks_new_form(): void
+    {
+        $type = RequestType::query()->where('slug', 'breakage')->firstOrFail();
+        $existing = app(\App\Services\RequestSubmissionService::class)->submitPublic([
+            'full_name' => 'مشتری باز',
+            'request_type_id' => $type->id,
+            'purchase_date' => now()->subDay()->toDateString(),
+            'description' => 'درخواست باز برای آزمون محدودیت ثبت مجدد.',
+            'fields' => [],
+        ], $this->publicSubmissionFiles(), '09127778899', 'open-key-1');
+
+        $this->post(route('requests.otp.send'), ['mobile' => '09127778899']);
+        $this->post(route('requests.otp.verify'), ['code' => $this->latestOtp()])
+            ->assertRedirect(route('requests.create'))
+            ->assertSessionHas('existing_open_request');
+
+        $this->get(route('requests.create'))
+            ->assertOk()
+            ->assertSee('درخواست باز دارید')
+            ->assertSee($existing->tracking_code)
+            ->assertDontSee('ثبت نهایی درخواست');
+    }
+
+    public function test_otp_step_primary_button_is_send_code(): void
+    {
+        $this->post(route('requests.otp.send'), ['mobile' => '09128889900']);
+
+        $this->get(route('requests.create'))
+            ->assertOk()
+            ->assertSee('ارسال کد')
+            ->assertDontSee('دریافت رمز یک‌بارمصرف');
     }
 
     private function latestOtp(): string

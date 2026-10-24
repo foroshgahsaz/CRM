@@ -112,12 +112,14 @@ class AccessAndFileSecurityTest extends CrmTestCase
     {
         $type = RequestType::query()->where('slug', 'breakage')->firstOrFail();
 
+        $mobile = '0912'.str_pad((string) random_int(0, 9999999), 7, '0', STR_PAD_LEFT);
+
         return app(RequestSubmissionService::class)->submitPublic([
             'full_name' => 'مشتری فایل',
             'request_type_id' => $type->id,
             'purchase_date' => now()->subDay()->toDateString(),
-            'description' => 'شرح کافی برای پرونده فایل آزمایشی.',
+            'description' => 'شرح کافی برای پرونده فایل آزمایشی '.uniqid(),
             'fields' => [],
-        ], [], '09123000000', 'file-'.uniqid());
+        ], $this->publicSubmissionFiles(), $mobile, 'file-'.uniqid());
     }
 }

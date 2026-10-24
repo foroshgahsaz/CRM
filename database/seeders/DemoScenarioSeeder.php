@@ -75,27 +75,27 @@ class DemoScenarioSeeder extends Seeder
         $purchase = now()->subDays(5)->toDateString();
 
         // 1 — فقط ثبت، بدون ارجاع
-        $submit->submitPublic($this->payload('علی رضایی', $types['breakage']->id, $purchase, 'شکستگی لبه لیوان'), [], '09121000001', 'demo-seed-01');
+        $submit->submitPublic($this->payload('علی رضایی', $types['breakage']->id, $purchase, 'شکستگی لبه لیوان'), $this->demoFiles(), '09121000001', 'demo-seed-01');
 
         // 2 — ارجاع اولیه، هنوز بازدید نشده
-        $r2 = $submit->submitPublic($this->payload('مریم کاظمی', $types['shortage']->id, $purchase, 'دو قلم از سفارش نبود.'), [], '09121000002', 'demo-seed-02');
+        $r2 = $submit->submitPublic($this->payload('مریم کاظمی', $types['shortage']->id, $purchase, 'دو قلم از سفارش نبود.'), $this->demoFiles(), '09121000002', 'demo-seed-02');
         $assign->assignInitial($r2, $dispatch, $sales->id, $units['DEMO-SALES']->id, 'بررسی فاکتور فروش', 'تخصیص اولیه');
 
         // 3 — در حال رسیدگی + یادداشت
-        $r3 = $submit->submitPublic($this->payload('حسین مرادی', $types['mismatch']->id, $purchase, 'رنگ کالا با سفارش فرق داشت.'), [], '09121000003', 'demo-seed-03');
+        $r3 = $submit->submitPublic($this->payload('حسین مرادی', $types['mismatch']->id, $purchase, 'رنگ کالا با سفارش فرق داشت.'), $this->demoFiles(), '09121000003', 'demo-seed-03');
         $assign->assignInitial($r3, $manager, $qc->id, $units['DEMO-QC']->id, 'کنترل مغایرت', 'QC');
         $views->record($r3->refresh(), $qc);
         $messages->addExpertNote($r3->refresh(), $qc, 'تصاویر با فاکتور مقایسه شد؛ مغایرت جزئی است.');
         $messages->addInternalNote($r3->refresh(), $qc, 'نیاز به تأیید سرپرست فروش');
 
         // 4 — منتظر مشتری
-        $r4 = $submit->submitPublic($this->payload('زهرا موسوی', $types['breakage']->id, $purchase, 'بسته‌بندی آسیب دیده.'), [], '09121000004', 'demo-seed-04');
+        $r4 = $submit->submitPublic($this->payload('زهرا موسوی', $types['breakage']->id, $purchase, 'بسته‌بندی آسیب دیده.'), $this->demoFiles(), '09121000004', 'demo-seed-04');
         $assign->assignInitial($r4, $dispatch, $support->id, $units['DEMO-SUPPORT']->id, 'پیگیری مدارک', 'پشتیبانی');
         $views->record($r4->refresh(), $support);
         $messages->requestCustomerInformation($r4->refresh(), $support, 'لطفاً تصویر بسته‌بندی و فاکتور را بارگذاری کنید.');
 
         // 5 — بعد از مدرک مشتری
-        $r5 = $submit->submitPublic($this->payload('امیرحسین جعفری', $types['breakage']->id, $purchase, 'شکستگی در حمل'), [], '09121000005', 'demo-seed-05');
+        $r5 = $submit->submitPublic($this->payload('امیرحسین جعفری', $types['breakage']->id, $purchase, 'شکستگی در حمل'), $this->demoFiles(), '09121000005', 'demo-seed-05');
         $assign->assignInitial($r5, $manager, $warehouse->id, $units['DEMO-WH']->id, 'بررسی حمل', 'انبار');
         $views->record($r5->refresh(), $warehouse);
         $messages->requestCustomerInformation($r5->refresh(), $warehouse, 'عکس کارتن خارجی را بفرستید.');
@@ -103,21 +103,21 @@ class DemoScenarioSeeder extends Seeder
         $messages->addExpertNote($r5->refresh(), $warehouse, 'آسیب حمل تأیید شد.');
 
         // 6 — منتظر تأیید نهایی
-        $r6 = $submit->submitPublic($this->payload('سمیه احمدی', $types['shortage']->id, $purchase, 'کسری ۱ عددی'), [], '09121000006', 'demo-seed-06');
+        $r6 = $submit->submitPublic($this->payload('سمیه احمدی', $types['shortage']->id, $purchase, 'کسری ۱ عددی'), $this->demoFiles(), '09121000006', 'demo-seed-06');
         $assign->assignInitial($r6, $dispatch, $sales->id, null, 'رسیدگی', 'فروش');
         $views->record($r6->refresh(), $sales);
         $messages->addReviewResult($r6->refresh(), $sales, 'کسری تأیید؛ پیشنهاد ارسال کالا.');
         $assign->complete($r6->refresh(), $sales, 'کارشناسی: کسری ۱ عدد تأیید شد.');
 
         // 7 — بسته‌شده
-        $r7 = $submit->submitPublic($this->payload('پوریا نادری', $types['mismatch']->id, $purchase, 'مدل اشتباه ارسال شده'), [], '09121000007', 'demo-seed-07');
+        $r7 = $submit->submitPublic($this->payload('پوریا نادری', $types['mismatch']->id, $purchase, 'مدل اشتباه ارسال شده'), $this->demoFiles(), '09121000007', 'demo-seed-07');
         $assign->assignInitial($r7, $manager, $qc->id, null, null, 'QC');
         $views->record($r7->refresh(), $qc);
         $assign->complete($r7->refresh(), $qc, 'تأیید مغایرت؛ تعویض کالا.');
         $approval->approve($r7->refresh(), $manager, 'کالای صحیح برای مشتری ارسال می‌شود.', true);
 
         // 8 — زنجیره ارجاع: فروش → واحد انبار → claim
-        $r8 = $submit->submitPublic($this->payload('نگار صفری', $types['breakage']->id, $purchase, 'شکستگی چندتایی'), [], '09121000008', 'demo-seed-08');
+        $r8 = $submit->submitPublic($this->payload('نگار صفری', $types['breakage']->id, $purchase, 'شکستگی چندتایی'), $this->demoFiles(), '09121000008', 'demo-seed-08');
         $assign->assignInitial($r8, $dispatch, $sales->id, $units['DEMO-SALES']->id, 'اولیه', 'فروش');
         $views->record($r8->refresh(), $sales);
         $messages->addExpertNote($r8->refresh(), $sales, 'ارجاع به انبار برای کنترل موجودی.');
@@ -128,7 +128,7 @@ class DemoScenarioSeeder extends Seeder
         $messages->addAdminNote($r8->refresh(), $manager, 'یادداشت مدیر روی پروندهٔ چندارجاعی');
 
         // 9 — چند ارجاع بین کارشناسان
-        $r9 = $submit->submitPublic($this->payload('کاوه شریفی', $types['shortage']->id, $purchase, 'کسری و احتمال شکستگی'), [], '09121000009', 'demo-seed-09');
+        $r9 = $submit->submitPublic($this->payload('کاوه شریفی', $types['shortage']->id, $purchase, 'کسری و احتمال شکستگی'), $this->demoFiles(), '09121000009', 'demo-seed-09');
         $assign->assignInitial($r9, $manager, $sales->id, null, 'فروش', 'شروع');
         $views->record($r9->refresh(), $sales);
         $assign->reassign($r9->refresh(), $sales, $qc->id, $units['DEMO-QC']->id, 'ارجاع QC', 'بررسی فنی');
@@ -139,7 +139,7 @@ class DemoScenarioSeeder extends Seeder
         $messages->addInternalNote($r9->refresh(), $warehouse, 'انبار: احتمال آسیب در بارگیری');
 
         // 10 — آرشیو
-        $r10 = $submit->submitPublic($this->payload('لیلا باقری', $types['breakage']->id, $purchase, 'پروندهٔ نمونه بایگانی'), [], '09121000010', 'demo-seed-10');
+        $r10 = $submit->submitPublic($this->payload('لیلا باقری', $types['breakage']->id, $purchase, 'پروندهٔ نمونه بایگانی'), $this->demoFiles(), '09121000010', 'demo-seed-10');
         $assign->assignInitial($r10, $dispatch, $support->id, null, null, 'پشتیبانی');
         $views->record($r10->refresh(), $support);
         $assign->complete($r10->refresh(), $support, 'مورد بسته شد.');
@@ -227,6 +227,14 @@ class DemoScenarioSeeder extends Seeder
     }
 
     /**
+     * @return list<UploadedFile>
+     */
+    private function demoFiles(): array
+    {
+        return [UploadedFile::fake()->image('demo-doc.jpg')];
+    }
+
+    /**
      * @return array<string, mixed>
      */
     private function payload(string $fullName, int $typeId, string $purchaseDate, string $description): array
@@ -237,8 +245,6 @@ class DemoScenarioSeeder extends Seeder
             'purchase_date' => $purchaseDate,
             'invoice_number' => 'INV-'.random_int(1000, 9999),
             'product_name' => 'محصول نمونه',
-            'purchased_quantity' => random_int(1, 5),
-            'affected_quantity' => 1,
             'description' => $description,
             'fields' => [],
         ];

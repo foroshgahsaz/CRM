@@ -6,6 +6,7 @@ use App\Enums\OtpPurpose;
 use App\Exceptions\WorkflowException;
 use App\Http\Requests\StoreServiceRequestRequest;
 use App\Models\RequestType;
+use App\Services\CustomerSubmissionGuard;
 use App\Services\OtpService;
 use App\Services\RequestSubmissionService;
 use App\Services\SettingsService;
@@ -21,6 +22,7 @@ class SubmissionController extends Controller
     public function __construct(
         private OtpService $otp,
         private RequestSubmissionService $submissions,
+        private CustomerSubmissionGuard $submissionGuard,
     ) {}
 
     public function create(Request $request): View
@@ -43,6 +45,8 @@ class SubmissionController extends Controller
             );
         }
 
+        $existingOpen = $request->session()->get('existing_open_request');
+
         return view('public.requests.create', [
             'types' => RequestType::query()->active()->with('activeFields')->get(),
             'defaultPurchaseJalali' => $purchaseJalali ?? JalaliDate::formatDate(now()),
@@ -53,6 +57,7 @@ class SubmissionController extends Controller
             'resendRemaining' => $otpStep
                 ? $this->otp->resendCooldownRemainingSeconds($mobile, OtpPurpose::Submit, null)
                 : 0,
+            'existingOpenRequest' => is_array($existingOpen) ? $existingOpen : null,
         ]);
     }
 
@@ -110,6 +115,18 @@ class SubmissionController extends Controller
             return redirect()->route('requests.create')->with('error', $exception->getMessage());
         }
 
+        $openRequest = $this->submissionGuard->openRequestForMobile($mobile);
+
+        if ($openRequest !== null) {
+            $request->session()->forget(['submission.flow_step', 'submission.verified', 'submission.key']);
+            $request->session()->put('submission.mobile', $mobile);
+
+            return redirect()->route('requests.create')->with('existing_open_request', [
+                'tracking_code' => $openRequest->tracking_code,
+                'track_url' => route('track.show', ['tracking_code' => $openRequest->tracking_code]),
+            ]);
+        }
+
         $request->session()->regenerate();
         $request->session()->forget('submission.flow_step');
         $request->session()->put('submission.mobile', $mobile);
@@ -143,8 +160,7 @@ class SubmissionController extends Controller
 
         $serviceRequest = $this->submissions->submitPublic(
             $request->safe()->only([
-                'full_name', 'request_type_id', 'invoice_number', 'product_name',
-                'purchased_quantity', 'affected_quantity', 'description',
+                'full_name', 'request_type_id', 'invoice_number', 'product_name', 'description',
             ]) + [
                 'purchase_date' => $request->input('purchase_date'),
                 'fields' => $request->input('fields', []),

@@ -28,13 +28,12 @@ class ServiceRequestForm
             JalaliDateInput::make('purchase_jalali')->label('تاریخ خرید')->required()->maxToday(),
             TextInput::make('invoice_number')->label('شماره فاکتور')->maxLength(50),
             TextInput::make('product_name')->label('محصول')->maxLength(190),
-            TextInput::make('purchased_quantity')->label('تعداد خرید')->numeric()->minValue(1),
-            TextInput::make('affected_quantity')->label('تعداد مشکل‌دار')->numeric()->minValue(0),
             Select::make('priority')->label('اولویت')->options(collect(RequestPriority::cases())->mapWithKeys(fn ($priority) => [$priority->value => $priority->label()]))->default(RequestPriority::Normal->value)->required(),
             Textarea::make('description')->label('شرح')->required()->minLength(10)->columnSpanFull(),
             FileUpload::make('attachments')
                 ->label('مدارک')
                 ->multiple()
+                ->required()
                 ->storeFiles(false)
                 ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'application/pdf'])
                 ->maxSize(fn (): int => app(SettingsService::class)->getInt('max_upload_kb', 5120))

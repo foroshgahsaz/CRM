@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Sms\LogSmsGateway;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 
 abstract class CrmTestCase extends TestCase
 {
@@ -25,5 +26,13 @@ abstract class CrmTestCase extends TestCase
         $user->assignRole($role);
 
         return $user;
+    }
+
+    /**
+     * @return list<UploadedFile>
+     */
+    protected function publicSubmissionFiles(): array
+    {
+        return [UploadedFile::fake()->image('document.jpg')];
     }
 }

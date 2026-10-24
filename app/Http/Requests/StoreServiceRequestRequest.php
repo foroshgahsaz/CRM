@@ -29,11 +29,9 @@ class StoreServiceRequestRequest extends FormRequest
             'purchase_jalali' => ['required', 'string', 'max:20'],
             'invoice_number' => ['nullable', 'string', 'max:50'],
             'product_name' => ['nullable', 'string', 'max:190'],
-            'purchased_quantity' => ['nullable', 'integer', 'min:1', 'max:100000'],
-            'affected_quantity' => ['nullable', 'integer', 'min:0', 'max:100000'],
             'description' => ['required', 'string', 'min:10', 'max:5000'],
             'submission_key' => ['required', 'string'],
-            'attachments' => ['nullable', 'array', 'max:'.$settings->getInt('max_upload_files', 5)],
+            'attachments' => ['required', 'array', 'min:1', 'max:'.$settings->getInt('max_upload_files', 5)],
             'attachments.*' => ['file', 'mimes:jpg,jpeg,png,webp,pdf', 'extensions:jpg,jpeg,png,webp,pdf', 'max:'.$settings->getInt('max_upload_kb', 5120)],
             'fields' => ['nullable', 'array'],
         ];

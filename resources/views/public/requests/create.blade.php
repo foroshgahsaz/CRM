@@ -1,6 +1,13 @@
 @extends('public.layout')
 
 @section('content')
+    @if ($existingOpenRequest)
+        @include('public.partials.open-request-modal', [
+            'trackingCode' => $existingOpenRequest['tracking_code'],
+            'trackUrl' => $existingOpenRequest['track_url'],
+        ])
+    @endif
+
     <div class="crm-card crm-card-glow mx-auto max-w-2xl p-6 sm:p-9">
         <h1 class="crm-page-title">ثبت درخواست</h1>
         <p class="crm-page-lead">در سه مرحله ساده درخواست خود را ثبت کنید. اطلاعات شما محرمانه می‌ماند.</p>
@@ -36,7 +43,7 @@
                         <input id="code" name="code" type="text" dir="ltr" inputmode="numeric" autocomplete="one-time-code"
                                maxlength="{{ $otpLength }}" placeholder="{{ str_repeat('·', $otpLength) }}"
                                class="crm-input text-center text-lg tracking-[0.45em]" autofocus required>
-                        <button type="submit" class="crm-btn-solid mt-1">تأیید شماره</button>
+                        <button type="submit" class="crm-btn-solid mt-1">ارسال کد</button>
                     </form>
 
                     @include('public.partials.otp-resend-timer', [
@@ -85,14 +92,6 @@
                 <label class="grid gap-1.5 text-sm font-semibold text-brand-900" for="product_name">نام یا مشخصات محصول
                     <input id="product_name" name="product_name" value="{{ old('product_name') }}" class="crm-input font-normal">
                 </label>
-                <div class="grid gap-4 sm:grid-cols-2">
-                    <label class="grid gap-1.5 text-sm font-semibold text-brand-900" for="purchased_quantity">تعداد خریداری‌شده
-                        <input id="purchased_quantity" name="purchased_quantity" value="{{ old('purchased_quantity') }}" inputmode="numeric" class="crm-input font-normal">
-                    </label>
-                    <label class="grid gap-1.5 text-sm font-semibold text-brand-900" for="affected_quantity">تعداد اقلام معیوب، شکسته یا مغایر
-                        <input id="affected_quantity" name="affected_quantity" value="{{ old('affected_quantity') }}" inputmode="numeric" class="crm-input font-normal">
-                    </label>
-                </div>
                 <label class="grid gap-1.5 text-sm font-semibold text-brand-900" for="description">شرح درخواست
                     <textarea id="description" name="description" rows="5" class="crm-input font-normal" required>{{ old('description') }}</textarea>
                 </label>
@@ -128,8 +127,9 @@
                 @endforeach
 
                 <label class="grid gap-1.5 text-sm font-semibold text-brand-900" for="attachments">مدارک و تصاویر
-                    <input id="attachments" name="attachments[]" type="file" multiple accept=".jpg,.jpeg,.png,.webp,.pdf" class="crm-input file:me-3 file:rounded-full file:border-0 file:bg-indigo-100 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-indigo-700">
+                    <input id="attachments" name="attachments[]" type="file" multiple required accept=".jpg,.jpeg,.png,.webp,.pdf" class="crm-input file:me-3 file:rounded-full file:border-0 file:bg-indigo-100 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-indigo-700">
                 </label>
+                <p class="text-xs text-slate-500">حداقل یک فایل الزامی است. می‌توانید چند مدرک را یکجا انتخاب کنید.</p>
                 <p class="text-xs leading-6 text-slate-500">{{ $company['required_documents_text'] }}</p>
                 <button class="crm-btn-solid px-6 py-3 text-base">ثبت نهایی درخواست</button>
             </form>
