@@ -132,7 +132,7 @@ class WarehouseInventoryTest extends CrmTestCase
         $this->actingAs($expert);
         Livewire::test(ViewServiceRequest::class, ['record' => $request->id])
             ->assertOk()
-            ->assertSee('کالای ارجاع‌شده از انبار')
+            ->assertSee('ارجاع کالا از انبار: بشقاب مدل X')
             ->assertSee('بشقاب مدل X')
             ->assertSee($manager->name)
             ->assertActionHidden('allocateFromWarehouse');
