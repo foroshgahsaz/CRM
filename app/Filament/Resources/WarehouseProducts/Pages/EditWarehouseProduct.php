@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources\WarehouseProducts\Pages;
 
+use App\Filament\Actions\DeleteRecordAction;
 use App\Filament\Resources\WarehouseProducts\Tables\WarehouseProductsTable;
 use App\Filament\Resources\WarehouseProducts\WarehouseProductResource;
-use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 
 class EditWarehouseProduct extends EditRecord
@@ -14,7 +14,7 @@ class EditWarehouseProduct extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            DeleteAction::make(),
+            DeleteRecordAction::make(),
         ];
     }
 

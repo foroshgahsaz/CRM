@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\Warehouses\Tables;
 
-use Filament\Actions\DeleteAction;
+use App\Filament\Actions\DeleteRecordAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
@@ -27,7 +27,10 @@ class WarehousesTable
             ->recordActions([
                 ViewAction::make()->label('ورود به انبار'),
                 EditAction::make(),
-                DeleteAction::make(),
+                DeleteRecordAction::make(),
+            ])
+            ->toolbarActions([
+                DeleteRecordAction::bulkGroup(),
             ]);
     }
 }

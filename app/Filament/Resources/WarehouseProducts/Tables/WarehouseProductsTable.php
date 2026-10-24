@@ -2,11 +2,11 @@
 
 namespace App\Filament\Resources\WarehouseProducts\Tables;
 
+use App\Filament\Actions\DeleteRecordAction;
 use App\Filament\Actions\InventoryActions;
 use App\Models\Warehouse;
 use App\Models\WarehouseProduct;
 use App\Services\AuditLogService;
-use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\Column;
 use Filament\Tables\Columns\TextColumn;
@@ -40,7 +40,10 @@ class WarehouseProductsTable
             ->recordActions([
                 InventoryActions::allocateToRequest(),
                 EditAction::make(),
-                DeleteAction::make(),
+                DeleteRecordAction::make(),
+            ])
+            ->toolbarActions([
+                DeleteRecordAction::bulkGroup(),
             ]);
     }
 

@@ -27,8 +27,13 @@ class MessageTemplatePolicy
         return $user->can('sms_settings.manage');
     }
 
+    public function deleteAny(User $user): bool
+    {
+        return $user->can('system.delete_any');
+    }
+
     public function delete(User $user, MessageTemplate $template): bool
     {
-        return false;
+        return $user->can('system.delete_any');
     }
 }

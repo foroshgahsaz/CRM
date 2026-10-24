@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\OrganizationalUnits\Tables;
 
-use Filament\Actions\DeleteAction;
+use App\Filament\Actions\DeleteRecordAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -21,7 +21,10 @@ class OrganizationalUnitsTable
             ])
             ->recordActions([
                 EditAction::make(),
-                DeleteAction::make(),
+                DeleteRecordAction::make(),
+            ])
+            ->toolbarActions([
+                DeleteRecordAction::bulkGroup(),
             ]);
     }
 }

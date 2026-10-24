@@ -2,8 +2,8 @@
 
 namespace App\Filament\Resources\Roles\Tables;
 
+use App\Filament\Actions\DeleteRecordAction;
 use App\Support\PermissionCatalog;
-use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -20,7 +20,10 @@ class RolesTable
             ])
             ->recordActions([
                 EditAction::make(),
-                DeleteAction::make(),
+                DeleteRecordAction::make(),
+            ])
+            ->toolbarActions([
+                DeleteRecordAction::bulkGroup(),
             ]);
     }
 }

@@ -2,13 +2,13 @@
 
 namespace App\Filament\Resources\Warehouses\RelationManagers;
 
+use App\Filament\Actions\DeleteRecordAction;
 use App\Filament\Actions\InventoryActions;
 use App\Filament\Resources\WarehouseProducts\Schemas\WarehouseProductForm;
 use App\Filament\Resources\WarehouseProducts\Tables\WarehouseProductsTable;
 use App\Models\WarehouseProduct;
 use App\Services\AuditLogService;
 use Filament\Actions\CreateAction;
-use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
@@ -51,7 +51,7 @@ class ProductsRelationManager extends RelationManager
                 InventoryActions::allocateToRequest(),
                 EditAction::make()
                     ->after(fn (WarehouseProduct $record) => WarehouseProductsTable::auditUpdate($record)),
-                DeleteAction::make(),
+                DeleteRecordAction::make(),
             ]);
     }
 }

@@ -27,8 +27,14 @@ class RequestTypePolicy
         return $user->can('request_types.manage') || $user->can('form_fields.manage');
     }
 
+    public function deleteAny(User $user): bool
+    {
+        return $user->can('system.delete_any') || $user->can('request_types.manage');
+    }
+
     public function delete(User $user, RequestType $type): bool
     {
-        return $user->can('request_types.manage') && $type->serviceRequests()->doesntExist();
+        return $user->can('system.delete_any')
+            || ($user->can('request_types.manage') && $type->serviceRequests()->doesntExist());
     }
 }

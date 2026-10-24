@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\AuditLogs\Tables;
 
+use App\Filament\Actions\DeleteRecordAction;
 use App\Support\JalaliDate;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -27,6 +28,12 @@ class AuditLogsTable
                     'success' => 'success',
                     'failure' => 'failure',
                 ]),
+            ])
+            ->recordActions([
+                DeleteRecordAction::make(),
+            ])
+            ->toolbarActions([
+                DeleteRecordAction::bulkGroup(),
             ]);
     }
 }

@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources\SlaPolicies\Pages;
 
+use App\Filament\Actions\DeleteRecordAction;
 use App\Filament\Resources\SlaPolicies\SlaPolicyResource;
 use App\Services\AuditLogService;
-use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 
 class EditSlaPolicy extends EditRecord
@@ -14,7 +14,7 @@ class EditSlaPolicy extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            DeleteAction::make(),
+            DeleteRecordAction::make(),
         ];
     }
 

@@ -28,9 +28,15 @@ class WarehouseProductPolicy
         return $user->can('inventory.manage');
     }
 
+    public function deleteAny(User $user): bool
+    {
+        return $user->can('system.delete_any') || $user->can('inventory.manage');
+    }
+
     public function delete(User $user, WarehouseProduct $product): bool
     {
-        return $user->can('inventory.manage') && $product->allocations()->doesntExist();
+        return $user->can('system.delete_any')
+            || ($user->can('inventory.manage') && $product->allocations()->doesntExist());
     }
 
     public function allocate(User $user, WarehouseProduct $product): Response

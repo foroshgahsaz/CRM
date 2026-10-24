@@ -27,8 +27,13 @@ class SlaPolicyPolicy
         return $user->can('sla.manage');
     }
 
+    public function deleteAny(User $user): bool
+    {
+        return $user->can('system.delete_any') || $user->can('sla.manage');
+    }
+
     public function delete(User $user, SlaPolicy $policy): bool
     {
-        return $user->can('sla.manage');
+        return $user->can('system.delete_any') || $user->can('sla.manage');
     }
 }

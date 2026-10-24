@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Users\Pages;
 
+use App\Filament\Actions\DeleteRecordAction;
 use App\Filament\Resources\Users\UserResource;
 use App\Services\AuditLogService;
 use App\Support\MobileNumber;
@@ -15,7 +16,9 @@ class EditUser extends EditRecord
 
     protected function getHeaderActions(): array
     {
-        return [];
+        return [
+            DeleteRecordAction::make(),
+        ];
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\WarehouseProducts\RelationManagers;
 
+use App\Filament\Actions\DeleteRecordAction;
 use App\Filament\Actions\InventoryActions;
 use App\Filament\Resources\InventoryAllocations\Tables\InventoryAllocationsTable;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -26,6 +27,7 @@ class AllocationsRelationManager extends RelationManager
             ->columns(InventoryAllocationsTable::columns(withProduct: false))
             ->recordActions([
                 InventoryActions::cancelAllocation(),
+                DeleteRecordAction::make(),
             ]);
     }
 }

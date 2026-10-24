@@ -27,8 +27,14 @@ class WarehousePolicy
         return $user->can('warehouses.manage');
     }
 
+    public function deleteAny(User $user): bool
+    {
+        return $user->can('system.delete_any') || $user->can('warehouses.manage');
+    }
+
     public function delete(User $user, Warehouse $warehouse): bool
     {
-        return $user->can('warehouses.manage') && $warehouse->products()->doesntExist();
+        return $user->can('system.delete_any')
+            || ($user->can('warehouses.manage') && $warehouse->products()->doesntExist());
     }
 }

@@ -4,6 +4,7 @@ namespace App\Filament\Resources\ServiceRequests\Tables;
 
 use App\Enums\RequestPriority;
 use App\Enums\RequestStatus;
+use App\Filament\Actions\DeleteRecordAction;
 use App\Models\OrganizationalUnit;
 use App\Models\ServiceRequest;
 use App\Models\User;
@@ -49,6 +50,10 @@ class ServiceRequestsTable
             ])
             ->recordActions([
                 ViewAction::make(),
+                DeleteRecordAction::make(),
+            ])
+            ->toolbarActions([
+                DeleteRecordAction::bulkGroup(),
             ]);
     }
 

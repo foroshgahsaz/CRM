@@ -58,9 +58,14 @@ class ServiceRequestPolicy
         return false;
     }
 
+    public function deleteAny(User $user): bool
+    {
+        return $user->can('system.delete_any');
+    }
+
     public function delete(User $user, ServiceRequest $request): bool
     {
-        return false;
+        return $user->can('system.delete_any');
     }
 
     public function assign(User $user, ServiceRequest $request): Response

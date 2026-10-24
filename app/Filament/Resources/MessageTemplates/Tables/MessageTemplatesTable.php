@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\MessageTemplates\Tables;
 
+use App\Filament\Actions\DeleteRecordAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -20,6 +21,10 @@ class MessageTemplatesTable
             ])
             ->recordActions([
                 EditAction::make(),
+                DeleteRecordAction::make(),
+            ])
+            ->toolbarActions([
+                DeleteRecordAction::bulkGroup(),
             ]);
     }
 }
