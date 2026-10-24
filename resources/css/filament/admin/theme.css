@@ -80,6 +80,39 @@ html[dir='ltr'] .fi-layout {
     box-shadow: 0 8px 30px rgb(99 102 241 / 0.06);
 }
 
+.crm-message-template-section.fi-section,
+.crm-role-identity-section.fi-section,
+.crm-role-permissions-section.fi-section {
+    border-radius: 1rem;
+    border: 1px solid rgb(199 210 254 / 0.65);
+    background: rgb(255 255 255 / 0.92);
+    box-shadow: 0 10px 36px rgb(99 102 241 / 0.07);
+}
+
+.crm-role-permission-group.fi-section {
+    border-radius: 0.85rem;
+    border: 1px solid rgb(226 232 240 / 0.9);
+    background: rgb(248 250 252 / 0.85);
+    margin-bottom: 0.35rem;
+}
+
+.crm-role-permission-group .fi-fo-checkbox-list-options {
+    gap: 0.55rem;
+}
+
+.crm-role-permission-group .fi-fo-checkbox-list-option {
+    padding: 0.65rem 0.85rem;
+    border-radius: 0.65rem;
+    border: 1px solid rgb(226 232 240);
+    background: rgb(255 255 255 / 0.95);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.crm-role-permission-group .fi-fo-checkbox-list-option:has(input:checked) {
+    border-color: rgb(129 140 248);
+    box-shadow: 0 0 0 1px rgb(129 140 248 / 0.35);
+}
+
 .fi-topbar {
     background: rgb(255 255 255 / 0.78);
     backdrop-filter: blur(14px);

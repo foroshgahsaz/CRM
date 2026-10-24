@@ -5,11 +5,17 @@ namespace App\Filament\Resources\MessageTemplates\Pages;
 use App\Filament\Actions\DeleteRecordAction;
 use App\Filament\Resources\MessageTemplates\MessageTemplateResource;
 use App\Services\AuditLogService;
+use App\Support\MessageTemplateCatalog;
 use Filament\Resources\Pages\EditRecord;
 
 class EditMessageTemplate extends EditRecord
 {
     protected static string $resource = MessageTemplateResource::class;
+
+    public function getTitle(): string
+    {
+        return 'الگوی پیامک: '.MessageTemplateCatalog::eventLabel($this->record->event_key);
+    }
 
     protected function getHeaderActions(): array
     {
