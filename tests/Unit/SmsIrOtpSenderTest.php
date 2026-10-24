@@ -3,11 +3,12 @@
 namespace Tests\Unit;
 
 use App\Sms\SmsIrOtpSender;
+use App\Sms\SmsIrVerifySender;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
-use Tests\TestCase;
+use Tests\CrmTestCase;
 
-class SmsIrOtpSenderTest extends TestCase
+class SmsIrOtpSenderTest extends CrmTestCase
 {
     public function test_it_sends_otp_via_smsir_verify_endpoint(): void
     {
@@ -16,7 +17,7 @@ class SmsIrOtpSenderTest extends TestCase
         Config::set('sms.smsir.otp_parameter_name', 'CODE');
 
         Http::fake([
-            SmsIrOtpSender::VERIFY_URL => Http::response([
+            SmsIrVerifySender::VERIFY_URL => Http::response([
                 'status' => 1,
                 'message' => 'موفق',
                 'data' => ['messageId' => 89545112, 'cost' => 1.0],
@@ -26,7 +27,7 @@ class SmsIrOtpSenderTest extends TestCase
         app(SmsIrOtpSender::class)->sendOtp('09123334444', '123456');
 
         Http::assertSent(function ($request): bool {
-            return $request->url() === SmsIrOtpSender::VERIFY_URL
+            return $request->url() === SmsIrVerifySender::VERIFY_URL
                 && $request->hasHeader('X-API-KEY', 'test-smsir-key')
                 && $request['mobile'] === '9123334444'
                 && $request['templateId'] === 235057
@@ -41,7 +42,7 @@ class SmsIrOtpSenderTest extends TestCase
         Config::set('sms.smsir.otp_template_id', 235057);
 
         Http::fake([
-            SmsIrOtpSender::VERIFY_URL => Http::response([
+            SmsIrVerifySender::VERIFY_URL => Http::response([
                 'status' => 113,
                 'message' => 'قالب یافت نشد',
             ], 400),
@@ -55,7 +56,7 @@ class SmsIrOtpSenderTest extends TestCase
 
     public function test_normalize_mobile_strips_iran_prefixes(): void
     {
-        $sender = app(SmsIrOtpSender::class);
+        $sender = app(SmsIrVerifySender::class);
 
         $this->assertSame('9123334444', $sender->normalizeMobile('09123334444'));
         $this->assertSame('9123334444', $sender->normalizeMobile('+989123334444'));

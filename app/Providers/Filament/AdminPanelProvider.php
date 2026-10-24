@@ -4,6 +4,8 @@ namespace App\Providers\Filament;
 
 use App\Filament\Auth\Login;
 use App\Filament\Widgets\OperationsOverview;
+use App\Filament\Widgets\RequestStatusChart;
+use App\Filament\Widgets\RequestsSubmittedChart;
 use App\Http\Middleware\ConfigureSessionForRequest;
 use App\Http\Middleware\EnsureStaffIsActive;
 use Filament\FontProviders\LocalFontProvider;
@@ -15,6 +17,7 @@ use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\Support\Enums\Width;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
@@ -35,6 +38,7 @@ class AdminPanelProvider extends PanelProvider
             ->passwordReset()
             ->profile()
             ->brandName('سامانه درخواست‌ها')
+            ->maxContentWidth(Width::Full)
             ->font('YekanBakh', url: asset('fonts/yekan/fonts.css'), provider: LocalFontProvider::class)
             ->viteTheme('resources/css/filament/admin/theme.css')
             ->renderHook(PanelsRenderHook::BODY_END, fn (): string => view('filament.partials.jalali-assets')->render())
@@ -58,6 +62,8 @@ class AdminPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
                 OperationsOverview::class,
+                RequestStatusChart::class,
+                RequestsSubmittedChart::class,
             ])
             ->middleware([
                 ConfigureSessionForRequest::class,

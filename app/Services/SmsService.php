@@ -10,6 +10,8 @@ use App\Models\MessageTemplate;
 use App\Models\NotificationDelivery;
 use App\Models\SmsLog;
 use App\Sms\SmsGateway;
+use App\Sms\SmsIrVerifySender;
+use App\Support\SmsIrPattern;
 use Illuminate\Database\QueryException;
 
 class SmsService
@@ -70,8 +72,28 @@ class SmsService
             return false;
         }
 
-        $message = $this->render($eventKey, $variables);
-        $result = $this->gateway->send($mobile, $message);
+        $template = MessageTemplate::query()->where('event_key', $eventKey)->where('is_active', true)->first();
+
+        if ($template === null) {
+            throw new WorkflowException('قالب پیامک برای این رویداد فعال نیست.');
+        }
+
+        $templateId = SmsIrPattern::templateId($template);
+        $provider = $this->gateway->name();
+
+        if (config('sms.gateway') === 'sms_ir' && $templateId !== null) {
+            try {
+                $parameters = SmsIrPattern::parameters($template, $variables);
+            } catch (\InvalidArgumentException $exception) {
+                throw new WorkflowException($exception->getMessage());
+            }
+
+            $result = app(SmsIrVerifySender::class)->send($mobile, $templateId, $parameters);
+            $provider = 'sms_ir';
+        } else {
+            $result = $this->gateway->send($mobile, $this->renderFromTemplate($template, $variables));
+        }
+
         $status = $result->successful ? SmsStatus::Sent : SmsStatus::Failed;
 
         $log = $this->writeLog(
@@ -85,6 +107,7 @@ class SmsService
             $result->errorMessage,
             $result->successful ? now() : null,
             ($existing?->attempt ?? 0) + 1,
+            $provider,
         );
 
         NotificationDelivery::query()->updateOrCreate(
@@ -115,6 +138,14 @@ class SmsService
             throw new WorkflowException('قالب پیامک برای این رویداد فعال نیست.');
         }
 
+        return $this->renderFromTemplate($template, $variables);
+    }
+
+    /**
+     * @param  array<string, scalar|null>  $variables
+     */
+    private function renderFromTemplate(MessageTemplate $template, array $variables): string
+    {
         $body = $template->body;
 
         foreach ($template->allowed_variables as $variable) {
@@ -122,7 +153,7 @@ class SmsService
                 throw new WorkflowException('اطلاعات لازم برای قالب پیامک کامل نیست.');
             }
 
-            if ($variable === 'otp_code' && $eventKey !== 'otp') {
+            if ($variable === 'otp_code' && $template->event_key !== 'otp') {
                 throw new WorkflowException('استفاده از رمز یک‌بارمصرف در این قالب مجاز نیست.');
             }
 
@@ -143,6 +174,7 @@ class SmsService
         ?string $errorMessage,
         mixed $sentAt = null,
         int $attempt = 1,
+        ?string $provider = null,
     ): SmsLog {
         try {
             return SmsLog::query()->updateOrCreate(
@@ -151,7 +183,7 @@ class SmsService
                     'recipient' => $mobile,
                     'event_key' => $eventKey,
                     'service_request_id' => $serviceRequestId,
-                    'provider' => $this->gateway->name(),
+                    'provider' => $provider ?? $this->gateway->name(),
                     'provider_reference' => $reference,
                     'status' => $status,
                     'error_code' => $errorCode,

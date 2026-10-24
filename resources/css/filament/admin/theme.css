@@ -8,17 +8,76 @@
         linear-gradient(160deg, #eef2ff 0%, #ede9fe 45%, #f5f3ff 100%);
 }
 
+/* سایدبار سمت راست در RTL (پیش‌فرض fa) و خوانایی لینک‌ها روی پس‌زمینه تیره */
+html[dir='ltr'] .fi-layout {
+    flex-direction: row-reverse;
+}
+
 .fi-sidebar {
     background: linear-gradient(180deg, #0f172a 0%, #1e1b4b 45%, #312e81 100%);
-    box-shadow: 8px 0 32px rgb(15 23 42 / 0.12);
+    box-shadow: -8px 0 32px rgb(15 23 42 / 0.12);
+    border-inline-start: 1px solid rgb(255 255 255 / 0.08);
 }
 
 .fi-sidebar-header {
     border-color: rgb(255 255 255 / 0.12);
 }
 
+.fi-sidebar-nav {
+    scrollbar-width: none;
+}
+
+.fi-sidebar-nav::-webkit-scrollbar {
+    display: none;
+}
+
+.fi-sidebar-group-label {
+    color: rgb(199 210 254 / 0.85);
+    font-weight: 600;
+}
+
+.fi-sidebar-group-btn .fi-icon,
+.fi-sidebar-item-btn > .fi-icon {
+    color: rgb(199 210 254 / 0.75);
+}
+
+.fi-sidebar-item-label {
+    color: rgb(241 245 249 / 0.92);
+}
+
+.fi-sidebar-item.fi-sidebar-item-has-url > .fi-sidebar-item-btn:hover,
+.fi-sidebar-item.fi-sidebar-item-has-url > .fi-sidebar-item-btn:focus-visible {
+    background: rgb(255 255 255 / 0.08);
+}
+
+.fi-sidebar-item.fi-active > .fi-sidebar-item-btn {
+    background: rgb(255 255 255 / 0.12);
+    box-shadow: inset 3px 0 0 0 rgb(167 139 250);
+}
+
+.fi-sidebar-item.fi-active > .fi-sidebar-item-btn > .fi-icon,
+.fi-sidebar-item.fi-active > .fi-sidebar-item-btn > .fi-sidebar-item-label {
+    color: rgb(255 255 255);
+}
+
 .fi-sidebar-nav-groups {
     gap: 0.35rem;
+}
+
+.fi-main.fi-width-full,
+.fi-main.fi-width-7xl {
+    max-width: 100%;
+    width: 100%;
+}
+
+.fi-wi-stats-overview-stat {
+    border-radius: 1rem;
+    box-shadow: 0 8px 30px rgb(99 102 241 / 0.08);
+}
+
+.fi-wi-chart {
+    border-radius: 1rem;
+    box-shadow: 0 8px 30px rgb(99 102 241 / 0.06);
 }
 
 .fi-topbar {

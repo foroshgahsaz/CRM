@@ -14,6 +14,8 @@ class OperationsOverview extends StatsOverviewWidget
 
     protected int|string|array $columnSpan = 'full';
 
+    protected ?string $heading = 'نمای کلی عملیات';
+
     public static function canView(): bool
     {
         $user = auth()->user();
@@ -37,27 +39,67 @@ class OperationsOverview extends StatsOverviewWidget
             return $builder->count();
         };
 
+        $spark = fn (callable $scope): array => $this->sparkline($query, $scope);
+
+        $total = (clone $query)->count();
+        $inProgress = $count(fn (Builder $builder) => $builder->whereIn('status', [
+            RequestStatus::Assigned,
+            RequestStatus::InProgress,
+            RequestStatus::AwaitingUnitClaim,
+            RequestStatus::Reopened,
+        ]));
+        $overdue = $count(fn (Builder $builder) => $builder->overdue());
+        $mineUnread = $user ? (clone $query)
+            ->where('current_owner_id', $user->id)
+            ->whereHas('currentAssignment', fn (Builder $assignment) => $assignment->whereNull('first_viewed_at'))
+            ->count() : 0;
+
         return [
-            Stat::make('کل درخواست‌ها', (clone $query)->count()),
-            Stat::make('جدید ۲۴ ساعت', $count(fn (Builder $builder) => $builder->where('submitted_at', '>=', now()->subDay()))),
-            Stat::make('تخصیص‌نیافته', $count(fn (Builder $builder) => $builder->where('status', RequestStatus::PendingAssignment))),
-            Stat::make('در حال رسیدگی', $count(fn (Builder $builder) => $builder->whereIn('status', [
-                RequestStatus::Assigned,
-                RequestStatus::InProgress,
-                RequestStatus::AwaitingUnitClaim,
-                RequestStatus::Reopened,
-            ]))),
-            Stat::make('منتظر مشتری', $count(fn (Builder $builder) => $builder->where('status', RequestStatus::WaitingCustomer))),
-            Stat::make('معوق', $count(fn (Builder $builder) => $builder->overdue())),
-            Stat::make('منتظر تأیید نهایی', $count(fn (Builder $builder) => $builder->where('status', RequestStatus::PendingFinalApproval))),
-            Stat::make('تأییدشده و باز', $count(fn (Builder $builder) => $builder->where('status', RequestStatus::Approved))),
-            Stat::make('بسته‌شده', $count(fn (Builder $builder) => $builder->where('status', RequestStatus::Closed))),
-            Stat::make('بایگانی', $count(fn (Builder $builder) => $builder->where('status', RequestStatus::Archived))),
-            Stat::make('مشاهده‌نشده من', $user ? (clone $query)
-                ->where('current_owner_id', $user->id)
-                ->whereHas('currentAssignment', fn (Builder $assignment) => $assignment->whereNull('first_viewed_at'))
-                ->count() : 0)
-                ->description('مأموریت فعال که هنوز توسط شما باز نشده'),
+            Stat::make('کل پرونده‌ها', number_format($total))
+                ->description('همهٔ درخواست‌های قابل مشاهده')
+                ->descriptionIcon('heroicon-m-inbox-stack')
+                ->color('primary')
+                ->chart($spark(fn (Builder $b) => $b)),
+            Stat::make('در حال رسیدگی', number_format($inProgress))
+                ->description('ارجاع‌شده یا در جریان کار')
+                ->descriptionIcon('heroicon-m-arrow-path')
+                ->color('info')
+                ->chart($spark(fn (Builder $b) => $b->whereIn('status', [
+                    RequestStatus::Assigned,
+                    RequestStatus::InProgress,
+                    RequestStatus::AwaitingUnitClaim,
+                    RequestStatus::Reopened,
+                ]))),
+            Stat::make('معوق', number_format($overdue))
+                ->description('از مهلت رسیدگی گذشته')
+                ->descriptionIcon('heroicon-m-exclamation-triangle')
+                ->color($overdue > 0 ? 'danger' : 'success')
+                ->chart($spark(fn (Builder $b) => $b->overdue())),
+            Stat::make('مشاهده‌نشدهٔ من', number_format($mineUnread))
+                ->description('مأموریت فعال باز نشده')
+                ->descriptionIcon('heroicon-m-eye-slash')
+                ->color($mineUnread > 0 ? 'warning' : 'gray')
+                ->chart($spark(fn (Builder $b) => $b->where('current_owner_id', $user?->id))),
         ];
+    }
+
+    /**
+     * @param  Builder<ServiceRequest>  $base
+     * @return list<int>
+     */
+    private function sparkline(Builder $base, callable $scope): array
+    {
+        $points = [];
+
+        for ($day = 6; $day >= 0; $day--) {
+            $from = now()->subDays($day)->startOfDay();
+            $to = now()->subDays($day)->endOfDay();
+            $builder = clone $base;
+            $scope($builder);
+
+            $points[] = $builder->whereBetween('submitted_at', [$from, $to])->count();
+        }
+
+        return $points;
     }
 }
