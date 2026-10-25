@@ -66,14 +66,14 @@
                 <p class="rounded-xl bg-[#e2ede6] px-4 py-3 text-sm text-[#1e4d3e]">شماره تأییدشده: <strong>{{ $mobile }}</strong></p>
 
                 <label class="grid gap-1.5 text-sm font-semibold text-brand-900" for="full_name">نام و نام خانوادگی خریدار
-                    <input id="full_name" name="full_name" value="{{ old('full_name') }}" class="crm-input font-normal" required>
+                    <input id="full_name" name="full_name" value="{{ old('full_name', $prefill['full_name'] ?? '') }}" class="crm-input font-normal" required>
                 </label>
 
                 <label class="grid gap-1.5 text-sm font-semibold text-brand-900" for="request_type_id">نوع درخواست
                     <select id="request_type_id" name="request_type_id" class="crm-input font-normal" required>
                         <option value="">انتخاب کنید</option>
                         @foreach ($types as $type)
-                            <option value="{{ $type->id }}" @selected(old('request_type_id') == $type->id)>{{ $type->name }}</option>
+                            <option value="{{ $type->id }}" @selected(old('request_type_id', $prefill['request_type_id'] ?? '') == $type->id)>{{ $type->name }}</option>
                         @endforeach
                     </select>
                 </label>
@@ -87,44 +87,20 @@
                 />
 
                 <label class="grid gap-1.5 text-sm font-semibold text-brand-900" for="invoice_number">شماره فاکتور
-                    <input id="invoice_number" name="invoice_number" value="{{ old('invoice_number') }}" class="crm-input font-normal">
+                    <input id="invoice_number" name="invoice_number" value="{{ old('invoice_number', $prefill['invoice_number'] ?? '') }}" class="crm-input font-normal">
                 </label>
                 <label class="grid gap-1.5 text-sm font-semibold text-brand-900" for="product_name">نام یا مشخصات محصول
-                    <input id="product_name" name="product_name" value="{{ old('product_name') }}" class="crm-input font-normal">
+                    <input id="product_name" name="product_name" value="{{ old('product_name', $prefill['product_name'] ?? '') }}" class="crm-input font-normal">
                 </label>
                 <label class="grid gap-1.5 text-sm font-semibold text-brand-900" for="description">شرح درخواست
-                    <textarea id="description" name="description" rows="5" class="crm-input font-normal" required>{{ old('description') }}</textarea>
+                    <textarea id="description" name="description" rows="5" class="crm-input font-normal" required>{{ old('description', $prefill['description'] ?? '') }}</textarea>
                 </label>
 
-                @foreach ($types as $type)
-                    <div class="grid gap-3" data-type-fields="{{ $type->id }}" hidden>
-                        @foreach ($type->activeFields as $field)
-                            <label class="grid gap-1.5 text-sm font-semibold text-brand-900">{{ $field->label }}
-                                @if ($field->field_type->value === 'textarea')
-                                    <textarea name="fields[{{ $field->field_key }}]" class="crm-input font-normal" @required($field->is_required)></textarea>
-                                @elseif ($field->field_type->value === 'select')
-                                    <select name="fields[{{ $field->field_key }}]" class="crm-input font-normal" @required($field->is_required)>
-                                        <option value="">انتخاب کنید</option>
-                                        @foreach ($field->options ?? [] as $option)
-                                            <option value="{{ $option }}">{{ $option }}</option>
-                                        @endforeach
-                                    </select>
-                                @elseif ($field->field_type->value === 'date')
-                                    <input
-                                        name="fields[{{ $field->field_key }}]"
-                                        class="crm-input crm-jalali-input font-normal"
-                                        data-jdp=""
-                                        autocomplete="off"
-                                        placeholder="انتخاب از تقویم"
-                                        @required($field->is_required)
-                                    >
-                                @else
-                                    <input name="fields[{{ $field->field_key }}]" class="crm-input font-normal" @required($field->is_required)>
-                                @endif
-                            </label>
-                        @endforeach
-                    </div>
-                @endforeach
+                @include('public.partials.request-type-fields-groups', [
+                    'types' => $types,
+                    'variant' => 'crm',
+                    'prefill' => $prefill,
+                ])
 
                 <label class="grid gap-1.5 text-sm font-semibold text-brand-900" for="attachments">مدارک و تصاویر
                     <input id="attachments" name="attachments[]" type="file" multiple required accept=".jpg,.jpeg,.png,.webp,.pdf" class="crm-input file:me-3 file:rounded-full file:border-0 file:bg-[#e2ede6] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-[#1e4d3e]">
@@ -133,21 +109,7 @@
                 <p class="text-xs leading-6 text-slate-500">{{ $company['required_documents_text'] }}</p>
                 <button class="crm-btn-solid px-6 py-3 text-base">ثبت نهایی درخواست</button>
             </form>
-            <script>
-                const typeSelect = document.getElementById('request_type_id');
-                const groups = document.querySelectorAll('[data-type-fields]');
-                const syncFields = () => {
-                    groups.forEach((group) => {
-                        const active = group.dataset.typeFields === typeSelect.value;
-                        group.hidden = !active;
-                        group.querySelectorAll('input, select, textarea').forEach((input) => {
-                            input.disabled = !active;
-                        });
-                    });
-                };
-                typeSelect.addEventListener('change', syncFields);
-                syncFields();
-            </script>
+            @include('public.partials.request-type-fields-sync', ['selectId' => 'request_type_id'])
         @endunless
     </div>
 @endsection

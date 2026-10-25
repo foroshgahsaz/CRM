@@ -35,3 +35,6 @@ footer{border-top:1px solid #dfe7df;color:#718077;line-height:2}.foot a{color:#0
 .cb-flash{margin:0 0 16px;padding:12px 14px;border-radius:12px;font-size:13px;line-height:1.8}
 .cb-flash-error{background:#fdecea;color:#7a1f18;border:1px solid #f5c6c2}
 .cb-flash-success{background:var(--site-secondary);color:var(--site-primary);border:1px solid color-mix(in srgb,var(--site-primary) 25%,transparent)}
+.cb-type-fields{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:15px}
+.cb-type-fields .field.full{grid-column:1/-1}
+@media(max-width:760px){.cb-type-fields{grid-template-columns:1fr}.cb-type-fields .field.full{grid-column:auto}}
