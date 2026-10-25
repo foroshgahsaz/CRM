@@ -15,6 +15,7 @@ use App\Support\MobileNumber;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class SubmissionController extends Controller
@@ -46,9 +47,14 @@ class SubmissionController extends Controller
         }
 
         $existingOpen = $request->session()->get('existing_open_request');
+        $prefill = $request->session()->get('submission.prefill', []);
+        if (! is_array($prefill)) {
+            $prefill = [];
+        }
 
         return view('public.requests.create', [
             'types' => RequestType::query()->active()->with('activeFields')->get(),
+            'prefill' => $prefill,
             'defaultPurchaseJalali' => $purchaseJalali ?? JalaliDate::formatDate(now()),
             'verified' => $verified,
             'mobile' => $mobile,
@@ -63,19 +69,35 @@ class SubmissionController extends Controller
 
     public function sendOtp(Request $request): RedirectResponse
     {
-        $data = $request->validate([
+        $fromHome = $request->input('source') === 'home';
+
+        $rules = [
             'mobile' => ['required', 'string', 'max:20'],
-        ]);
+            'source' => ['nullable', 'string', 'max:20'],
+            'full_name' => ['nullable', 'string', 'max:120'],
+            'request_type_id' => ['nullable', 'integer', Rule::exists('request_types', 'id')->where('is_active', true)],
+            'invoice_number' => ['nullable', 'string', 'max:50'],
+            'product_name' => ['nullable', 'string', 'max:190'],
+            'description' => ['nullable', 'string', 'max:5000'],
+            'fields' => ['nullable', 'array'],
+        ];
+
+        if ($fromHome) {
+            $rules['request_type_id'] = ['required', 'integer', Rule::exists('request_types', 'id')->where('is_active', true)];
+        }
+
+        $data = $request->validate($rules);
 
         $mobile = MobileNumber::normalize($data['mobile']);
 
         if ($mobile === null) {
-            return redirect()->route('requests.create')
+            return $this->redirectAfterOtpIssue($fromHome)
                 ->withErrors(['mobile' => 'شماره موبایل باید با 09 شروع شود و ۱۱ رقم باشد.'])
                 ->withInput();
         }
 
         $request->session()->forget('submission.verified');
+        $this->storeSubmissionPrefill($request, $data);
 
         if ($this->otp->resendCooldownRemainingSeconds($mobile, OtpPurpose::Submit, null) > 0) {
             $this->enterOtpStep($request, $mobile);
@@ -87,7 +109,7 @@ class SubmissionController extends Controller
         try {
             $this->otp->issue($mobile, OtpPurpose::Submit, null, $request->ip());
         } catch (WorkflowException $exception) {
-            return redirect()->route('requests.create')
+            return $this->redirectAfterOtpIssue($fromHome)
                 ->with('error', $exception->getMessage())
                 ->withInput();
         }
@@ -150,6 +172,38 @@ class SubmissionController extends Controller
         $request->session()->put('submission.flow_step', 'otp');
     }
 
+    private function redirectAfterOtpIssue(bool $fromHome): RedirectResponse
+    {
+        if ($fromHome) {
+            return redirect()->to(route('home').'#request');
+        }
+
+        return redirect()->route('requests.create');
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    private function storeSubmissionPrefill(Request $request, array $data): void
+    {
+        $prefill = array_filter([
+            'full_name' => $data['full_name'] ?? null,
+            'request_type_id' => isset($data['request_type_id']) ? (int) $data['request_type_id'] : null,
+            'invoice_number' => $data['invoice_number'] ?? null,
+            'product_name' => $data['product_name'] ?? null,
+            'description' => $data['description'] ?? null,
+            'fields' => $data['fields'] ?? null,
+        ], fn ($value) => $value !== null && $value !== '' && $value !== []);
+
+        if ($prefill === []) {
+            $request->session()->forget('submission.prefill');
+
+            return;
+        }
+
+        $request->session()->put('submission.prefill', $prefill);
+    }
+
     public function store(StoreServiceRequestRequest $request): RedirectResponse
     {
         $mobile = $request->session()->get('submission.mobile');
@@ -170,7 +224,7 @@ class SubmissionController extends Controller
             (string) $request->input('submission_key'),
         );
 
-        $request->session()->forget(['submission.verified', 'submission.key', 'submission.mobile']);
+        $request->session()->forget(['submission.verified', 'submission.key', 'submission.mobile', 'submission.prefill']);
         $request->session()->put('submission.result', [
             'tracking_code' => $serviceRequest->tracking_code,
             'sms' => app(SettingsService::class)->getBool('sms_enabled', false),

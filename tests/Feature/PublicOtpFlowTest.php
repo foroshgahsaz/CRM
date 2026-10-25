@@ -134,6 +134,42 @@ class PublicOtpFlowTest extends CrmTestCase
             ->assertDontSee('دریافت رمز یک‌بارمصرف');
     }
 
+    public function test_home_landing_stores_prefill_and_redirects_to_submission_form(): void
+    {
+        $type = RequestType::query()->where('is_active', true)->firstOrFail();
+
+        $this->post(route('requests.otp.send'), [
+            'source' => 'home',
+            'mobile' => '09123334455',
+            'request_type_id' => $type->id,
+            'full_name' => 'کاربر تست',
+            'description' => 'شرح کوتاه از صفحه اصلی',
+            'invoice_number' => 'INV-99',
+        ])->assertRedirect(route('requests.create'))
+            ->assertSessionHas('submission.prefill');
+
+        $this->post(route('requests.otp.verify'), ['code' => $this->latestOtp()])
+            ->assertRedirect(route('requests.create'));
+
+        $this->get(route('requests.create'))
+            ->assertOk()
+            ->assertSee('name="request_type_id"', false)
+            ->assertSee('>'.e($type->name).'</option>', false)
+            ->assertSee('کاربر تست')
+            ->assertSee('INV-99')
+            ->assertSee('شرح کوتاه از صفحه اصلی');
+    }
+
+    public function test_home_page_shows_track_and_submit_nav_links(): void
+    {
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertSee('پیگیری درخواست')
+            ->assertSee('href="'.route('track.show').'"', false)
+            ->assertSee('ثبت درخواست')
+            ->assertSee('name="request_type_id"', false);
+    }
+
     private function latestOtp(): string
     {
         $message = LogSmsGateway::$captured[array_key_last(LogSmsGateway::$captured)]['message'] ?? '';

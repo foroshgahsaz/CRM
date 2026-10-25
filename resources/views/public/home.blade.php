@@ -15,7 +15,8 @@
             </a>
             <nav class="nav">
                 <a href="#services">خدمات ما</a>
-                <a href="#process">مراحل پیگیری</a>
+                <a href="{{ route('track.show') }}">پیگیری درخواست</a>
+                <a href="#request">ثبت درخواست</a>
                 <a href="#faq">سوالات متداول</a>
             </nav>
             <a class="top-cta" href="#request">ثبت درخواست <span>↙</span></a>
@@ -28,7 +29,7 @@
                 <p class="intro">برای پیگیری سفارش، درخواست خدمات یا دریافت راهنمایی درباره محصولات، کنار شما هستیم. درخواستت رو ثبت کن؛ ادامه مسیر رو با هم پیش می‌بریم.</p>
                 <div class="hero-actions">
                     <a class="btn" href="#request">ثبت درخواست خدمات <span>↙</span></a>
-                    <a class="btn secondary" href="#process">مراحل پیگیری</a>
+                    <a class="btn secondary" href="{{ route('track.show') }}">پیگیری درخواست</a>
                 </div>
                 <div class="trust">
                     <span>✓ پیگیری شفاف درخواست</span>
@@ -65,21 +66,30 @@
                 <p class="muted">موضوع درخواستت رو انتخاب کن تا راحت‌تر به مسیر درست راهنمایی بشی.</p>
             </div>
             <div class="services">
-                <article class="service">
-                    <div class="mini-icon">♧</div>
-                    <h3>پیگیری سفارش</h3>
-                    <p>اگر درباره وضعیت سفارش یا تحویل محصول سوالی داری، درخواستت رو ثبت کن.</p>
-                </article>
-                <article class="service">
-                    <div class="mini-icon">✳</div>
-                    <h3>راهنمایی محصول</h3>
-                    <p>برای استفاده، نگهداری و دریافت اطلاعات بیشتر درباره محصولات از ما کمک بگیر.</p>
-                </article>
-                <article class="service">
-                    <div class="mini-icon">↗</div>
-                    <h3>ثبت مشکل یا مغایرت</h3>
-                    <p>اگر محصول دریافتی مشکلی دارد یا با سفارش مطابقت ندارد، موضوع را توضیح بده.</p>
-                </article>
+                @php($serviceIcons = ['♧', '✳', '↗'])
+                @forelse ($types->take(3) as $index => $type)
+                    <article class="service">
+                        <div class="mini-icon">{{ $serviceIcons[$index] ?? '✳' }}</div>
+                        <h3>{{ $type->name }}</h3>
+                        <p>{{ $type->description ?: 'ثبت و پیگیری «'.$type->name.'» از همین سامانه.' }}</p>
+                    </article>
+                @empty
+                    <article class="service">
+                        <div class="mini-icon">♧</div>
+                        <h3>ثبت درخواست</h3>
+                        <p>نوع درخواست را در فرم پایین صفحه انتخاب کنید.</p>
+                    </article>
+                    <article class="service">
+                        <div class="mini-icon">✳</div>
+                        <h3>پیگیری وضعیت</h3>
+                        <p>با کد رهگیری از بخش «پیگیری درخواست» پرونده را ببینید.</p>
+                    </article>
+                    <article class="service">
+                        <div class="mini-icon">↗</div>
+                        <h3>پشتیبانی</h3>
+                        <p>تیم ما درخواست شما را بررسی و پاسخ می‌دهد.</p>
+                    </article>
+                @endforelse
             </div>
         </section>
     </div>
@@ -130,7 +140,7 @@
             </aside>
             <div class="form-card">
                 <h3>ثبت درخواست خدمات</h3>
-                <p>ابتدا شماره تماس را وارد کنید؛ پس از تأیید با رمز یک‌بارمصرف، فرم کامل را تکمیل می‌کنید.</p>
+                <p>نوع درخواست را از لیست فعال سامانه انتخاب کنید؛ پس از تأیید موبایل، همان فرم داینامیک (فیلدهای اختصاصی نوع درخواست) را تکمیل می‌کنید.</p>
 
                 @if (session('status'))
                     <div class="cb-flash cb-flash-success" role="status">{{ session('status') }}</div>
@@ -148,33 +158,38 @@
 
                 <form method="POST" action="{{ route('requests.otp.send') }}" id="serviceForm">
                     @csrf
+                    <input type="hidden" name="source" value="home">
                     <div class="fields">
                         <label class="field">نام و نام خانوادگی
-                            <input name="name" placeholder="نام شما" value="{{ old('name') }}" autocomplete="name">
+                            <input name="full_name" placeholder="نام شما" value="{{ old('full_name', $prefill['full_name'] ?? '') }}" autocomplete="name">
                         </label>
                         <label class="field">شماره تماس *
                             <input required name="mobile" type="tel" dir="ltr" inputmode="tel" placeholder="09121234567" value="{{ old('mobile') }}" autocomplete="tel">
                         </label>
-                        <label class="field">موضوع درخواست
-                            <select name="topic">
-                                <option value="">انتخاب موضوع</option>
-                                <option @selected(old('topic') === 'پیگیری سفارش')>پیگیری سفارش</option>
-                                <option @selected(old('topic') === 'راهنمایی محصول')>راهنمایی محصول</option>
-                                <option @selected(old('topic') === 'مشکل یا مغایرت محصول')>مشکل یا مغایرت محصول</option>
-                                <option @selected(old('topic') === 'مرجوعی یا تعویض')>مرجوعی یا تعویض</option>
-                                <option @selected(old('topic') === 'سایر موارد')>سایر موارد</option>
+                        <label class="field">نوع درخواست *
+                            <select name="request_type_id" id="home_request_type_id" required>
+                                <option value="">انتخاب نوع درخواست</option>
+                                @foreach ($types as $type)
+                                    <option value="{{ $type->id }}" @selected(old('request_type_id', $prefill['request_type_id'] ?? '') == $type->id)>{{ $type->name }}</option>
+                                @endforeach
                             </select>
                         </label>
-                        <label class="field">شماره سفارش (اختیاری)
-                            <input name="order" placeholder="مثلاً CB-1024" value="{{ old('order') }}">
+                        <label class="field">شماره فاکتور (اختیاری)
+                            <input name="invoice_number" placeholder="مثلاً CB-1024" value="{{ old('invoice_number', $prefill['invoice_number'] ?? '') }}">
                         </label>
-                        <label class="field full">توضیحات درخواست
-                            <textarea name="details" placeholder="لطفاً موضوع را با جزئیات کوتاه توضیح دهید...">{{ old('details') }}</textarea>
+                        @include('public.partials.request-type-fields-groups', [
+                            'types' => $types,
+                            'variant' => 'premium',
+                            'prefill' => $prefill,
+                        ])
+                        <label class="field full">شرح درخواست
+                            <textarea name="description" placeholder="لطفاً موضوع را با جزئیات کوتاه توضیح دهید...">{{ old('description', $prefill['description'] ?? '') }}</textarea>
                         </label>
                     </div>
                     <button class="btn form-submit" type="submit">ادامه — دریافت کد تأیید <span>↙</span></button>
-                    <div class="notice">پس از تأیید موبایل، به صفحه تکمیل درخواست هدایت می‌شوید. پیگیری پرونده با <a href="{{ route('track.show') }}">کد رهگیری</a> ممکن است.</div>
+                    <div class="notice">پس از تأیید موبایل، به <a href="{{ route('requests.create') }}">فرم ثبت درخواست</a> با همان نوع و فیلدهای داینامیک هدایت می‌شوید. پیگیری با <a href="{{ route('track.show') }}">کد رهگیری</a>.</div>
                 </form>
+                @include('public.partials.request-type-fields-sync', ['selectId' => 'home_request_type_id'])
             </div>
         </section>
 
