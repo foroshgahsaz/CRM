@@ -1,9 +1,9 @@
 @extends('public.layout')
 
 @section('content')
-    <article class="crm-card mx-auto max-w-3xl p-6 sm:p-9">
-        <h1 class="crm-page-title">تماس با ما</h1>
-        <p class="crm-page-lead">راه‌های ارتباط با {{ $company['company_name'] }}</p>
+    <article class="hs-panel max-w-3xl">
+        <h1 class="hs-panel-title">تماس با ما</h1>
+        <p class="hs-panel-lead">راه‌های ارتباط با {{ $company['company_name'] }}</p>
 
         <dl class="mt-8 grid gap-4 text-sm">
             <div class="crm-form-section grid gap-1">

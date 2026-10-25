@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import './premium-site.css';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
@@ -12,11 +13,11 @@
     --color-brand-500: #3d7a62;
     --color-brand-600: #2d6a4f;
     --color-brand-700: #245a42;
-    --color-brand-800: #1e4d3e;
-    --color-brand-900: #16372d;
+    --color-brand-800: #004d40;
+    --color-brand-900: #003830;
     --color-accent-400: #c9a87a;
-    --color-accent-500: #b8946f;
-    --color-ink: #1e4d3e;
+    --color-accent-500: #b08968;
+    --color-ink: #004d40;
     --color-surface: rgb(255 255 255 / 0.96);
     --color-hs-mint: #f9fbf9;
     --color-hs-tan: #b8946f;

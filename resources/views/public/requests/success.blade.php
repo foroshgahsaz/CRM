@@ -1,7 +1,7 @@
 @extends('public.layout')
 
 @section('content')
-    <section class="crm-card mx-auto max-w-xl p-6 text-center sm:p-8">
+    <section class="hs-panel max-w-xl text-center">
         <p class="text-sm font-semibold text-brand-600">درخواست ثبت شد</p>
         <h1 class="mt-2 text-2xl font-bold text-brand-900">کد رهگیری شما</h1>
         <p class="crm-tracking-code mt-4" dir="ltr">{{ $tracking_code }}</p>

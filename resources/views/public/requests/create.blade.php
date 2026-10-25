@@ -8,9 +8,9 @@
         ])
     @endif
 
-    <div class="crm-card crm-card-glow mx-auto max-w-2xl p-6 sm:p-9">
-        <h1 class="crm-page-title">ثبت درخواست</h1>
-        <p class="crm-page-lead">در سه مرحله ساده درخواست خود را ثبت کنید. اطلاعات شما محرمانه می‌ماند.</p>
+    <div class="hs-panel max-w-2xl">
+        <h1 class="hs-panel-title">ثبت درخواست</h1>
+        <p class="hs-panel-lead">در سه مرحله ساده درخواست خود را ثبت کنید. اطلاعات شما محرمانه می‌ماند.</p>
 
         @unless ($verified)
             <ol class="mt-6 flex flex-wrap gap-2 text-sm">
