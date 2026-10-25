@@ -4,20 +4,44 @@
 @endsection
 
 @section('content')
-    <section class="hs-hero">
-        <div class="hs-container hs-hero-grid">
-            <div>
-                <span class="hs-label">خدمات پس از فروش</span>
-                <h1 class="hs-hero-title mt-3">{{ $company['company_name'] }}</h1>
-                <p class="hs-hero-lead">{{ $company['company_description'] ?: $company['company_tagline'] }}</p>
-                <div class="hs-hero-actions">
-                    <a href="{{ route('requests.create') }}" class="hs-btn hs-btn-primary">ثبت درخواست</a>
-                    <a href="{{ route('track.show') }}" class="hs-btn hs-btn-outline">مراحل پیگیری</a>
+    <section class="hs-hero-banner">
+        <div class="hs-container">
+            <div class="hs-hero-banner-inner">
+                <span class="hs-hero-badge">
+                    <span class="hs-hero-badge-dot" aria-hidden="true"></span>
+                    همراه شما، حتی بعد از خرید
+                </span>
+                <h1 class="hs-hero-banner-title">تجربهٔ خوب خرید، اینجا تمام نمی‌شود.</h1>
+                <p class="hs-hero-banner-lead">
+                    برای پیگیری سفارش، درخواست خدمات یا دریافت راهنمایی دربارهٔ محصولات، کنار شما هستیم.
+                    درخواستت را ثبت کن؛ ادامهٔ مسیر را با هم پیش می‌بریم.
+                </p>
+                <div class="hs-hero-banner-actions">
+                    <a href="{{ route('requests.create') }}" class="hs-btn hs-btn-primary hs-btn-hero">
+                        <svg class="hs-btn-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                            <path d="M6 14l8-8M8 6h6v6" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        ثبت درخواست خدمات
+                    </a>
+                    <a href="{{ route('track.show') }}" class="hs-btn hs-btn-outline hs-btn-hero hs-btn-outline-soft">مراحل پیگیری</a>
                 </div>
+                <ul class="hs-hero-features">
+                    @foreach (['پیگیری شفاف درخواست', 'راهنمایی تخصصی محصول', 'ارتباط آسان'] as $feature)
+                        <li>
+                            <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                                <path d="M5 10.5 8 13.5 15 6.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            {{ $feature }}
+                        </li>
+                    @endforeach
+                </ul>
             </div>
-            <div>
-                @include('public.partials.orbit-hero')
-            </div>
+        </div>
+    </section>
+
+    <section class="hs-hero-visual">
+        <div class="hs-container hs-hero-visual-inner">
+            @include('public.partials.orbit-hero')
         </div>
     </section>
 
