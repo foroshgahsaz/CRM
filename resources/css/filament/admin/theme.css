@@ -4,8 +4,8 @@
 @source '../../../../resources/views/filament/**/*';
 
 .fi-body {
-    background: radial-gradient(900px 500px at 100% 0%, #e0e7ff 0%, transparent 55%),
-        linear-gradient(160deg, #eef2ff 0%, #ede9fe 45%, #f5f3ff 100%);
+    background: radial-gradient(900px 500px at 100% 0%, #e2ede6 0%, transparent 55%),
+        linear-gradient(160deg, #f9fbf9 0%, #f4f8f6 45%, #ffffff 100%);
 }
 
 /* سایدبار سمت راست در RTL (پیش‌فرض fa) و خوانایی لینک‌ها روی پس‌زمینه تیره */
@@ -14,8 +14,8 @@ html[dir='ltr'] .fi-layout {
 }
 
 .fi-sidebar {
-    background: linear-gradient(180deg, #0f172a 0%, #1e1b4b 45%, #312e81 100%);
-    box-shadow: -8px 0 32px rgb(15 23 42 / 0.12);
+    background: linear-gradient(180deg, #16372d 0%, #1e4d3e 45%, #245a42 100%);
+    box-shadow: -8px 0 32px rgb(30 77 62 / 0.15);
     border-inline-start: 1px solid rgb(255 255 255 / 0.08);
 }
 
@@ -52,7 +52,7 @@ html[dir='ltr'] .fi-layout {
 
 .fi-sidebar-item.fi-active > .fi-sidebar-item-btn {
     background: rgb(255 255 255 / 0.12);
-    box-shadow: inset 3px 0 0 0 rgb(167 139 250);
+    box-shadow: inset 3px 0 0 0 rgb(184 148 111);
 }
 
 .fi-sidebar-item.fi-active > .fi-sidebar-item-btn > .fi-icon,
@@ -72,21 +72,23 @@ html[dir='ltr'] .fi-layout {
 
 .fi-wi-stats-overview-stat {
     border-radius: 1rem;
-    box-shadow: 0 8px 30px rgb(99 102 241 / 0.08);
+    border: 1px solid #e2ede6;
+    box-shadow: 0 8px 30px rgb(30 77 62 / 0.06);
 }
 
 .fi-wi-chart {
     border-radius: 1rem;
-    box-shadow: 0 8px 30px rgb(99 102 241 / 0.06);
+    border: 1px solid #e2ede6;
+    box-shadow: 0 8px 30px rgb(30 77 62 / 0.05);
 }
 
 .crm-message-template-section.fi-section,
 .crm-role-identity-section.fi-section,
 .crm-role-permissions-section.fi-section {
     border-radius: 1rem;
-    border: 1px solid rgb(199 210 254 / 0.65);
-    background: rgb(255 255 255 / 0.92);
-    box-shadow: 0 10px 36px rgb(99 102 241 / 0.07);
+    border: 1px solid #e2ede6;
+    background: rgb(255 255 255 / 0.96);
+    box-shadow: 0 10px 36px rgb(30 77 62 / 0.06);
 }
 
 .crm-role-permission-group.fi-section {
@@ -109,23 +111,23 @@ html[dir='ltr'] .fi-layout {
 }
 
 .crm-role-permission-group .fi-fo-checkbox-list-option:has(input:checked) {
-    border-color: rgb(129 140 248);
-    box-shadow: 0 0 0 1px rgb(129 140 248 / 0.35);
+    border-color: #b8946f;
+    box-shadow: 0 0 0 1px rgb(184 148 111 / 0.35);
 }
 
 .fi-topbar {
-    background: rgb(255 255 255 / 0.78);
+    background: rgb(255 255 255 / 0.88);
     backdrop-filter: blur(14px);
-    border-color: rgb(199 210 254 / 0.6);
-    box-shadow: 0 4px 24px rgb(99 102 241 / 0.08);
+    border-color: #e2ede6;
+    box-shadow: 0 4px 24px rgb(30 77 62 / 0.06);
 }
 
 .fi-simple-layout {
     position: relative;
     isolation: isolate;
     overflow: hidden;
-    background: radial-gradient(800px 400px at 80% 0%, #3730a3 0%, transparent 60%),
-        linear-gradient(135deg, #0f172a 0%, #1e3a8a 45%, #5b21b6 100%);
+    background: radial-gradient(800px 400px at 80% 0%, #e2ede6 0%, transparent 60%),
+        linear-gradient(135deg, #f9fbf9 0%, #f4f8f6 45%, #ffffff 100%);
     min-height: 100dvh;
 }
 
@@ -151,15 +153,15 @@ html[dir='ltr'] .fi-layout {
 .fi-simple-page-content {
     position: relative;
     border-radius: 1.5rem;
-    border: 1px solid rgb(255 255 255 / 0.35);
-    background: rgb(255 255 255 / 0.97);
-    box-shadow: 0 32px 70px rgb(15 23 42 / 0.35), inset 0 1px 0 rgb(255 255 255 / 0.8);
+    border: 1px solid #e2ede6;
+    background: rgb(255 255 255 / 0.98);
+    box-shadow: 0 32px 70px rgb(30 77 62 / 0.12);
     padding: 1.85rem 1.65rem 1.55rem;
 }
 
 .fi-simple-page .fi-simple-header-heading {
     font-weight: 800;
-    color: rgb(30 27 75);
+    color: #1e4d3e;
 }
 
 .fi-simple-page .fi-simple-header-subheading {
@@ -168,15 +170,15 @@ html[dir='ltr'] .fi-layout {
 
 .fi-simple-page .fi-fo-field-wrp-label,
 .fi-simple-page .fi-input-wrp-label {
-    color: rgb(30 27 75);
+    color: #1e4d3e;
     font-weight: 600;
 }
 
 .fi-simple-page .fi-ac-btn-action {
     font-weight: 700;
-    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    background: linear-gradient(135deg, #1e4d3e, #2d6a4f);
     border: none;
-    box-shadow: 0 12px 28px rgb(79 70 229 / 0.35);
+    box-shadow: 0 12px 28px rgb(30 77 62 / 0.25);
 }
 
 .fi-simple-page .fi-ac-btn-action:hover {
