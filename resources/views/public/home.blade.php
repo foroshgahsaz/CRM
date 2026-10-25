@@ -1,169 +1,215 @@
-@extends('public.layout')
-
-@section('bare_main')
-@endsection
+@extends('public.layout-chinibazar')
 
 @section('content')
-    <section class="hs-hero-banner">
-        <div class="hs-container">
-            <div class="hs-hero-banner-inner">
-                <span class="hs-hero-badge">
-                    <span class="hs-hero-badge-dot" aria-hidden="true"></span>
-                    همراه شما، حتی بعد از خرید
-                </span>
-                <h1 class="hs-hero-banner-title">تجربهٔ خوب خرید، اینجا تمام نمی‌شود.</h1>
-                <p class="hs-hero-banner-lead">
-                    برای پیگیری سفارش، درخواست خدمات یا دریافت راهنمایی دربارهٔ محصولات، کنار شما هستیم.
-                    درخواستت را ثبت کن؛ ادامهٔ مسیر را با هم پیش می‌بریم.
-                </p>
-                <div class="hs-hero-banner-actions">
-                    <a href="{{ route('requests.create') }}" class="hs-btn hs-btn-primary hs-btn-hero">
-                        <svg class="hs-btn-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                            <path d="M6 14l8-8M8 6h6v6" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        ثبت درخواست خدمات
-                    </a>
-                    <a href="{{ route('track.show') }}" class="hs-btn hs-btn-outline hs-btn-hero hs-btn-outline-soft">مراحل پیگیری</a>
+@php
+    $logoUrl = asset('images/hooman/logo.jpg');
+    $avatarUrl = asset('images/hooman/support-avatar.webp');
+    $tagline = $company['company_tagline'] ?: 'CARE · AFTER SALES';
+@endphp
+<main class="app" id="top">
+    <div class="wrap">
+        <header class="topbar">
+            <a class="brand" href="#top">
+                <span class="logo"><img src="{{ $logoUrl }}" alt="{{ $company['company_name'] }}"></span>
+                <span>{{ $company['company_name'] }}<small>{{ $tagline }}</small></span>
+            </a>
+            <nav class="nav">
+                <a href="#services">خدمات ما</a>
+                <a href="#process">مراحل پیگیری</a>
+                <a href="#faq">سوالات متداول</a>
+            </nav>
+            <a class="top-cta" href="#request">ثبت درخواست <span>↙</span></a>
+        </header>
+
+        <section class="hero">
+            <div>
+                <div class="eyebrow"><span class="dot"></span> همراه شما، حتی بعد از خرید</div>
+                <h1>تجربه‌ی خوب خرید،<br><span>اینجا تمام نمی‌شود.</span></h1>
+                <p class="intro">برای پیگیری سفارش، درخواست خدمات یا دریافت راهنمایی درباره محصولات، کنار شما هستیم. درخواستت رو ثبت کن؛ ادامه مسیر رو با هم پیش می‌بریم.</p>
+                <div class="hero-actions">
+                    <a class="btn" href="#request">ثبت درخواست خدمات <span>↙</span></a>
+                    <a class="btn secondary" href="#process">مراحل پیگیری</a>
                 </div>
-                <ul class="hs-hero-features">
-                    @foreach (['پیگیری شفاف درخواست', 'راهنمایی تخصصی محصول', 'ارتباط آسان'] as $feature)
-                        <li>
-                            <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                                <path d="M5 10.5 8 13.5 15 6.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                            {{ $feature }}
-                        </li>
-                    @endforeach
-                </ul>
+                <div class="trust">
+                    <span>✓ پیگیری شفاف درخواست</span>
+                    <span>✓ راهنمایی تخصصی محصول</span>
+                    <span>✓ ارتباط آسان</span>
+                </div>
             </div>
-        </div>
-    </section>
-
-    <section class="hs-hero-visual">
-        <div class="hs-container hs-hero-visual-inner">
-            @include('public.partials.orbit-hero')
-        </div>
-    </section>
-
-    <section class="hs-section" id="services">
-        <div class="hs-container">
-            <div class="hs-section-head">
-                <h2 class="hs-section-title">چطور می‌تونیم کمکتون کنیم؟</h2>
-                <p class="hs-section-sub">نوع درخواست خود را انتخاب کنید؛ تیم ما در کنار شماست.</p>
-            </div>
-            <div class="hs-service-grid">
-                @forelse ($types as $index => $type)
-                    <article class="hs-service-card">
-                        <div class="hs-service-icon">{{ $index + 1 }}</div>
-                        <h3>{{ $type->name }}</h3>
-                        <p>{{ $type->description ?: 'ثبت و پیگیری درخواست مربوط به '.$type->name.' از همین سامانه.' }}</p>
-                    </article>
-                @empty
-                    @foreach (['ثبت درخواست', 'پیگیری وضعیت', 'ارسال مدارک'] as $index => $title)
-                        <article class="hs-service-card">
-                            <div class="hs-service-icon">{{ $index + 1 }}</div>
-                            <h3>{{ $title }}</h3>
-                            <p>مسیر ساده و امن برای مشتریان.</p>
-                        </article>
-                    @endforeach
-                @endforelse
-            </div>
-        </div>
-    </section>
-
-    <section class="hs-process-band" id="process">
-        <div class="hs-container">
-            <div class="hs-section-head">
-                <h2 class="hs-section-title">فرآیند ساده در چند گام</h2>
-                <p class="hs-section-sub">از ثبت درخواست تا پاسخ — شفاف و قابل پیگیری</p>
-            </div>
-            <div class="hs-process-steps">
-                @foreach ([
-                    ['۱', 'تأیید موبایل', 'دریافت رمز یک‌بارمصرف'],
-                    ['۲', 'تکمیل فرم', 'اطلاعات خرید و مدارک'],
-                    ['۳', 'بررسی کارشناس', 'ارجاع و رسیدگی تخصصی'],
-                    ['۴', 'نتیجه و پیگیری', 'کد رهگیری همیشه در دسترس شما'],
-                ] as [$num, $title, $text])
-                    <div class="hs-process-step">
-                        <div class="hs-process-dot"></div>
-                        <span>گام {{ $num }}</span>
-                        <h4>{{ $title }}</h4>
-                        <p>{{ $text }}</p>
+            <div class="visual" aria-label="پشتیبانی آنلاین">
+                <div class="plate">
+                    <div class="plate-inner">
+                        <img src="{{ $avatarUrl }}" alt="اپراتور پشتیبانی" width="140" height="140">
                     </div>
-                @endforeach
+                </div>
+                <div class="float-card fc1">
+                    <strong>همراه شما هستیم</strong>
+                    <span>از ثبت درخواست تا پیگیری</span>
+                </div>
+                <div class="float-card fc2">
+                    <div class="mini-icon">✓</div>
+                    <div>
+                        <strong>درخواست شما</strong>
+                        <span>شروع یک پیگیری ساده</span>
+                    </div>
+                </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <section class="hs-section" id="register">
-        <div class="hs-container hs-register-grid">
-            <div class="hs-contact-card">
+        <section class="section" id="services">
+            <div class="section-head">
                 <div>
-                    <h3>حرفه‌ای گوش می‌دهیم</h3>
-                    <p>{{ $company['process_guide'] ?: 'تیم پشتیبانی ما درخواست شما را با دقت بررسی می‌کند و در هر مرحله در کنار شماست.' }}</p>
+                    <div class="kicker">HOW CAN WE HELP?</div>
+                    <h2>چطور می‌تونیم کمکت کنیم؟</h2>
                 </div>
-                <div class="hs-contact-meta">
-                    @if ($company['contact_phone'])
-                        <p>تلفن: {{ $company['contact_phone'] }}</p>
-                    @endif
-                    @if ($company['contact_email'])
-                        <p>ایمیل: {{ $company['contact_email'] }}</p>
-                    @endif
-                    @if ($company['contact_address'])
-                        <p>{{ $company['contact_address'] }}</p>
-                    @endif
+                <p class="muted">موضوع درخواستت رو انتخاب کن تا راحت‌تر به مسیر درست راهنمایی بشی.</p>
+            </div>
+            <div class="services">
+                <article class="service">
+                    <div class="mini-icon">♧</div>
+                    <h3>پیگیری سفارش</h3>
+                    <p>اگر درباره وضعیت سفارش یا تحویل محصول سوالی داری، درخواستت رو ثبت کن.</p>
+                </article>
+                <article class="service">
+                    <div class="mini-icon">✳</div>
+                    <h3>راهنمایی محصول</h3>
+                    <p>برای استفاده، نگهداری و دریافت اطلاعات بیشتر درباره محصولات از ما کمک بگیر.</p>
+                </article>
+                <article class="service">
+                    <div class="mini-icon">↗</div>
+                    <h3>ثبت مشکل یا مغایرت</h3>
+                    <p>اگر محصول دریافتی مشکلی دارد یا با سفارش مطابقت ندارد، موضوع را توضیح بده.</p>
+                </article>
+            </div>
+        </section>
+    </div>
+
+    <section class="process" id="process">
+        <div class="wrap">
+            <div class="kicker">A SIMPLE PROCESS</div>
+            <h2>از درخواست تا پاسخ، در ۴ قدم</h2>
+            <p class="muted">فرآیند را ساده و شفاف طراحی کردیم تا بدانید قدم بعدی چیست.</p>
+            <div class="steps">
+                <div class="step">
+                    <div class="num">مرحله ۰۱</div>
+                    <h3>ثبت درخواست</h3>
+                    <p>فرم کوتاه را با اطلاعات تماس و موضوع درخواست تکمیل کن.</p>
+                </div>
+                <div class="step">
+                    <div class="num">مرحله ۰۲</div>
+                    <h3>بررسی اطلاعات</h3>
+                    <p>جزئیات درخواست برای بررسی اولیه آماده می‌شود.</p>
+                </div>
+                <div class="step">
+                    <div class="num">مرحله ۰۳</div>
+                    <h3>تماس و هماهنگی</h3>
+                    <p>برای پیگیری و مشخص شدن راه‌حل با شما هماهنگ می‌کنیم.</p>
+                </div>
+                <div class="step">
+                    <div class="num">مرحله ۰۴</div>
+                    <h3>پیگیری تا نتیجه</h3>
+                    <p>وضعیت درخواست از طریق مسیر ارتباطی هماهنگ‌شده دنبال می‌شود.</p>
                 </div>
             </div>
+        </div>
+    </section>
 
-            <div class="hs-form-card">
-                <h3>ثبت درخواست سریع</h3>
-                <p class="hs-form-note">ابتدا موبایل را تأیید کنید؛ بقیهٔ فرم در مرحله بعد تکمیل می‌شود.</p>
+    <div class="wrap">
+        <section class="section request" id="request">
+            <aside class="request-aside">
+                <div class="eyebrow" style="background:#ffffff20;color:white">پشتیبانی {{ $company['company_name'] }}</div>
+                <h2>ما برای شنیدن حرفت اینجاییم.</h2>
+                <p>چند خط درباره درخواستت بنویس. اطلاعاتت کمک می‌کنه سریع‌تر موضوع رو بررسی کنیم.</p>
+                <div class="contact-line">
+                    @if ($company['contact_phone'])
+                        تماس: {{ $company['contact_phone'] }}<br>
+                    @endif
+                    پاسخ‌گویی به درخواست‌ها<br>
+                    در روزها و ساعات کاری مجموعه
+                </div>
+            </aside>
+            <div class="form-card">
+                <h3>ثبت درخواست خدمات</h3>
+                <p>ابتدا شماره تماس را وارد کنید؛ پس از تأیید با رمز یک‌بارمصرف، فرم کامل را تکمیل می‌کنید.</p>
 
-                <form method="POST" action="{{ route('requests.otp.send') }}" class="mt-2">
+                @if (session('status'))
+                    <div class="cb-flash cb-flash-success" role="status">{{ session('status') }}</div>
+                @endif
+                @if (session('error'))
+                    <div class="cb-flash cb-flash-error" role="alert">{{ session('error') }}</div>
+                @endif
+                @if ($errors->any())
+                    <div class="cb-flash cb-flash-error" role="alert">
+                        @foreach ($errors->all() as $error)
+                            <div>{{ $error }}</div>
+                        @endforeach
+                    </div>
+                @endif
+
+                <form method="POST" action="{{ route('requests.otp.send') }}" id="serviceForm">
                     @csrf
-                    <div class="hs-field">
-                        <label for="home_mobile">شماره موبایل</label>
-                        <input id="home_mobile" name="mobile" type="tel" dir="ltr" inputmode="numeric" class="hs-input" placeholder="09123456789" required autocomplete="tel">
+                    <div class="fields">
+                        <label class="field">نام و نام خانوادگی
+                            <input name="name" placeholder="نام شما" value="{{ old('name') }}" autocomplete="name">
+                        </label>
+                        <label class="field">شماره تماس *
+                            <input required name="mobile" type="tel" dir="ltr" inputmode="tel" placeholder="09121234567" value="{{ old('mobile') }}" autocomplete="tel">
+                        </label>
+                        <label class="field">موضوع درخواست
+                            <select name="topic">
+                                <option value="">انتخاب موضوع</option>
+                                <option @selected(old('topic') === 'پیگیری سفارش')>پیگیری سفارش</option>
+                                <option @selected(old('topic') === 'راهنمایی محصول')>راهنمایی محصول</option>
+                                <option @selected(old('topic') === 'مشکل یا مغایرت محصول')>مشکل یا مغایرت محصول</option>
+                                <option @selected(old('topic') === 'مرجوعی یا تعویض')>مرجوعی یا تعویض</option>
+                                <option @selected(old('topic') === 'سایر موارد')>سایر موارد</option>
+                            </select>
+                        </label>
+                        <label class="field">شماره سفارش (اختیاری)
+                            <input name="order" placeholder="مثلاً CB-1024" value="{{ old('order') }}">
+                        </label>
+                        <label class="field full">توضیحات درخواست
+                            <textarea name="details" placeholder="لطفاً موضوع را با جزئیات کوتاه توضیح دهید...">{{ old('details') }}</textarea>
+                        </label>
                     </div>
-                    <div class="hs-field hs-field-decor" aria-hidden="true">
-                        <label>نام و نام خانوادگی</label>
-                        <input type="text" class="hs-input" placeholder="در مرحله بعد" disabled tabindex="-1">
-                    </div>
-                    <div class="hs-field hs-field-decor" aria-hidden="true">
-                        <label>نوع درخواست</label>
-                        <select class="hs-select" disabled tabindex="-1">
-                            <option>پس از تأیید موبایل</option>
-                        </select>
-                    </div>
-                    <button type="submit" class="hs-btn hs-btn-primary">ثبت درخواست — دریافت کد</button>
+                    <button class="btn form-submit" type="submit">ادامه — دریافت کد تأیید <span>↙</span></button>
+                    <div class="notice">پس از تأیید موبایل، به صفحه تکمیل درخواست هدایت می‌شوید. پیگیری پرونده با <a href="{{ route('track.show') }}">کد رهگیری</a> ممکن است.</div>
                 </form>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <section class="hs-section" id="faq">
-        <div class="hs-container">
-            <div class="hs-section-head">
-                <h2 class="hs-section-title">سوالات متداول</h2>
-            </div>
-            <div class="hs-faq">
-                <details class="hs-faq-item">
-                    <summary>چطور درخواست ثبت کنم؟</summary>
-                    <p>روی «ثبت درخواست» بزنید، موبایل را با رمز یک‌بارمصرف تأیید کنید، سپس فرم و مدارک را تکمیل کنید. کد رهگیری به شما داده می‌شود.</p>
+        <section class="section" id="faq">
+            <div class="faq">
+                <div class="kicker">FAQ</div>
+                <h2>سوالات پرتکرار</h2>
+                <details>
+                    <summary>چطور درخواست خدمات ثبت کنم؟</summary>
+                    <p>فرم ثبت درخواست را تکمیل کن و موضوع و شرح مشکل را بنویس. برای پیگیری سفارش، شماره سفارش هم کمک‌کننده است.</p>
                 </details>
-                <details class="hs-faq-item">
-                    <summary>مدارک لازم چیست؟</summary>
-                    <p>{{ $company['required_documents_text'] ?: 'حداقل یک فایل تصویر یا PDF از فاکتور یا کالا در فرم ثبت الزامی است.' }}</p>
+                <details>
+                    <summary>برای پیگیری سفارش چه اطلاعاتی لازم است؟</summary>
+                    <p>شماره تماس ثبت‌شده هنگام خرید و در صورت دسترسی، شماره سفارش را آماده داشته باش.</p>
                 </details>
-                <details class="hs-faq-item">
-                    <summary>آیا می‌توانم چند درخواست همزمان باز داشته باشم؟</summary>
-                    <p>خیر. تا بسته شدن پروندهٔ قبلی، ثبت درخواست جدید برای همان موبایل ممکن نیست؛ کد رهگیری پروندهٔ باز را به شما نشان می‌دهیم.</p>
-                </details>
-                <details class="hs-faq-item">
-                    <summary>پیامک OTP چیست؟</summary>
-                    <p>برای امنیت، ورود و ثبت با رمز یک‌بارمصرف انجام می‌شود. جزئیات در صفحه <a href="{{ route('site.privacy') }}" class="text-[#004d40] font-semibold">حریم خصوصی</a>.</p>
+                <details>
+                    <summary>بعد از ثبت درخواست چه اتفاقی می‌افتد؟</summary>
+                    <p>پس از تأیید موبایل، درخواست در سامانه ثبت می‌شود و تیم مربوطه طبق فرآیند مجموعه آن را بررسی و پیگیری می‌کند.</p>
                 </details>
             </div>
-        </div>
-    </section>
+        </section>
+
+        <footer>
+            <div class="foot">
+                <span>© {{ $company['company_name'] }} — خدمات پس از فروش</span>
+                <span>
+                    <a href="{{ route('track.show') }}">پیگیری درخواست ↗</a>
+                    　·　
+                    <a href="{{ route('site.contact') }}">تماس با ما</a>
+                    　·　
+                    تجربه‌ای بهتر، حتی بعد از خرید
+                </span>
+            </div>
+        </footer>
+    </div>
+</main>
+<a class="floating-help" href="#request">✳ ثبت درخواست</a>
 @endsection
