@@ -15,8 +15,8 @@
     <header class="hs-header">
         <div class="hs-container hs-header-inner">
             <a href="{{ route('home') }}" class="hs-brand">
-                @include('public.partials.brand-mark', ['imgClass' => 'h-10 w-10 rounded-xl object-cover'])
-                <span>
+                @include('public.partials.brand-mark', ['imgClass' => 'h-9 w-9 shrink-0 rounded-xl object-cover sm:h-10 sm:w-10'])
+                <span class="hs-brand-copy">
                     <span class="hs-brand-title">{{ $company['company_name'] }}</span>
                     <span class="hs-brand-sub">{{ $company['company_tagline'] }}</span>
                 </span>
@@ -28,7 +28,10 @@
                 <a href="{{ route('site.contact') }}">تماس</a>
             </nav>
             <div class="hs-header-cta">
-                <a href="{{ route('requests.create') }}" class="hs-btn hs-btn-primary">ثبت درخواست</a>
+                <a href="{{ route('requests.create') }}" class="hs-btn hs-btn-primary">
+                    <span class="sm:hidden">ثبت</span>
+                    <span class="hidden sm:inline">ثبت درخواست</span>
+                </a>
             </div>
         </div>
     </header>
