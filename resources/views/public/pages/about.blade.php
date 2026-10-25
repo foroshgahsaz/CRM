@@ -1,9 +1,9 @@
 @extends('public.layout')
 
 @section('content')
-    <article class="crm-card mx-auto max-w-3xl p-6 sm:p-9">
-        <h1 class="crm-page-title">درباره {{ $company['company_name'] }}</h1>
-        <p class="crm-page-lead">{{ $company['company_tagline'] }}</p>
+    <article class="hs-panel max-w-3xl">
+        <h1 class="hs-panel-title">درباره {{ $company['company_name'] }}</h1>
+        <p class="hs-panel-lead">{{ $company['company_tagline'] }}</p>
 
         <div class="prose-crm mt-6 space-y-4 text-sm leading-8 text-slate-700">
             <p>{{ $company['company_description'] }}</p>

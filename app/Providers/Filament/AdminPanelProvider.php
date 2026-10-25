@@ -46,8 +46,8 @@ class AdminPanelProvider extends PanelProvider
             ->renderHook(PanelsRenderHook::BODY_END, fn (): string => view('filament.partials.jalali-assets')->render())
             ->databaseNotifications()
             ->colors([
-                'primary' => Color::hex('#1e4d3e'),
-                'info' => Color::hex('#b8946f'),
+                'primary' => Color::hex('#004d40'),
+                'info' => Color::hex('#b08968'),
             ])
             ->navigationGroups([
                 'عملیات',
