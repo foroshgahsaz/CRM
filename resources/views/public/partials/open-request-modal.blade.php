@@ -5,7 +5,7 @@
         <p class="crm-page-lead mt-2 text-sm">
             برای شمارهٔ موبایل تأییدشده یک پرونده هنوز بسته نشده است. تا پایان رسیدگی، ثبت درخواست جدید ممکن نیست.
         </p>
-        <p class="mt-4 rounded-xl bg-indigo-50 px-4 py-3 text-center text-sm text-brand-900">
+        <p class="mt-4 rounded-xl bg-[#e2ede6] px-4 py-3 text-center text-sm text-[#1e4d3e]">
             کد رهگیری:
             <strong dir="ltr" class="block text-lg tracking-widest text-brand-800">{{ $trackingCode }}</strong>
         </p>

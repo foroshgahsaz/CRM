@@ -13,23 +13,18 @@
 </head>
 <body class="crm-page-bg min-h-screen antialiased">
     <div class="crm-ambient" aria-hidden="true">
-        <span class="crm-orb crm-orb-a"></span>
-        <span class="crm-orb crm-orb-b"></span>
-        <span class="crm-orb crm-orb-c"></span>
-        <span class="crm-grid"></span>
+        <span class="crm-ripple crm-ripple-a"></span>
+        <span class="crm-ripple crm-ripple-b"></span>
+        <span class="crm-ripple crm-ripple-c"></span>
     </div>
 
     <header class="crm-header-glass sticky top-0 z-40 border-b">
         <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:py-4">
             <a href="{{ route('home') }}" class="group flex items-center gap-3">
-                @if (! empty($company['logo']))
-                    <img src="{{ asset('storage/'.$company['logo']) }}" alt="" class="h-11 w-11 rounded-2xl object-cover ring-2 ring-white/30 transition group-hover:ring-white/50">
-                @else
-                    <span class="crm-logo-mark">CRM</span>
-                @endif
+                @include('public.partials.brand-mark')
                 <span>
-                    <span class="block text-base font-bold tracking-tight text-white">{{ $company['company_name'] }}</span>
-                    <span class="block text-xs sm:text-sm text-white/70">{{ $company['company_tagline'] }}</span>
+                    <span class="block text-base font-bold tracking-tight text-[#1e4d3e]">{{ $company['company_name'] }}</span>
+                    <span class="block text-xs sm:text-sm text-[#5c7268]">{{ $company['company_tagline'] }}</span>
                 </span>
             </a>
             <nav class="flex flex-wrap items-center gap-2 text-sm">
@@ -64,12 +59,15 @@
     </main>
 
     <footer class="crm-footer-glass relative z-10 mt-10 border-t">
-        <div class="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-8 text-sm text-white/75 sm:flex-row sm:items-center sm:justify-between">
-            <p class="font-medium text-white/90">{{ $company['company_name'] }}</p>
-            <nav class="flex flex-wrap gap-x-4 gap-y-2 text-white/85">
-                <a href="{{ route('site.about') }}" class="hover:text-white">درباره ما</a>
-                <a href="{{ route('site.contact') }}" class="hover:text-white">تماس</a>
-                <a href="{{ route('site.privacy') }}" class="hover:text-white">حریم خصوصی و OTP</a>
+        <div class="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-8 text-sm text-[#5c7268] sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex items-center gap-2">
+                @include('public.partials.brand-mark', ['imgClass' => 'h-9 w-9 rounded-xl object-cover ring-1 ring-[#e2ede6]'])
+                <p class="font-medium text-[#1e4d3e]">{{ $company['company_name'] }}</p>
+            </div>
+            <nav class="flex flex-wrap gap-x-4 gap-y-2 text-[#3d5a50]">
+                <a href="{{ route('site.about') }}" class="hover:text-[#1e4d3e]">درباره ما</a>
+                <a href="{{ route('site.contact') }}" class="hover:text-[#1e4d3e]">تماس</a>
+                <a href="{{ route('site.privacy') }}" class="hover:text-[#1e4d3e]">حریم خصوصی و OTP</a>
             </nav>
             <div class="flex flex-col gap-1 sm:text-left">
                 @if ($company['contact_phone'])<span>تلفن: {{ $company['contact_phone'] }}</span>@endif

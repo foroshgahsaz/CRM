@@ -63,7 +63,7 @@
             <form method="POST" action="{{ route('requests.store') }}" enctype="multipart/form-data" class="mt-6 grid gap-4">
                 @csrf
                 <input type="hidden" name="submission_key" value="{{ session('submission.key') }}">
-                <p class="rounded-xl bg-indigo-50 px-4 py-3 text-sm text-brand-800">شماره تأییدشده: <strong>{{ $mobile }}</strong></p>
+                <p class="rounded-xl bg-[#e2ede6] px-4 py-3 text-sm text-[#1e4d3e]">شماره تأییدشده: <strong>{{ $mobile }}</strong></p>
 
                 <label class="grid gap-1.5 text-sm font-semibold text-brand-900" for="full_name">نام و نام خانوادگی خریدار
                     <input id="full_name" name="full_name" value="{{ old('full_name') }}" class="crm-input font-normal" required>
@@ -127,7 +127,7 @@
                 @endforeach
 
                 <label class="grid gap-1.5 text-sm font-semibold text-brand-900" for="attachments">مدارک و تصاویر
-                    <input id="attachments" name="attachments[]" type="file" multiple required accept=".jpg,.jpeg,.png,.webp,.pdf" class="crm-input file:me-3 file:rounded-full file:border-0 file:bg-indigo-100 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-indigo-700">
+                    <input id="attachments" name="attachments[]" type="file" multiple required accept=".jpg,.jpeg,.png,.webp,.pdf" class="crm-input file:me-3 file:rounded-full file:border-0 file:bg-[#e2ede6] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-[#1e4d3e]">
                 </label>
                 <p class="text-xs text-slate-500">حداقل یک فایل الزامی است. می‌توانید چند مدرک را یکجا انتخاب کنید.</p>
                 <p class="text-xs leading-6 text-slate-500">{{ $company['required_documents_text'] }}</p>

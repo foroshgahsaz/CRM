@@ -38,14 +38,16 @@ class AdminPanelProvider extends PanelProvider
             ->passwordReset()
             ->profile()
             ->brandName('سامانه درخواست‌ها')
+            ->brandLogo(asset('images/hooman/logo.jpg'))
+            ->brandLogoHeight('2.25rem')
             ->maxContentWidth(Width::Full)
             ->font('YekanBakh', url: asset('fonts/yekan/fonts.css'), provider: LocalFontProvider::class)
             ->viteTheme('resources/css/filament/admin/theme.css')
             ->renderHook(PanelsRenderHook::BODY_END, fn (): string => view('filament.partials.jalali-assets')->render())
             ->databaseNotifications()
             ->colors([
-                'primary' => Color::Violet,
-                'info' => Color::Sky,
+                'primary' => Color::hex('#1e4d3e'),
+                'info' => Color::hex('#b8946f'),
             ])
             ->navigationGroups([
                 'عملیات',

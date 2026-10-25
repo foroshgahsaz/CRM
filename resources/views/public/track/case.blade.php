@@ -24,7 +24,7 @@
             <h2 class="font-semibold text-brand-900">پیام‌های رسمی</h2>
             <div class="mt-3 grid gap-3">
                 @forelse ($record->messages as $message)
-                    <p class="rounded-xl bg-indigo-50 px-3 py-2 text-sm leading-7 text-slate-700">{{ $message->body }}</p>
+                    <p class="rounded-xl bg-[#e2ede6] px-3 py-2 text-sm leading-7 text-slate-700">{{ $message->body }}</p>
                 @empty
                     <p class="text-sm text-slate-500">پیام قابل نمایشی ثبت نشده است.</p>
                 @endforelse
