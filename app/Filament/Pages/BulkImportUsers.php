@@ -4,9 +4,11 @@ namespace App\Filament\Pages;
 
 use App\Services\UserBulkImportResult;
 use App\Services\UserBulkImportService;
+use App\Support\PermissionCatalog;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
@@ -51,6 +53,7 @@ class BulkImportUsers extends Page
 
         $this->form->fill([
             'is_active' => true,
+            'default_role' => 'representative',
         ]);
     }
 
@@ -60,7 +63,7 @@ class BulkImportUsers extends Page
             Section::make('راهنما')->schema([
                 \Filament\Forms\Components\Placeholder::make('help')
                     ->label('')
-                    ->content('ستون‌های فایل: «نام و نام خانوادگی»، «شماره موبایل»، «دسترسی» (مثلاً نماینده). می‌توانید فایل Excel (xlsx) یا CSV بارگذاری کنید. شماره‌ها می‌توانند با ارقام فارسی باشند.'),
+                    ->content('ستون‌های فایل: «نام و نام خانوادگی»، «شماره موبایل»، «دسترسی» (اختیاری — اگر خالی بود نقش پیش‌فرض زیر اعمال می‌شود). ترتیب ستون‌ها مهم نیست. Excel (xlsx) یا CSV؛ موبایل با ارقام فارسی یا بدون صفر اول هم قبول است.'),
             ]),
             Section::make('فایل و حساب')->schema([
                 FileUpload::make('spreadsheet')
@@ -84,6 +87,11 @@ class BulkImportUsers extends Page
                     ->password()
                     ->revealable()
                     ->dehydrated(false),
+                Select::make('default_role')
+                    ->label('نقش پیش‌فرض (اگر ستون دسترسی خالی بود)')
+                    ->options(collect(PermissionCatalog::roles())->except(['super_admin']))
+                    ->default('representative')
+                    ->required(),
                 Toggle::make('is_active')
                     ->label('کاربران فعال باشند')
                     ->default(true),
@@ -173,6 +181,7 @@ class BulkImportUsers extends Page
                 (string) $data['password'],
                 (bool) ($data['is_active'] ?? true),
                 $actor,
+                (string) ($data['default_role'] ?? 'representative'),
             );
         } catch (\Throwable $exception) {
             Notification::make()

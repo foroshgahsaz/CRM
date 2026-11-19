@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Support\MobileNumber;
 use OpenSpout\Common\Entity\Row;
 use OpenSpout\Reader\CSV\Reader as CsvReader;
 use OpenSpout\Reader\XLSX\Reader as XlsxReader;
@@ -135,9 +136,32 @@ class UserSpreadsheetReader
         $cells = [];
 
         foreach ($row->getCells() as $cell) {
-            $cells[] = trim((string) $cell->getValue());
+            $cells[] = $this->cellToString($cell->getValue());
         }
 
         return $cells;
+    }
+
+    private function cellToString(mixed $value): string
+    {
+        if ($value === null) {
+            return '';
+        }
+
+        if (is_int($value)) {
+            $value = (float) $value;
+        }
+
+        if (is_float($value)) {
+            if ($value >= 9_000_000_000 && $value < 100_000_000_000) {
+                return sprintf('%.0f', $value);
+            }
+
+            if (abs($value - round($value)) < 0.0001) {
+                return (string) (int) round($value);
+            }
+        }
+
+        return trim(MobileNumber::toEnglishDigits((string) $value));
     }
 }
