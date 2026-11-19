@@ -3,9 +3,9 @@
 namespace App\Filament\Resources\Users\Pages;
 
 use App\Filament\Resources\Users\UserResource;
-use App\Models\User;
 use App\Services\AuditLogService;
 use App\Support\MobileNumber;
+use App\Support\StaffMobileRegistry;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Validation\ValidationException;
 
@@ -52,11 +52,7 @@ class CreateUser extends CreateRecord
             ]);
         }
 
-        if (User::withTrashed()->where('mobile', $normalized)->exists()) {
-            throw ValidationException::withMessages([
-                'data.mobile' => 'این شماره موبایل قبلاً برای کاربر دیگری ثبت شده است.',
-            ]);
-        }
+        StaffMobileRegistry::assertAvailableForNewUser($normalized);
 
         $data['mobile'] = $normalized;
 

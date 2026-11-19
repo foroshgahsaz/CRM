@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\User;
 use App\Support\MobileNumber;
 use App\Support\RoleLabelResolver;
+use App\Support\StaffMobileRegistry;
 use App\Support\RoleProvisioner;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
@@ -114,8 +115,10 @@ class UserBulkImportService
                 continue;
             }
 
-            if (User::withTrashed()->where('mobile', $mobile)->exists()) {
-                $result->skipped[] = ['row' => $rowNumber, 'message' => 'کاربر با موبایل '.$mobile.' از قبل وجود دارد.'];
+            StaffMobileRegistry::releaseFromTrashedAccounts($mobile);
+
+            if (User::query()->where('mobile', $mobile)->exists()) {
+                $result->skipped[] = ['row' => $rowNumber, 'message' => 'کاربر پنل با موبایل '.$mobile.' از قبل وجود دارد (مشتری/درخواست جدا است).'];
 
                 continue;
             }

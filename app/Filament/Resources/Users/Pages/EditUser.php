@@ -4,8 +4,8 @@ namespace App\Filament\Resources\Users\Pages;
 
 use App\Filament\Actions\DeleteRecordAction;
 use App\Filament\Resources\Users\UserResource;
-use App\Models\User;
 use App\Services\AuditLogService;
+use App\Support\StaffMobileRegistry;
 use App\Support\MobileNumber;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Validation\ValidationException;
@@ -41,16 +41,7 @@ class EditUser extends EditRecord
                 ]);
             }
 
-            $duplicate = User::withTrashed()
-                ->where('mobile', $normalized)
-                ->whereKeyNot($this->getRecord()->getKey())
-                ->exists();
-
-            if ($duplicate) {
-                throw ValidationException::withMessages([
-                    'data.mobile' => 'این شماره موبایل قبلاً برای کاربر دیگری ثبت شده است.',
-                ]);
-            }
+            StaffMobileRegistry::assertAvailableForNewUser($normalized, $this->getRecord()->getKey());
 
             $data['mobile'] = $normalized;
         }

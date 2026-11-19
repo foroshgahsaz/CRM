@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\Users\Schemas;
 
-use App\Models\User;
 use App\Support\PermissionCatalog;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -24,7 +23,7 @@ class UserForm
                     ->label('موبایل')
                     ->tel()
                     ->maxLength(20)
-                    ->unique(table: User::class, column: 'mobile', ignoreRecord: true),
+                    ->helperText('موبایل مشتری و درخواست عمومی جدا از کاربر پنل است.'),
                 Select::make('organizational_unit_id')->label('واحد سازمانی')->relationship('organizationalUnit', 'name')->searchable()->preload(),
                 Toggle::make('is_active')->label('فعال')->default(true),
             ])->columns(2),
