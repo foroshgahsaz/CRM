@@ -70,7 +70,8 @@ class RecordDeletionService
         return match (true) {
             $record instanceof ServiceRequest => $base.' همهٔ پیام‌ها، مدارک، ارجاع‌ها و تاریخچهٔ این درخواست حذف می‌شود'
                 .($record->inventoryAllocations()->whereNull('cancelled_at')->exists() ? ' و کالاهای ارجاع‌شده به موجودی انبار برمی‌گردد.' : '.'),
-            $record instanceof User => $base.' نام این کاربر از سوابق پرونده‌ها برداشته می‌شود؛ مشخصات او در سوابق حسابرسی می‌ماند.',
+            $record instanceof User => $base.' نام این کاربر از سوابق پرونده‌ها برداشته می‌شود؛ مشخصات او در سوابق حسابرسی می‌ماند.'
+                .(($hint = app(UserRelatedRequestsService::class)->deleteBlockerMessage($record)) !== '' ? "\n\n".$hint : ''),
             $record instanceof Warehouse => $base.' '.$record->products()->count().' کالای این انبار و سابقهٔ ارجاع آن‌ها هم حذف می‌شود.',
             $record instanceof WarehouseProduct => $base.' '.$record->allocations()->count().' سابقهٔ ارجاع این کالا هم حذف می‌شود.',
             $record instanceof InventoryAllocation => $base.($record->isActive() ? ' یک عدد به موجودی انبار برمی‌گردد.' : ''),
@@ -126,11 +127,13 @@ class RecordDeletionService
             throw new WorkflowException('آخرین مدیر ارشد فعال قابل حذف نیست.');
         }
 
-        $openOwned = ServiceRequest::query()->open()->where('current_owner_id', $user->id)->count();
-        $activeAssignments = RequestAssignment::query()->where('to_user_id', $user->id)->where('status', AssignmentStatus::Active->value)->count();
+        $open = app(UserRelatedRequestsService::class)->blockingOpenRequests($user);
 
-        if ($openOwned > 0 || $activeAssignments > 0) {
-            throw new WorkflowException('این کاربر مسئول '.max($openOwned, $activeAssignments).' پرونده باز است. ابتدا پرونده‌ها را به کارشناس دیگری ارجاع دهید.');
+        if ($open->isNotEmpty()) {
+            throw new WorkflowException(
+                'حذف ممکن نیست؛ '.$open->count().' پروندهٔ باز به این کاربر مربوط است.'."\n"
+                .app(UserRelatedRequestsService::class)->deleteBlockerMessage($user)
+            );
         }
 
         ServiceRequest::query()->where('current_owner_id', $user->id)->update(['current_owner_id' => null]);
