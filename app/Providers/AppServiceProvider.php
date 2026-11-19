@@ -86,6 +86,8 @@ class AppServiceProvider extends ServiceProvider
 
         View::composer('public.*', function ($view): void {
             $view->with('company', app(SettingsService::class)->publicProfile());
+            $view->with('staffPortal', \App\Support\PublicStaffContext::resolve());
+            $view->with('staffLoginUrl', \App\Support\PublicStaffContext::loginUrl());
         });
     }
 }

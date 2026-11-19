@@ -19,7 +19,14 @@
                 <a href="#request">ثبت درخواست</a>
                 <a href="#faq">سوالات متداول</a>
             </nav>
-            <a class="top-cta" href="#request">ثبت درخواست <span>↙</span></a>
+            <div class="top-actions">
+                @if (! empty($staffPortal))
+                    <a class="top-cta top-cta--secondary" href="{{ $staffPortal['dashboard_url'] }}">پنل نماینده</a>
+                @else
+                    <a class="top-cta top-cta--secondary" href="{{ $staffLoginUrl }}">ورود نماینده</a>
+                @endif
+                <a class="top-cta" href="#request">ثبت درخواست <span>↙</span></a>
+            </div>
         </header>
 
         <section class="hero">

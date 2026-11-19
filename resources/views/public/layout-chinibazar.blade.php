@@ -10,7 +10,8 @@
     @include('partials.jalali-datepicker-assets')
     @vite(['resources/css/chinibazar-premium.css', 'resources/js/app.js'])
 </head>
-<body>
+<body @class(['has-staff-toolbar' => ! empty($staffPortal)])>
+@include('public.partials.staff-toolbar')
 @yield('content')
 </body>
 </html>

@@ -11,7 +11,8 @@
     @include('partials.jalali-datepicker-assets')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="hs-site min-h-screen antialiased">
+<body @class(['hs-site min-h-screen antialiased', 'has-staff-toolbar' => ! empty($staffPortal)])>
+    @include('public.partials.staff-toolbar')
     <header class="hs-header">
         <div class="hs-container hs-header-inner">
             <a href="{{ route('home') }}" class="hs-brand">
@@ -28,6 +29,17 @@
                 <a href="{{ route('site.contact') }}">تماس</a>
             </nav>
             <div class="hs-header-cta">
+                @if (! empty($staffPortal))
+                    <a href="{{ $staffPortal['dashboard_url'] }}" class="hs-btn hs-btn-outline">
+                        <span class="sm:hidden">پنل</span>
+                        <span class="hidden sm:inline">پنل نماینده</span>
+                    </a>
+                @else
+                    <a href="{{ $staffLoginUrl }}" class="hs-btn hs-btn-outline">
+                        <span class="sm:hidden">ورود</span>
+                        <span class="hidden sm:inline">ورود نماینده</span>
+                    </a>
+                @endif
                 <a href="{{ route('requests.create') }}" class="hs-btn hs-btn-primary">
                     <span class="sm:hidden">ثبت</span>
                     <span class="hidden sm:inline">ثبت درخواست</span>

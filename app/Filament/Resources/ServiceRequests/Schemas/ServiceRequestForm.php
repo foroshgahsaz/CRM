@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\ServiceRequests\Schemas;
 
 use App\Enums\FieldType;
-use App\Enums\RequestPriority;
 use App\Filament\Forms\Components\JalaliDateInput;
 use App\Models\RequestField;
 use App\Services\SettingsService;
@@ -27,8 +26,6 @@ class ServiceRequestForm
                 ->required()->live(),
             JalaliDateInput::make('purchase_jalali')->label('تاریخ خرید')->required()->maxToday(),
             TextInput::make('invoice_number')->label('شماره فاکتور')->maxLength(50),
-            TextInput::make('product_name')->label('محصول')->maxLength(190),
-            Select::make('priority')->label('اولویت')->options(collect(RequestPriority::cases())->mapWithKeys(fn ($priority) => [$priority->value => $priority->label()]))->default(RequestPriority::Normal->value)->required(),
             Textarea::make('description')->label('شرح')->required()->minLength(10)->columnSpanFull(),
             FileUpload::make('attachments')
                 ->label('مدارک')
