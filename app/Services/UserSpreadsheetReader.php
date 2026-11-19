@@ -14,7 +14,7 @@ class UserSpreadsheetReader
      */
     public function rows(string $absolutePath): array
     {
-        $extension = strtolower(pathinfo($absolutePath, PATHINFO_EXTENSION));
+        $extension = $this->resolveFormat($absolutePath);
 
         return match ($extension) {
             'csv', 'txt' => $this->readCsv($absolutePath),
@@ -22,6 +22,29 @@ class UserSpreadsheetReader
             'xls' => throw new RuntimeException('فقط فرمت xlsx پشتیبانی می‌شود؛ فایل را در اکسل با پسوند xlsx ذخیره کنید یا CSV خروجی بگیرید.'),
             default => throw new RuntimeException('فرمت فایل پشتیبانی نمی‌شود. از CSV یا XLSX استفاده کنید.'),
         };
+    }
+
+    private function resolveFormat(string $absolutePath): string
+    {
+        $extension = strtolower(pathinfo($absolutePath, PATHINFO_EXTENSION));
+
+        if ($extension === 'xlsx') {
+            return 'xlsx';
+        }
+
+        $handle = fopen($absolutePath, 'rb');
+        if ($handle === false) {
+            return $extension;
+        }
+
+        $signature = fread($handle, 4) ?: '';
+        fclose($handle);
+
+        if ($signature === "PK\x03\x04") {
+            return 'xlsx';
+        }
+
+        return $extension;
     }
 
     /**
