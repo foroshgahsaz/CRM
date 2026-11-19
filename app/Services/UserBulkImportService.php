@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\User;
 use App\Support\MobileNumber;
 use App\Support\RoleLabelResolver;
+use App\Support\RoleProvisioner;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -22,8 +23,13 @@ class UserBulkImportService
         private AuditLogService $auditLog,
     ) {}
 
-    public function import(string $absolutePath, string $password, bool $active, User $actor): UserBulkImportResult
-    {
+    public function import(
+        string $absolutePath,
+        string $password,
+        bool $active,
+        User $actor,
+        string $defaultRoleName = 'representative',
+    ): UserBulkImportResult {
         $rows = $this->reader->rows($absolutePath);
 
         if ($rows === []) {
@@ -32,9 +38,17 @@ class UserBulkImportService
             ]);
         }
 
-        $columnMap = $this->detectHeaderMap($rows[0]);
-        $startIndex = $columnMap === null ? 0 : 1;
+        [$columnMap, $startIndex] = $this->resolveColumnLayout($rows);
+        if ($startIndex === 0 && $columnMap !== null && $this->rowLooksLikeHeader($rows[0] ?? [])) {
+            $startIndex = 1;
+        }
         $result = new UserBulkImportResult;
+
+        $defaultRoleName = RoleLabelResolver::resolve($defaultRoleName) ?? $defaultRoleName;
+
+        if (! in_array($defaultRoleName, self::BLOCKED_ROLE_NAMES, true)) {
+            RoleProvisioner::ensure($defaultRoleName);
+        }
 
         for ($index = $startIndex; $index < count($rows); $index++) {
             $rowNumber = $index + 1;
@@ -66,6 +80,10 @@ class UserBulkImportService
 
             $roleName = RoleLabelResolver::resolve($roleLabel);
 
+            if ($roleName === null && $roleLabel === '') {
+                $roleName = $defaultRoleName;
+            }
+
             if ($roleName === null) {
                 $result->failures[] = ['row' => $rowNumber, 'message' => 'نقش یا دسترسی ناشناخته است: '.$roleLabel];
 
@@ -78,8 +96,10 @@ class UserBulkImportService
                 continue;
             }
 
+            RoleProvisioner::ensure($roleName);
+
             if (! Role::query()->where('name', $roleName)->exists()) {
-                $result->failures[] = ['row' => $rowNumber, 'message' => 'نقش «'.$roleLabel.'» در سامانه تعریف نشده است. ابتدا seeder نقش‌ها را اجرا کنید.'];
+                $result->failures[] = ['row' => $rowNumber, 'message' => 'نقش «'.$roleLabel.'" در سامانه تعریف نشده است.'];
 
                 continue;
             }
@@ -123,6 +143,125 @@ class UserBulkImportService
     }
 
     /**
+     * @param  list<list<string>>  $rows
+     * @return array{0: array{name: int, mobile: int, role: int}|null, 1: int}
+     */
+    private function resolveColumnLayout(array $rows): array
+    {
+        $headerMap = $this->detectHeaderMap($rows[0] ?? []);
+
+        if ($headerMap !== null) {
+            return [$headerMap, 1];
+        }
+
+        return [$this->inferColumnMap($rows), 0];
+    }
+
+    /**
+     * @param  list<string>  $row
+     */
+    private function rowLooksLikeHeader(array $row): bool
+    {
+        return $this->detectHeaderMap($row) !== null;
+    }
+
+    /**
+     * @param  list<list<string>>  $rows
+     * @return array{name: int, mobile: int, role: int}|null
+     */
+    private function inferColumnMap(array $rows): ?array
+    {
+        $sample = array_slice($rows, 0, min(20, count($rows)));
+        $width = 0;
+
+        foreach ($sample as $row) {
+            $width = max($width, count($row));
+        }
+
+        if ($width === 0) {
+            return null;
+        }
+
+        $mobileScores = array_fill(0, $width, 0);
+        $roleScores = array_fill(0, $width, 0);
+        $textScores = array_fill(0, $width, 0);
+
+        foreach ($sample as $row) {
+            foreach ($row as $index => $cell) {
+                $cell = trim((string) $cell);
+                if ($cell === '') {
+                    continue;
+                }
+
+                if (MobileNumber::normalize($cell) !== null) {
+                    $mobileScores[$index]++;
+                } elseif (RoleLabelResolver::resolve($cell) !== null) {
+                    $roleScores[$index]++;
+                } elseif (mb_strlen($cell) >= 2 && ! preg_match('/^\d+$/', $cell)) {
+                    $textScores[$index]++;
+                }
+            }
+        }
+
+        $mobileIndex = $this->indexWithMaxScore($mobileScores);
+
+        if ($mobileIndex === null) {
+            return null;
+        }
+
+        $roleIndex = $this->indexWithMaxScore($roleScores, $mobileIndex);
+        $nameIndex = $this->indexWithMaxScore($textScores, $mobileIndex, $roleIndex);
+
+        if ($nameIndex === null) {
+            foreach ($textScores as $index => $score) {
+                if ($index !== $mobileIndex && $index !== $roleIndex && $score > 0) {
+                    $nameIndex = $index;
+                    break;
+                }
+            }
+        }
+
+        if ($nameIndex === null) {
+            return null;
+        }
+
+        $map = [
+            'name' => $nameIndex,
+            'mobile' => $mobileIndex,
+        ];
+
+        if ($roleIndex !== null) {
+            $map['role'] = $roleIndex;
+        }
+
+        return $map;
+    }
+
+    /**
+     * @param  list<int>  $scores
+     */
+    private function indexWithMaxScore(array $scores, ?int ...$exclude): ?int
+    {
+        $exclude = array_flip(array_filter($exclude, fn (?int $v): bool => $v !== null));
+
+        $bestIndex = null;
+        $bestScore = 0;
+
+        foreach ($scores as $index => $score) {
+            if (isset($exclude[$index]) || $score <= 0) {
+                continue;
+            }
+
+            if ($score > $bestScore) {
+                $bestScore = $score;
+                $bestIndex = $index;
+            }
+        }
+
+        return $bestIndex;
+    }
+
+    /**
      * @param  list<string>  $headerRow
      * @return array{name: int, mobile: int, role: int}|null
      */
@@ -130,37 +269,73 @@ class UserBulkImportService
     {
         $normalized = array_map(fn (string $cell): string => $this->normalizeHeader($cell), $headerRow);
 
-        $nameAliases = ['نام', 'نام و نام خانوادگی', 'نام خانوادگی', 'نام كامل', 'نام کامل'];
-        $mobileAliases = ['موبایل', 'شماره موبایل', 'شماره تماس', 'تلفن'];
-        $roleAliases = ['دسترسی', 'نقش', 'سطح دسترسی', 'نقش کاربری'];
+        $nameAliases = ['نام', 'نام و نام خانوادگی', 'نام خانوادگی', 'نام كامل', 'نام کامل', 'name'];
+        $mobileAliases = ['موبایل', 'شماره موبایل', 'شماره تماس', 'تلفن', 'mobile', 'phone'];
+        $roleAliases = ['دسترسی', 'نقش', 'سطح دسترسی', 'نقش کاربری', 'access', 'role'];
 
         $map = [];
 
         foreach ($normalized as $index => $header) {
-            if (in_array($header, $nameAliases, true)) {
+            if ($this->matchesAny($header, $nameAliases)) {
                 $map['name'] = $index;
             }
 
-            if (in_array($header, $mobileAliases, true)) {
+            if ($this->matchesAny($header, $mobileAliases)) {
                 $map['mobile'] = $index;
             }
 
-            if (in_array($header, $roleAliases, true)) {
+            if ($this->matchesAny($header, $roleAliases)) {
                 $map['role'] = $index;
             }
         }
 
-        if (isset($map['name'], $map['mobile'], $map['role'])) {
+        if (isset($map['name'], $map['mobile'])) {
+            $map['role'] ??= $this->guessRoleColumn($headerRow, $map);
+
             return $map;
         }
 
         return null;
     }
 
+    /**
+     * @param  list<string>  $headerRow
+     * @param  array{name: int, mobile: int, role?: int}  $map
+     */
+    private function guessRoleColumn(array $headerRow, array $map): int
+    {
+        $used = array_values($map);
+
+        for ($i = count($headerRow) - 1; $i >= 0; $i--) {
+            if (! in_array($i, $used, true)) {
+                return $i;
+            }
+        }
+
+        return max($map['name'], $map['mobile']) + 1;
+    }
+
+    /**
+     * @param  list<string>  $needles
+     */
+    private function matchesAny(string $haystack, array $needles): bool
+    {
+        if (in_array($haystack, $needles, true)) {
+            return true;
+        }
+
+        foreach ($needles as $needle) {
+            if ($needle !== '' && str_contains($haystack, $needle)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private function normalizeHeader(string $value): string
     {
-        $value = trim($value);
-        $value = MobileNumber::toEnglishDigits($value);
+        $value = RoleLabelResolver::normalizeLabel($value);
 
         return mb_strtolower(str_replace('‌', ' ', $value));
     }
@@ -175,11 +350,20 @@ class UserBulkImportService
         $cells = array_map(fn ($cell): string => trim((string) ($cell ?? '')), $cells);
 
         if ($columnMap !== null) {
-            return [
-                $cells[$columnMap['name']] ?? '',
-                $cells[$columnMap['mobile']] ?? '',
-                $cells[$columnMap['role']] ?? '',
-            ];
+            $name = $cells[$columnMap['name']] ?? '';
+            $mobile = $cells[$columnMap['mobile']] ?? '';
+            $role = isset($columnMap['role']) ? ($cells[$columnMap['role']] ?? '') : '';
+
+            if ($role === '') {
+                $skip = [$columnMap['name'], $columnMap['mobile']];
+                if (isset($columnMap['role'])) {
+                    $skip[] = $columnMap['role'];
+                }
+
+                $role = $this->findRoleInCells($cells, $skip);
+            }
+
+            return [$name, $mobile, $role];
         }
 
         $mobileIndex = null;
@@ -206,7 +390,7 @@ class UserBulkImportService
         }
 
         $mobile = $cells[$mobileIndex];
-        $role = $roleIndex !== null ? $cells[$roleIndex] : '';
+        $role = $roleIndex !== null ? $cells[$roleIndex] : $this->findRoleInCells($cells, [$mobileIndex]);
 
         $nameParts = [];
 
@@ -220,17 +404,37 @@ class UserBulkImportService
 
         $name = trim(implode(' ', $nameParts));
 
-        if ($name === '' && count($cells) >= 3) {
-            $indexes = array_keys(array_filter($cells, fn (string $c): bool => $c !== ''));
-            foreach ($indexes as $index) {
-                if ($index !== $mobileIndex && $index !== $roleIndex) {
-                    $name = $cells[$index];
+        if ($name === '') {
+            foreach ($cells as $index => $cell) {
+                if ($index !== $mobileIndex && $index !== $roleIndex && $cell !== '') {
+                    $name = $cell;
                     break;
                 }
             }
         }
 
         return [$name, $mobile, $role];
+    }
+
+    /**
+     * @param  list<string>  $cells
+     * @param  list<int>  $skipIndexes
+     */
+    private function findRoleInCells(array $cells, array $skipIndexes): string
+    {
+        $skip = array_flip($skipIndexes);
+
+        foreach ($cells as $index => $cell) {
+            if (isset($skip[$index]) || $cell === '') {
+                continue;
+            }
+
+            if (RoleLabelResolver::resolve($cell) !== null) {
+                return $cell;
+            }
+        }
+
+        return '';
     }
 
     private function uniqueStaffEmail(string $mobile): string

@@ -25,7 +25,7 @@ class RoleLabelResolver
             return null;
         }
 
-        $label = trim($label);
+        $label = self::normalizeLabel($label);
 
         if ($label === '') {
             return null;
@@ -53,6 +53,28 @@ class RoleLabelResolver
             return $label;
         }
 
+        foreach (self::ALIASES as $alias => $name) {
+            if (str_contains($label, $alias) || str_contains($normalized, mb_strtolower($alias))) {
+                return $name;
+            }
+        }
+
+        foreach (PermissionCatalog::roles() as $name => $persian) {
+            if (str_contains($label, $persian) || str_contains($normalized, mb_strtolower($persian))) {
+                return $name;
+            }
+        }
+
         return null;
+    }
+
+    public static function normalizeLabel(string $label): string
+    {
+        $label = trim($label);
+        $label = MobileNumber::toEnglishDigits($label);
+        $label = str_replace(["\u{FEFF}", "\u{200C}", "\u{200F}", "\u{202A}", "\u{202C}"], ' ', $label);
+        $label = preg_replace('/\s+/u', ' ', $label) ?? $label;
+
+        return trim($label);
     }
 }

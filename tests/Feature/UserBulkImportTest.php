@@ -32,6 +32,21 @@ CSV);
         $this->assertTrue($user->hasRole('representative'));
     }
 
+    public function test_import_uses_default_role_when_access_column_missing(): void
+    {
+        $admin = $this->staff('super_admin');
+
+        $path = $this->writeCsv(<<<'CSV'
+نام و نام خانوادگی,شماره موبایل
+علی رضایی,09143216547
+CSV);
+
+        $result = app(UserBulkImportService::class)->import($path, 'SecurePass1!', true, $admin, 'representative');
+
+        $this->assertSame(1, $result->created);
+        $this->assertTrue(User::query()->where('mobile', '09143216547')->firstOrFail()->hasRole('representative'));
+    }
+
     public function test_import_skips_duplicate_mobile(): void
     {
         $admin = $this->staff('super_admin');
