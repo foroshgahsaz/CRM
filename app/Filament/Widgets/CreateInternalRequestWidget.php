@@ -8,7 +8,7 @@ use Filament\Widgets\Widget;
 
 class CreateInternalRequestWidget extends Widget
 {
-    protected static string $view = 'filament.widgets.create-internal-request';
+    protected string $view = 'filament.widgets.create-internal-request';
 
     protected static ?int $sort = -1;
 
