@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\ServiceRequests\Pages;
 
+use App\Enums\RequestPriority;
 use App\Filament\Resources\ServiceRequests\ServiceRequestResource;
 use App\Services\RequestSubmissionService;
 use App\Support\JalaliDate;
@@ -38,9 +39,8 @@ class CreateServiceRequest extends CreateRecord
             'request_type_id' => $data['request_type_id'],
             'purchase_date' => $date,
             'invoice_number' => $data['invoice_number'] ?? null,
-            'product_name' => $data['product_name'] ?? null,
             'description' => $data['description'],
-            'priority' => $data['priority'],
+            'priority' => RequestPriority::Normal,
             'fields' => $data['fields'] ?? [],
         ], $files);
     }
