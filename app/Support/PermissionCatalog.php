@@ -56,6 +56,7 @@ class PermissionCatalog
             'super_admin' => 'مدیر ارشد سامانه',
             'system_administrator' => 'مدیر عملیاتی',
             'expert' => 'کارشناس',
+            'representative' => 'نماینده',
             'auditor' => 'ناظر',
             'warehouse_manager' => 'مدیر انبار',
         ];
@@ -104,6 +105,14 @@ class PermissionCatalog
                 'requests.complete_assignment',
                 'requests.reassign',
                 'inventory.view',
+            ],
+            'representative' => [
+                'requests.view_related',
+                'requests.reply',
+                'requests.add_internal_note',
+                'requests.request_customer_info',
+                'requests.upload_internal_attachment',
+                'requests.complete_assignment',
             ],
             'auditor' => [
                 'requests.view_all',
