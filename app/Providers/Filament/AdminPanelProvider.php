@@ -4,7 +4,6 @@ namespace App\Providers\Filament;
 
 use App\Filament\Auth\Login;
 use App\Filament\Pages\Dashboard;
-use App\Filament\Widgets\CreateInternalRequestWidget;
 use App\Filament\Widgets\OperationsOverview;
 use App\Filament\Widgets\RequestStatusChart;
 use App\Filament\Widgets\RequestsSubmittedChart;
@@ -64,7 +63,6 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
-                CreateInternalRequestWidget::class,
                 OperationsOverview::class,
                 RequestStatusChart::class,
                 RequestsSubmittedChart::class,
