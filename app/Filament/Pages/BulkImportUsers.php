@@ -19,6 +19,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\Password;
+use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use UnitEnum;
 
@@ -46,6 +47,8 @@ class BulkImportUsers extends Page
 
     public function mount(): void
     {
+        Storage::disk('local')->makeDirectory('imports/users');
+
         $this->form->fill([
             'is_active' => true,
         ]);
@@ -64,14 +67,11 @@ class BulkImportUsers extends Page
                     ->label('فایل Excel یا CSV')
                     ->disk('local')
                     ->directory('imports/users')
-                    ->acceptedFileTypes([
-                        'text/csv',
-                        'text/plain',
-                        'application/vnd.ms-excel',
-                        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                    ])
-                    ->maxSize(4096)
-                    ->required(),
+                    ->visibility('private')
+                    ->multiple(false)
+                    ->maxSize(5120)
+                    ->required()
+                    ->helperText('پس از انتخاب فایل، تا اتمام نوار پیشرفت صبر کنید، بعد «ایجاد کاربران» را بزنید.'),
                 TextInput::make('password')
                     ->label('رمز عبور اولیه همه کاربران')
                     ->password()
@@ -123,20 +123,40 @@ class BulkImportUsers extends Page
 
     public function importUsers(): void
     {
-        $data = $this->form->getState();
-        $paths = $data['spreadsheet'] ?? [];
+        try {
+            $data = $this->form->getState();
+        } catch (ValidationException $exception) {
+            throw $exception;
+        }
 
-        if (! is_array($paths) || $paths === []) {
-            Notification::make()->title('فایلی انتخاب نشده است.')->danger()->send();
+        $relativePath = $this->extractSpreadsheetRelativePath($data['spreadsheet'] ?? null)
+            ?? $this->extractSpreadsheetRelativePath($this->data['spreadsheet'] ?? null);
+
+        if ($relativePath === null) {
+            Notification::make()
+                ->title('فایلی انتخاب نشده است.')
+                ->body('اگر فایل را تازه بارگذاری کردید، چند ثانیه صبر کنید تا آپلود کامل شود و دوباره تلاش کنید.')
+                ->danger()
+                ->send();
 
             return;
         }
 
-        $relativePath = (string) reset($paths);
-        $absolutePath = Storage::disk('local')->path($relativePath);
+        $absolutePath = $this->resolveSpreadsheetAbsolutePath($relativePath);
 
-        if (! is_file($absolutePath)) {
+        if ($absolutePath === null) {
             Notification::make()->title('فایل روی سرور یافت نشد. دوباره بارگذاری کنید.')->danger()->send();
+
+            return;
+        }
+
+        $extension = strtolower(pathinfo($absolutePath, PATHINFO_EXTENSION));
+        if (! in_array($extension, ['csv', 'txt', 'xlsx'], true)) {
+            Notification::make()
+                ->title('فرمت فایل نامعتبر است.')
+                ->body('فقط فایل‌های csv یا xlsx قابل قبول هستند.')
+                ->danger()
+                ->send();
 
             return;
         }
@@ -165,8 +185,54 @@ class BulkImportUsers extends Page
         }
 
         $this->notifyResult($result);
-        Storage::disk('local')->delete($relativePath);
-        $this->form->fill(['is_active' => $data['is_active'] ?? true]);
+
+        if (Storage::disk('local')->exists($relativePath)) {
+            Storage::disk('local')->delete($relativePath);
+        }
+
+        $this->form->fill([
+            'is_active' => $data['is_active'] ?? true,
+            'spreadsheet' => null,
+            'password' => null,
+            'password_confirmation' => null,
+        ]);
+    }
+
+    private function extractSpreadsheetRelativePath(mixed $value): ?string
+    {
+        if (is_string($value) && trim($value) !== '') {
+            return trim($value);
+        }
+
+        if (! is_array($value)) {
+            return null;
+        }
+
+        foreach ($value as $item) {
+            if (is_string($item) && trim($item) !== '') {
+                return trim($item);
+            }
+        }
+
+        return null;
+    }
+
+    private function resolveSpreadsheetAbsolutePath(string $relativePath): ?string
+    {
+        $disk = Storage::disk('local');
+        $candidates = array_unique([
+            $relativePath,
+            'imports/users/'.$relativePath,
+            'livewire-tmp/'.$relativePath,
+        ]);
+
+        foreach ($candidates as $candidate) {
+            if ($disk->exists($candidate)) {
+                return $disk->path($candidate);
+            }
+        }
+
+        return null;
     }
 
     private function notifyResult(UserBulkImportResult $result): void
