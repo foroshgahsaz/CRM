@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Users\Pages;
 
 use App\Filament\Resources\Users\UserResource;
+use App\Models\User;
 use App\Services\AuditLogService;
 use App\Support\MobileNumber;
 use Filament\Resources\Pages\CreateRecord;
@@ -48,6 +49,12 @@ class CreateUser extends CreateRecord
         if ($normalized === null) {
             throw ValidationException::withMessages([
                 'data.mobile' => 'شماره موبایل معتبر نیست.',
+            ]);
+        }
+
+        if (User::withTrashed()->where('mobile', $normalized)->exists()) {
+            throw ValidationException::withMessages([
+                'data.mobile' => 'این شماره موبایل قبلاً برای کاربر دیگری ثبت شده است.',
             ]);
         }
 

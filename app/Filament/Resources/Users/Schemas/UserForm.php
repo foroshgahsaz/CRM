@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Users\Schemas;
 
+use App\Models\User;
 use App\Support\PermissionCatalog;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -19,7 +20,11 @@ class UserForm
             Section::make('حساب')->schema([
                 TextInput::make('name')->label('نام')->required()->maxLength(120),
                 TextInput::make('email')->label('ایمیل')->email()->required()->maxLength(190)->unique(ignoreRecord: true),
-                TextInput::make('mobile')->label('موبایل')->maxLength(20),
+                TextInput::make('mobile')
+                    ->label('موبایل')
+                    ->tel()
+                    ->maxLength(20)
+                    ->unique(table: User::class, column: 'mobile', ignoreRecord: true),
                 Select::make('organizational_unit_id')->label('واحد سازمانی')->relationship('organizationalUnit', 'name')->searchable()->preload(),
                 Toggle::make('is_active')->label('فعال')->default(true),
             ])->columns(2),

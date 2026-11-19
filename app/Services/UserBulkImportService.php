@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Support\MobileNumber;
 use App\Support\RoleLabelResolver;
 use App\Support\RoleProvisioner;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -49,6 +50,9 @@ class UserBulkImportService
         if (! in_array($defaultRoleName, self::BLOCKED_ROLE_NAMES, true)) {
             RoleProvisioner::ensure($defaultRoleName);
         }
+
+        /** @var array<string, true> $seenMobiles */
+        $seenMobiles = [];
 
         for ($index = $startIndex; $index < count($rows); $index++) {
             $rowNumber = $index + 1;
@@ -104,11 +108,19 @@ class UserBulkImportService
                 continue;
             }
 
-            if (User::query()->where('mobile', $mobile)->exists()) {
+            if (isset($seenMobiles[$mobile])) {
+                $result->skipped[] = ['row' => $rowNumber, 'message' => 'موبایل '.$mobile.' در همین فایل تکراری است.'];
+
+                continue;
+            }
+
+            if (User::withTrashed()->where('mobile', $mobile)->exists()) {
                 $result->skipped[] = ['row' => $rowNumber, 'message' => 'کاربر با موبایل '.$mobile.' از قبل وجود دارد.'];
 
                 continue;
             }
+
+            $seenMobiles[$mobile] = true;
 
             $email = $this->uniqueStaffEmail($mobile);
 
@@ -130,6 +142,10 @@ class UserBulkImportService
                         'bulk_import' => true,
                     ], $actor);
                 });
+            } catch (UniqueConstraintViolationException) {
+                $result->skipped[] = ['row' => $rowNumber, 'message' => 'موبایل یا ایمیل '.$mobile.' تکراری است و قبلاً ثبت شده.'];
+
+                continue;
             } catch (\Throwable $exception) {
                 $result->failures[] = ['row' => $rowNumber, 'message' => $exception->getMessage()];
 
