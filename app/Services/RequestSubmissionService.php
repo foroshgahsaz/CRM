@@ -177,6 +177,7 @@ class RequestSubmissionService
                 'priority' => $input['priority'] ?? RequestPriority::Normal,
                 'submitted_at' => now(),
                 'submission_key' => $submissionKey,
+                'internal_submitted_by_id' => $actor?->id,
             ]);
 
             $this->sla->apply($request);

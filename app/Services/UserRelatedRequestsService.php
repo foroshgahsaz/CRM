@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Enums\AssignmentStatus;
-use App\Models\AuditLog;
 use App\Models\ServiceRequest;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
@@ -76,11 +75,7 @@ class UserRelatedRequestsService
         );
 
         $ids = $ids->merge(
-            AuditLog::query()
-                ->where('user_id', $user->id)
-                ->whereIn('event', ['request.created_internal', 'request.submitted'])
-                ->where('auditable_type', (new ServiceRequest)->getMorphClass())
-                ->pluck('auditable_id')
+            ServiceRequest::query()->where('internal_submitted_by_id', $user->id)->pluck('id')
         );
 
         if (filled($user->mobile)) {
