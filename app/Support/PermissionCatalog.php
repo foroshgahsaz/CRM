@@ -108,6 +108,7 @@ class PermissionCatalog
             ],
             'representative' => [
                 'requests.view_related',
+                'requests.create_internal',
                 'requests.reply',
                 'requests.add_internal_note',
                 'requests.request_customer_info',

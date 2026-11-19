@@ -28,6 +28,10 @@ class ServiceRequestPolicy
             return true;
         }
 
+        if ($request->internal_submitted_by_id === $user->id) {
+            return true;
+        }
+
         if ($request->assignments()->where('to_user_id', $user->id)->exists()) {
             return true;
         }

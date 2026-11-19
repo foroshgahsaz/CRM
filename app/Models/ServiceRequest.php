@@ -36,6 +36,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
     'archived_at',
     'due_at',
     'submission_key',
+    'internal_submitted_by_id',
     'customer_visible_summary',
 ])]
 class ServiceRequest extends Model
@@ -99,6 +100,11 @@ class ServiceRequest extends Model
     public function currentOwner(): BelongsTo
     {
         return $this->belongsTo(User::class, 'current_owner_id');
+    }
+
+    public function internalSubmitter(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'internal_submitted_by_id');
     }
 
     public function currentUnit(): BelongsTo
@@ -168,6 +174,7 @@ class ServiceRequest extends Model
 
         return $query->where(function (Builder $query) use ($user): void {
             $query->where('current_owner_id', $user->id)
+                ->orWhere('internal_submitted_by_id', $user->id)
                 ->orWhereHas('assignments', fn (Builder $assignments) => $assignments->where('to_user_id', $user->id));
 
             if ($user->organizational_unit_id && $user->can('requests.assign')) {
