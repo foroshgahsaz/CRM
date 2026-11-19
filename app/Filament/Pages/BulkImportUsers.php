@@ -19,7 +19,9 @@ use Filament\Schemas\Components\Form;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Throwable;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -89,7 +91,7 @@ class BulkImportUsers extends Page
                     ->dehydrated(false),
                 Select::make('default_role')
                     ->label('نقش پیش‌فرض (اگر ستون دسترسی خالی بود)')
-                    ->options(collect(PermissionCatalog::roles())->except(['super_admin']))
+                    ->options(fn (): array => collect(PermissionCatalog::roles())->except(['super_admin'])->all())
                     ->default('representative')
                     ->required(),
                 Toggle::make('is_active')
@@ -135,8 +137,24 @@ class BulkImportUsers extends Page
             $data = $this->form->getState();
         } catch (ValidationException $exception) {
             throw $exception;
+        } catch (Throwable $exception) {
+            $this->reportImportFailure($exception, 'اعتبارسنجی فرم');
+
+            return;
         }
 
+        try {
+            $this->runImport($data);
+        } catch (Throwable $exception) {
+            $this->reportImportFailure($exception, 'ورود گروهی');
+        }
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    private function runImport(array $data): void
+    {
         $relativePath = $this->extractSpreadsheetRelativePath($data['spreadsheet'] ?? null)
             ?? $this->extractSpreadsheetRelativePath($this->data['spreadsheet'] ?? null);
 
@@ -175,23 +193,13 @@ class BulkImportUsers extends Page
             return;
         }
 
-        try {
-            $result = app(UserBulkImportService::class)->import(
-                $absolutePath,
-                (string) $data['password'],
-                (bool) ($data['is_active'] ?? true),
-                $actor,
-                (string) ($data['default_role'] ?? 'representative'),
-            );
-        } catch (\Throwable $exception) {
-            Notification::make()
-                ->title('خطا در خواندن فایل')
-                ->body($exception->getMessage())
-                ->danger()
-                ->send();
-
-            return;
-        }
+        $result = app(UserBulkImportService::class)->import(
+            $absolutePath,
+            (string) $data['password'],
+            (bool) ($data['is_active'] ?? true),
+            $actor,
+            (string) ($data['default_role'] ?? 'representative'),
+        );
 
         $this->notifyResult($result);
 
@@ -201,10 +209,26 @@ class BulkImportUsers extends Page
 
         $this->form->fill([
             'is_active' => $data['is_active'] ?? true,
+            'default_role' => $data['default_role'] ?? 'representative',
             'spreadsheet' => null,
             'password' => null,
             'password_confirmation' => null,
         ]);
+    }
+
+    private function reportImportFailure(Throwable $exception, string $context): void
+    {
+        Log::error('bulk_user_import.failed', [
+            'context' => $context,
+            'message' => $exception->getMessage(),
+            'exception' => $exception,
+        ]);
+
+        Notification::make()
+            ->title('خطا در '.$context)
+            ->body($exception->getMessage())
+            ->danger()
+            ->send();
     }
 
     private function extractSpreadsheetRelativePath(mixed $value): ?string
