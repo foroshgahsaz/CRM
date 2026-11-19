@@ -23,7 +23,9 @@ class DeleteRecordAction
 
                     return true;
                 } catch (WorkflowException|AuthorizationException $exception) {
-                    $action->failureNotificationTitle($exception->getMessage() !== '' ? $exception->getMessage() : 'دسترسی لازم برای حذف وجود ندارد.');
+                    $message = $exception->getMessage() !== '' ? $exception->getMessage() : 'دسترسی لازم برای حذف وجود ندارد.';
+                    $action->failureNotificationTitle('حذف انجام نشد');
+                    $action->failureNotificationBody($message);
 
                     return false;
                 }

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Users;
 
 use App\Filament\Resources\Users\Pages\CreateUser;
+use App\Filament\Resources\Users\RelationManagers\RelatedServiceRequestsRelationManager;
 use App\Filament\Resources\Users\Pages\EditUser;
 use App\Filament\Resources\Users\Pages\ListUsers;
 use App\Filament\Resources\Users\Schemas\UserForm;
@@ -45,6 +46,13 @@ class UserResource extends Resource
     public static function canDelete(Model $record): bool
     {
         return false;
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            RelatedServiceRequestsRelationManager::class,
+        ];
     }
 
     public static function getPages(): array
