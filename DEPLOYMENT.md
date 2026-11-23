@@ -185,10 +185,13 @@ php artisan config:clear
 3. **حجم:** شروع **۲ تا ۵ GB** (بعداً فقط افزایش ممکن است؛ کاهش نه).
 4. بعد از attach، یک‌بار در Console:
    ```bash
-   mkdir -p storage/app/private storage/app/public
-   chmod -R 775 storage/app
+   mkdir -p storage/app/private/attachments storage/app/backups/crm storage/framework/backup-work
+   chown -R www-data:www-data storage/app
+   chmod -R ug+rwX storage/app
    php artisan storage:link
    ```
+   **مهم:** اگر `php artisan crm:backup` را با **root** زده‌اید، حتماً `chown` بالا را تکرار کنید؛ وگرنه بکاپ/آپلود از **پنل** با خطای Permission denied می‌شود.
+
 5. **پشتیبان داخلی CRM (از 1.2.41):** هر شب **۲۰:۰۰** به وقت `Asia/Tehran` دستور `crm:backup` (DB + `private` + `public`) — حداکثر **۲** فایل zip در `storage/app/backups/crm`. پنل: **تنظیمات → بکاپ سامانه** (دستی). نیاز: `mysqldump` روی سرور + cron هر دقیقه: `php artisan schedule:run`.
 
 **اشتباه رایج:** mount کردن فقط `public` یا ریشهٔ کل پروژه — مدارک در `storage/app/private` هستند و بدون mount درست از بین می‌روند.

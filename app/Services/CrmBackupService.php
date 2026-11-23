@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Enums\CrmBackupScope;
 use App\Models\User;
+use App\Support\PrivateStorageBootstrap;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Str;
@@ -20,13 +21,14 @@ class CrmBackupService
         ?User $actor = null,
         CrmBackupScope $scope = CrmBackupScope::Full,
     ): array {
+        PrivateStorageBootstrap::assertWebWritable($this->root(), 'بکاپ');
         $this->ensureRootExists();
 
         $filename = $this->buildFilename($triggeredBy, $scope);
         $path = $this->root().DIRECTORY_SEPARATOR.$filename;
-        $tempDir = $this->root().DIRECTORY_SEPARATOR.'.work-'.Str::uuid();
+        $tempDir = storage_path('framework/backup-work/'.Str::uuid());
 
-        File::makeDirectory($tempDir, 0755, true, true);
+        File::makeDirectory($tempDir, 0775, true, true);
 
         try {
             if ($scope === CrmBackupScope::Full || $scope === CrmBackupScope::Database) {
@@ -122,11 +124,7 @@ class CrmBackupService
 
     private function ensureRootExists(): void
     {
-        $root = $this->root();
-
-        if (! File::isDirectory($root)) {
-            File::makeDirectory($root, 0755, true, true);
-        }
+        PrivateStorageBootstrap::ensureRootExists();
     }
 
     private function dumpDatabase(string $tempDir): void

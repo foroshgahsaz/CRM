@@ -143,11 +143,22 @@ class CheckEnvironmentCommand extends Command
 
         if (! is_writable($root)) {
             $this->error('پوشه private قابل نوشتن نیست — مجوز کاربر وب (www-data) را روی دیسک persistent تنظیم کنید.');
+            $this->line('  chown -R www-data:www-data storage/app');
+            $this->line('  chmod -R ug+rwX storage/app');
 
             return false;
         }
 
-        $this->info('پوشه private موجود و قابل نوشتن است.');
+        $backupRoot = (string) config('crm.backup.root');
+        $this->line('  backup: '.$backupRoot);
+
+        if ($backupRoot !== '' && (! is_dir($backupRoot) || ! is_writable($backupRoot))) {
+            $this->error('پوشه بکاپ قابل نوشتن نیست.');
+
+            return false;
+        }
+
+        $this->info('پوشه private و بکاپ برای کاربر فعلی CLI قابل نوشتن است (PHP-FPM باید همان دسترسی را داشته باشد).');
 
         return true;
     }

@@ -29,6 +29,10 @@ class RunCrmBackupCommand extends Command
 
             $this->info('بکاپ ساخته شد: '.$result['filename'].' ('.number_format($result['bytes'] / 1024, 1).' KiB)');
 
+            if (function_exists('posix_geteuid') && posix_geteuid() === 0) {
+                $this->warn('بکاپ با root ساخته شد. برای بکاپ از پنل: chown -R www-data:www-data storage/app');
+            }
+
             return self::SUCCESS;
         } catch (\Throwable $exception) {
             $audit->record('backup.failed', null, 'failure', [
