@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Enums\CrmBackupScope;
 use App\Services\AuditLogService;
 use App\Services\CrmBackupService;
 use BackedEnum;
@@ -43,22 +44,36 @@ class SystemBackups extends Page
 
     protected function getHeaderActions(): array
     {
+        $keep = (int) config('crm.backup.retention', 2);
+
         return [
-            Action::make('runBackup')
-                ->label('بکاپ اکنون')
-                ->icon('heroicon-o-arrow-down-tray')
+            Action::make('runBackupFull')
+                ->label('بکاپ کامل')
+                ->icon('heroicon-o-circle-stack')
                 ->requiresConfirmation()
-                ->modalDescription('پایگاه داده و پوشهٔ مدارک خصوصی (و public) فشرده می‌شوند. حداکثر '.(int) config('crm.backup.retention', 2).' نسخهٔ آخر نگه داشته می‌شود.')
-                ->action(fn () => $this->runManualBackup()),
+                ->modalDescription("پایگاه + فایل‌ها. برای هر نوع، {$keep} نسخهٔ آخر نگه داشته می‌شود.")
+                ->action(fn () => $this->runManualBackup(CrmBackupScope::Full)),
+            Action::make('runBackupDatabase')
+                ->label('بکاپ پایگاه')
+                ->icon('heroicon-o-server-stack')
+                ->requiresConfirmation()
+                ->modalDescription('فقط dump پایگاه داده (بدون mysqldump هم با PHP کار می‌کند).')
+                ->action(fn () => $this->runManualBackup(CrmBackupScope::Database)),
+            Action::make('runBackupFiles')
+                ->label('بکاپ فایل‌ها')
+                ->icon('heroicon-o-photo')
+                ->requiresConfirmation()
+                ->modalDescription('فقط storage-private و storage-public.')
+                ->action(fn () => $this->runManualBackup(CrmBackupScope::Files)),
         ];
     }
 
-    public function runManualBackup(): void
+    public function runManualBackup(CrmBackupScope $scope): void
     {
         $user = auth()->user();
 
         try {
-            $result = app(CrmBackupService::class)->run('manual', $user);
+            $result = app(CrmBackupService::class)->run('manual', $user, $scope);
 
             app(AuditLogService::class)->record('backup.created', null, 'success', [
                 'filename' => $result['filename'],
