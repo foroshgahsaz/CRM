@@ -40,14 +40,24 @@ class PersistentStoragePathTest extends TestCase
                 '/app/storage/app',
                 '/app/storage/app',
             ],
+            'strips trailing private from env' => [
+                ['CRM_STORAGE_PRIVATE_ROOT' => '/var/www/storage/app/private'],
+                '/tmp/storage/app',
+                '/var/www/storage/app',
+            ],
+            'liara project root' => [
+                [],
+                '/var/www/storage/app',
+                '/var/www/storage/app',
+            ],
         ];
     }
 
     public function test_backup_root_sits_on_the_same_disk(): void
     {
         $this->assertSame(
-            '/app/storage/app/backups/crm',
-            PersistentStoragePath::backupRootFrom([], '/app/storage/app'),
+            '/var/www/storage/app/backups/crm',
+            PersistentStoragePath::backupRootFrom([], '/var/www/storage/app'),
         );
     }
 

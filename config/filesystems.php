@@ -34,7 +34,7 @@ return [
 
         'local' => [
             'driver' => 'local',
-            // دیسک پایدار لیارا: crm -> /app/storage/app (نه storage/app/private)
+            // دیسک پایدار لیارا: crm -> /var/www/storage/app (نه .../private)
             'root' => PersistentStoragePath::privateRoot(),
             'serve' => false,
             'throw' => false,

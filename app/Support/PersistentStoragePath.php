@@ -3,7 +3,7 @@
 namespace App\Support;
 
 /**
- * مسیر فیزیکی مدارک روی دیسک پایدار لیارا (`crm -> /app/storage/app`).
+ * مسیر فیزیکی مدارک روی دیسک پایدار لیارا (`crm -> /var/www/storage/app`).
  *
  * Laravel به‌صورت پیش‌فرض داخل `storage/app/private` می‌نویسد. اگر دیپلوی
  * پوشهٔ خالی تصویر را جایگزین آن کند، فایل‌ها از بین می‌روند. ریشهٔ دیسک
@@ -24,12 +24,12 @@ final class PersistentStoragePath
         ]);
 
         if ($explicit !== null) {
-            return rtrim($explicit, DIRECTORY_SEPARATOR);
+            return self::normalizeDiskRoot($explicit);
         }
 
         $storageApp = $storageAppPath ?? self::defaultStorageAppPath();
 
-        return rtrim($storageApp, DIRECTORY_SEPARATOR);
+        return self::normalizeDiskRoot($storageApp);
     }
 
     public static function privateRoot(): string
@@ -59,7 +59,7 @@ final class PersistentStoragePath
         $explicit = self::firstNonEmpty($env, ['CRM_BACKUP_ROOT']);
 
         if ($explicit !== null) {
-            return rtrim($explicit, DIRECTORY_SEPARATOR);
+            return rtrim(str_replace('\\', '/', $explicit), '/');
         }
 
         return self::privateRootFrom($env, $storageAppPath).DIRECTORY_SEPARATOR.'backups'.DIRECTORY_SEPARATOR.'crm';
@@ -68,6 +68,21 @@ final class PersistentStoragePath
     public static function defaultStorageAppPath(): string
     {
         return storage_path('app');
+    }
+
+    /**
+     * لیارا دیسک را روی storage/app می‌گذارد. اگر env هنوز .../private باشد،
+     * همان ریشهٔ دیسک را برمی‌گرداند تا فایل‌ها داخل پوشهٔ تودرتو نروند.
+     */
+    public static function normalizeDiskRoot(string $path): string
+    {
+        $normalized = rtrim(str_replace('\\', '/', $path), '/');
+
+        if ($normalized !== '' && str_ends_with($normalized, '/private')) {
+            return rtrim(substr($normalized, 0, -strlen('/private')), '/');
+        }
+
+        return rtrim($path, DIRECTORY_SEPARATOR);
     }
 
     /**

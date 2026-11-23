@@ -23,12 +23,7 @@ class CheckEnvironmentCommand extends Command
         $envPath = base_path('.env');
 
         if (! is_file($envPath)) {
-            $this->error('فایل .env در مسیر پروژه وجود ندارد (در Git commit نمی‌شود).');
-            $this->line('  cp .env.example .env');
-            $this->line('  # یا: php artisan crm:bootstrap-env');
-            $this->line('سپس مقادیر DB و APP_URL را ویرایش کنید و php artisan key:generate بزنید.');
-
-            return self::FAILURE;
+            $this->warn('فایل .env روی دیسک نیست (روی لیارا متغیرها از پنل می‌آیند).');
         }
 
         if (config('app.key') === null || config('app.key') === '') {
@@ -131,14 +126,14 @@ class CheckEnvironmentCommand extends Command
         $this->newLine();
         $this->info('ذخیرهٔ پیوست‌ها (دیسک local):');
         $this->line('  root: '.$root);
-        $this->line('  expected_liara_mount: /app/storage/app');
+        $this->line('  expected_liara_mount: '.storage_path('app'));
         $this->line('  base_path: '.base_path());
         $this->line('  storage_app: '.storage_path('app'));
 
         PrivateStorageBootstrap::ensureRootExists();
 
         if (! is_dir($root)) {
-            $this->error('پوشه دیسک مدارک ساخته نشد — در لیارا دیسک را روی /app/storage/app متصل کنید.');
+            $this->error('پوشه دیسک مدارک ساخته نشد — در لیارا دیسک را روی '.storage_path('app').' متصل کنید.');
 
             return false;
         }
