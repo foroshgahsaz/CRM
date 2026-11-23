@@ -4,10 +4,10 @@
             <x-slot name="heading">زمان‌بندی خودکار</x-slot>
             <p>
                 هر شب ساعت <strong>{{ config('crm.backup.schedule_time', '20:00') }}</strong>
-                ({{ config('app.timezone') }}) بکاپ خودکار با برچسب <code>auto</code> ساخته می‌شود.
+                ({{ config('app.timezone') }}) بکاپ خودکار <strong>کامل</strong> با برچسب <code>auto-full</code> ساخته می‌شود.
             </p>
             <p class="mt-2 text-gray-600 dark:text-gray-400">
-                نگه‌داری: حداکثر <strong>{{ config('crm.backup.retention', 2) }}</strong> فایل آخر روی دیسک
+                نگه‌داری: برای هر نوع (کامل / پایگاه / فایل)، حداکثر <strong>{{ config('crm.backup.retention', 2) }}</strong> فایل آخر
                 <code class="text-xs">{{ config('crm.backup.root') }}</code>
             </p>
             <p class="mt-2 text-gray-600 dark:text-gray-400">
@@ -28,6 +28,11 @@
                                 <div class="font-semibold">{{ $item['filename'] }}</div>
                                 <div class="text-xs text-gray-500">
                                     {{ $item['created_at'] }}
+                                    · {{ match ($item['scope'] ?? 'full') {
+                                        'database' => 'پایگاه داده',
+                                        'files' => 'فایل‌ها',
+                                        default => 'کامل',
+                                    } }}
                                     · {{ number_format($item['bytes'] / 1024 / 1024, 2) }} مگابایت
                                 </div>
                             </div>

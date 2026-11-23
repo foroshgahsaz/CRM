@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\CrmBackupScope;
 use App\Models\User;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Process;
@@ -12,22 +13,31 @@ use ZipArchive;
 class CrmBackupService
 {
     /**
-     * @return array{filename: string, path: string, bytes: int, triggered_by: string}
+     * @return array{filename: string, path: string, bytes: int, triggered_by: string, scope: string}
      */
-    public function run(string $triggeredBy = 'schedule', ?User $actor = null): array
-    {
+    public function run(
+        string $triggeredBy = 'schedule',
+        ?User $actor = null,
+        CrmBackupScope $scope = CrmBackupScope::Full,
+    ): array {
         $this->ensureRootExists();
 
-        $filename = $this->buildFilename($triggeredBy);
+        $filename = $this->buildFilename($triggeredBy, $scope);
         $path = $this->root().DIRECTORY_SEPARATOR.$filename;
         $tempDir = $this->root().DIRECTORY_SEPARATOR.'.work-'.Str::uuid();
 
         File::makeDirectory($tempDir, 0755, true, true);
 
         try {
-            $this->dumpDatabase($tempDir);
-            $this->copyPrivateTree($tempDir);
-            $this->writeManifest($tempDir, $triggeredBy, $actor);
+            if ($scope === CrmBackupScope::Full || $scope === CrmBackupScope::Database) {
+                $this->dumpDatabase($tempDir);
+            }
+
+            if ($scope === CrmBackupScope::Full || $scope === CrmBackupScope::Files) {
+                $this->copyPrivateTree($tempDir);
+            }
+
+            $this->writeManifest($tempDir, $triggeredBy, $actor, $scope);
 
             if (! $this->zipDirectory($tempDir, $path)) {
                 throw new RuntimeException('ساخت فایل فشردهٔ بکاپ ناموفق بود.');
@@ -44,11 +54,12 @@ class CrmBackupService
             'path' => $path,
             'bytes' => $bytes,
             'triggered_by' => $triggeredBy,
+            'scope' => $scope->value,
         ];
     }
 
     /**
-     * @return list<array{filename: string, path: string, bytes: int, created_at: string}>
+     * @return list<array{filename: string, path: string, bytes: int, created_at: string, scope: string}>
      */
     public function list(): array
     {
@@ -63,12 +74,14 @@ class CrmBackupService
             'path' => $file->getRealPath() ?: $file->getPathname(),
             'bytes' => $file->getSize(),
             'created_at' => date('Y-m-d H:i:s', $file->getMTime()),
+            'scope' => $this->scopeFromFilename($file->getFilename()),
         ])->values()->all();
     }
 
     public function resolveDownloadPath(string $filename): string
     {
-        if (! preg_match('/^crm-backup-[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{6}-(auto|manual)\.zip$/', $filename)) {
+        if (! preg_match('/^crm-backup-[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{6}-(auto|manual)-(full|database|files)\.zip$/', $filename)
+            && ! preg_match('/^crm-backup-[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{6}-(auto|manual)\.zip$/', $filename)) {
             throw new RuntimeException('نام فایل بکاپ معتبر نیست.');
         }
 
@@ -91,11 +104,20 @@ class CrmBackupService
         return max(1, (int) config('crm.backup.retention', 2));
     }
 
-    private function buildFilename(string $triggeredBy): string
+    private function buildFilename(string $triggeredBy, CrmBackupScope $scope): string
     {
         $suffix = $triggeredBy === 'manual' ? 'manual' : 'auto';
 
-        return 'crm-backup-'.now()->format('Y-m-d_His').'-'.$suffix.'.zip';
+        return 'crm-backup-'.now()->format('Y-m-d_His').'-'.$suffix.'-'.$scope->value.'.zip';
+    }
+
+    private function scopeFromFilename(string $filename): string
+    {
+        if (preg_match('/-(full|database|files)\.zip$/', $filename, $matches)) {
+            return $matches[1];
+        }
+
+        return 'full';
     }
 
     private function ensureRootExists(): void
@@ -130,6 +152,22 @@ class CrmBackupService
             throw new RuntimeException('نوع پایگاه داده برای بکاپ پشتیبانی نمی‌شود: '.$connection);
         }
 
+        if ($this->mysqldumpAvailable()) {
+            $this->dumpDatabaseWithMysqldump($target, $connection);
+        } else {
+            app(PhpMysqlDatabaseExporter::class)->exportToFile($target, $connection);
+        }
+    }
+
+    private function mysqldumpAvailable(): bool
+    {
+        $process = Process::run(['sh', '-c', 'command -v mysqldump']);
+
+        return $process->successful();
+    }
+
+    private function dumpDatabaseWithMysqldump(string $target, string $connection): void
+    {
         $config = config('database.connections.'.$connection);
         $password = (string) ($config['password'] ?? '');
 
@@ -144,7 +182,7 @@ class CrmBackupService
         ]);
 
         if (! $process->successful()) {
-            throw new RuntimeException('mysqldump ناموفق بود. آیا mysqldump روی سرور نصب است؟ '.$process->errorOutput());
+            throw new RuntimeException('mysqldump ناموفق بود: '.$process->errorOutput());
         }
 
         file_put_contents($target, $process->output());
@@ -168,15 +206,17 @@ class CrmBackupService
         }
     }
 
-    private function writeManifest(string $tempDir, string $triggeredBy, ?User $actor): void
+    private function writeManifest(string $tempDir, string $triggeredBy, ?User $actor, CrmBackupScope $scope): void
     {
         $manifest = [
             'app' => config('app.name'),
             'created_at' => now()->toIso8601String(),
             'triggered_by' => $triggeredBy,
+            'scope' => $scope->value,
             'actor_id' => $actor?->id,
             'actor_email' => $actor?->email,
             'db_connection' => config('database.default'),
+            'db_export' => $this->mysqldumpAvailable() ? 'mysqldump' : 'php',
             'private_root' => config('filesystems.disks.local.root'),
         ];
 
@@ -226,12 +266,15 @@ class CrmBackupService
     private function applyRetention(): void
     {
         $keep = $this->retentionCount();
-        $items = collect($this->list())->values();
 
-        foreach ($items->slice($keep) as $item) {
-            if (is_file($item['path'])) {
-                unlink($item['path']);
-            }
-        }
+        collect($this->list())
+            ->groupBy('scope')
+            ->each(function ($group) use ($keep): void {
+                foreach ($group->slice($keep) as $item) {
+                    if (is_file($item['path'])) {
+                        unlink($item['path']);
+                    }
+                }
+            });
     }
 }

@@ -2,22 +2,24 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\CrmBackupScope;
 use App\Services\AuditLogService;
 use App\Services\CrmBackupService;
 use Illuminate\Console\Command;
 
 class RunCrmBackupCommand extends Command
 {
-    protected $signature = 'crm:backup {--manual : بکاپ دستی (برچسب manual)}';
+    protected $signature = 'crm:backup {--manual : بکاپ دستی (برچسب manual)} {--database : فقط پایگاه داده} {--files : فقط فایل‌ها}';
 
-    protected $description = 'بکاپ فشرده از پایگاه داده و فایل‌های private (و public) با نگه‌داری محدود';
+    protected $description = 'بکاپ فشرده از پایگاه داده و/یا فایل‌های private (و public) با نگه‌داری محدود';
 
     public function handle(CrmBackupService $backups, AuditLogService $audit): int
     {
         $triggeredBy = $this->option('manual') ? 'manual' : 'schedule';
+        $scope = $this->resolveScope();
 
         try {
-            $result = $backups->run($triggeredBy);
+            $result = $backups->run($triggeredBy, null, $scope);
 
             $audit->record('backup.created', null, 'success', [
                 'filename' => $result['filename'],
@@ -38,5 +40,25 @@ class RunCrmBackupCommand extends Command
 
             return self::FAILURE;
         }
+    }
+
+    private function resolveScope(): CrmBackupScope
+    {
+        $database = (bool) $this->option('database');
+        $files = (bool) $this->option('files');
+
+        if ($database && $files) {
+            return CrmBackupScope::Full;
+        }
+
+        if ($database) {
+            return CrmBackupScope::Database;
+        }
+
+        if ($files) {
+            return CrmBackupScope::Files;
+        }
+
+        return CrmBackupScope::Full;
     }
 }

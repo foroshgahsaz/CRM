@@ -16,7 +16,7 @@ class CrmBackupRetentionTest extends TestCase
         File::makeDirectory($root, 0755, true, true);
 
         foreach ([3, 2, 1] as $index) {
-            $path = $root.'/crm-backup-2026-01-0'.$index.'_120000-auto.zip';
+            $path = $root.'/crm-backup-2026-01-0'.$index.'_120000-auto-database.zip';
             file_put_contents($path, 'test-'.$index);
             touch($path, now()->subDays(3 - $index)->timestamp);
         }
@@ -29,8 +29,8 @@ class CrmBackupRetentionTest extends TestCase
         $remaining = collect(File::files($root))->map->getFilename()->values()->all();
 
         $this->assertCount(2, $remaining);
-        $this->assertContains('crm-backup-2026-01-03_120000-auto.zip', $remaining);
-        $this->assertContains('crm-backup-2026-01-02_120000-auto.zip', $remaining);
+        $this->assertContains('crm-backup-2026-01-03_120000-auto-database.zip', $remaining);
+        $this->assertContains('crm-backup-2026-01-02_120000-auto-database.zip', $remaining);
 
         File::deleteDirectory($root);
     }
