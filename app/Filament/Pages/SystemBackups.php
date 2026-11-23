@@ -24,7 +24,7 @@ class SystemBackups extends Page
 
     protected static ?int $navigationSort = 6;
 
-    protected static string $view = 'filament.pages.system-backups';
+    protected string $view = 'filament.pages.system-backups';
 
     /**
      * @var list<array{filename: string, path: string, bytes: int, created_at: string}>
