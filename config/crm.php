@@ -1,5 +1,7 @@
 <?php
 
+use App\Support\PersistentStoragePath;
+
 return [
 
     'company_name' => 'سامانه پیگیری درخواست',
@@ -41,7 +43,7 @@ return [
     ],
 
     'backup' => [
-        'root' => env('CRM_BACKUP_ROOT', storage_path('app/backups/crm')),
+        'root' => PersistentStoragePath::backupRoot(),
         'retention' => (int) env('CRM_BACKUP_RETENTION', 2),
         'schedule_time' => env('CRM_BACKUP_SCHEDULE_TIME', '20:00'),
         'include_public' => (bool) env('CRM_BACKUP_INCLUDE_PUBLIC', true),

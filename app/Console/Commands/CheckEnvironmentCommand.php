@@ -131,12 +131,14 @@ class CheckEnvironmentCommand extends Command
         $this->newLine();
         $this->info('ذخیرهٔ پیوست‌ها (دیسک local):');
         $this->line('  root: '.$root);
+        $this->line('  expected_liara_mount: /app/storage/app');
         $this->line('  base_path: '.base_path());
+        $this->line('  storage_app: '.storage_path('app'));
 
         PrivateStorageBootstrap::ensureRootExists();
 
         if (! is_dir($root)) {
-            $this->error('پوشه private storage ساخته نشد — mount دیسک یا CRM_STORAGE_PRIVATE_ROOT را بررسی کنید.');
+            $this->error('پوشه دیسک مدارک ساخته نشد — در لیارا دیسک را روی /app/storage/app متصل کنید.');
 
             return false;
         }

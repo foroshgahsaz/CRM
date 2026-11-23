@@ -197,6 +197,12 @@ class CrmBackupService
 
         File::copyDirectory($privateRoot, $dest);
 
+        $legacyPrivate = $privateRoot.DIRECTORY_SEPARATOR.'private';
+
+        if (File::isDirectory($legacyPrivate)) {
+            File::copyDirectory($legacyPrivate, $dest.DIRECTORY_SEPARATOR.'legacy-private');
+        }
+
         $publicRoot = storage_path('app/public');
 
         if (config('crm.backup.include_public', true) && File::isDirectory($publicRoot)) {

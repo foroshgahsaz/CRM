@@ -760,7 +760,7 @@ Action::make('approve')
 
 ## ۱۷. فایل‌ها و پیوست‌ها
 
-- ذخیره روی دیسک **خصوصی** `local` در مسیر `storage/app/private/attachments/{request_id}/{uuid}.{ext}` (`AttachmentService::store`).
+- ذخیره روی دیسک **خصوصی** `local` در مسیر `storage/app/attachments/{request_id}/{uuid}.{ext}` (`AttachmentService::store`). روی لیارا این مسیر همان دیسک `crm -> /app/storage/app` است.
 - نوع فایل با پسوند **و** MIME واقعی (`finfo`) بررسی می‌شود. مجاز: jpg، jpeg، png، webp، pdf.
 - سقف تعداد کل فایل‌های هر پرونده: `max_upload_files`. سقف حجم هر فایل: `max_upload_kb`.
 - دانلود فقط از کنترلر:

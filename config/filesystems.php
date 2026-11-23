@@ -1,5 +1,7 @@
 <?php
 
+use App\Support\PersistentStoragePath;
+
 return [
 
     /*
@@ -32,8 +34,8 @@ return [
 
         'local' => [
             'driver' => 'local',
-            // دیسک persistent (مثلاً لیارا): CRM_STORAGE_PRIVATE_ROOT یا mount روی storage/app/private
-            'root' => env('CRM_STORAGE_PRIVATE_ROOT', storage_path('app/private')),
+            // دیسک پایدار لیارا: crm -> /app/storage/app (نه storage/app/private)
+            'root' => PersistentStoragePath::privateRoot(),
             'serve' => false,
             'throw' => false,
             'report' => false,
