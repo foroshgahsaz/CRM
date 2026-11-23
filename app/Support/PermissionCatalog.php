@@ -44,6 +44,7 @@ class PermissionCatalog
             'inventory.manage' => 'افزودن و ویرایش موجودی انبار',
             'inventory.allocate' => 'ارجاع کالای انبار به درخواست',
             'system.delete_any' => 'حذف کامل هر رکورد (درخواست، کاربر، تنظیمات و سوابق)',
+            'system.backup' => 'بکاپ و دانلود نسخهٔ پشتیبان',
         ];
     }
 
@@ -95,6 +96,7 @@ class PermissionCatalog
                 'sla.manage',
                 'inventory.view',
                 'inventory.allocate',
+                'system.backup',
             ],
             'expert' => [
                 'requests.view_related',

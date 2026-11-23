@@ -189,7 +189,7 @@ php artisan config:clear
    chmod -R 775 storage/app
    php artisan storage:link
    ```
-5. **پشتیبان:** علاوه بر MySQL، پوشهٔ `storage/app/private` را دوره‌ای کپی کنید.
+5. **پشتیبان داخلی CRM (از 1.2.41):** هر شب **۲۰:۰۰** به وقت `Asia/Tehran` دستور `crm:backup` (DB + `private` + `public`) — حداکثر **۲** فایل zip در `storage/app/backups/crm`. پنل: **تنظیمات → بکاپ سامانه** (دستی). نیاز: `mysqldump` روی سرور + cron هر دقیقه: `php artisan schedule:run`.
 
 **اشتباه رایج:** mount کردن فقط `public` یا ریشهٔ کل پروژه — مدارک در `storage/app/private` هستند و بدون mount درست از بین می‌روند.
 
