@@ -1,6 +1,6 @@
 # استقرار
 
-نسخهٔ فعلی سامانه: **1.2.21** (فایل `VERSION`).
+نسخهٔ فعلی سامانه: فایل `VERSION` را ببینید.
 
 **سیاست نسخه:** هر تغییر قابل deploy باید `VERSION` را یک پله جلو ببرد (مثلاً 1.2.12) و در `CHANGELOG.md` ثبت شود تا روی سرور با `cat VERSION` بعد از pull مشخص باشد.
 
@@ -161,40 +161,52 @@ php artisan config:clear
 | `CRM_SEED_DEFAULT_ADMIN` | true برای نصب اول؛ بعد از ورود رمز را عوض کنید (`admin` / `admin` یا `admin@admin.com`) |
 | `SMS_GATEWAY` | sms_ir + `SMSIR_*` |
 
-### دیسک پایدار Runflare (مدارک و فایل‌ها)
+### دیسک پایدار لیارا (مدارک و فایل‌ها)
 
-در CRM فایل‌ها این‌جا ذخیره می‌شوند:
+پنل لیارا باید دقیقاً این اتصال را داشته باشد (اسکرین شما درست است):
 
-| محتوا | مسیر داخل پروژه |
+| فیلد پنل | مقدار |
 | --- | --- |
-| **مدارک درخواست مشتری** (PDF/عکس، خصوصی) | `storage/app/private/attachments/...` |
-| **لوگو / branding** (عمومی از `/storage`) | `storage/app/public/...` |
+| نام دیسک | `hoomanservice-hfh-extra-claim` |
+| متصل شده به | **`crm -> /app/storage/app`** |
+
+از نسخهٔ **1.2.47** برنامه مدارک را **مستقیم روی همین دیسک** می‌نویسد (`/app/storage/app/attachments/...`)، نه داخل پوشهٔ موقت تصویر کانتینر.
+
+| محتوا | مسیر روی دیسک |
+| --- | --- |
+| **مدارک درخواست** | `/app/storage/app/attachments/{request_id}/...` |
+| **بکاپ CRM** | `/app/storage/app/backups/crm/...` |
+| **لوگو / branding** | `/app/storage/app/public/...` |
+| مسیر قدیمی (فقط خواندن) | `/app/storage/app/private/attachments/...` |
 | پایگاه داده | سرویس MySQL جدا — **روی این دیسک نیست** |
 
-**تنظیم «افزودن دیسک» در پنل:**
+بعد از استقرار، در Console لیارا:
 
-1. **اپلیکیشن:** `crm` (همان سرویس Laravel).
-2. **مسیر دایرکتوری:** مسیر **absolute** داخل کانتینر که به `storage/app` پروژه می‌رسد، مثلاً:
-   - اگر ریشهٔ پروژه `/app` است → **`/app/storage/app`**
-   - اگر ریشه `/var/www/html` است → **`/var/www/html/storage/app`**
+```bash
+php artisan config:clear
+php artisan crm:check-env
+# خروجی باید root برابر /app/storage/app باشد (نه .../storage/app/private)
 
-   در Console Runflare با `pwd` از داخل پوشهٔ پروژه (کنار `artisan`) بروید؛ مسیر = `{pwd}/storage/app`.
+mkdir -p /app/storage/app/attachments /app/storage/app/backups/crm /app/storage/app/public
+chown -R www-data:www-data /app/storage/app
+chmod -R ug+rwX /app/storage/app
+php artisan storage:link
+```
 
-   **پیشنهاد:** کل **`storage/app`** را persistent کنید (هم `private` مدارک، هم `public` لوگو). فقط `private` هم برای مدارک کافی است؛ آن‌وقت لوگو بعد از redeploy پاک می‌شود.
+اگر قبلاً فایل‌ها زیر `private/attachments` مانده‌اند، دانلود هنوز کار می‌کند؛ آپلودهای جدید روی `attachments/` روی همان دیسک می‌نشینند.
 
-3. **حجم:** شروع **۲ تا ۵ GB** (بعداً فقط افزایش ممکن است؛ کاهش نه).
-4. بعد از attach، یک‌بار در Console:
-   ```bash
-   mkdir -p storage/app/private/attachments storage/app/backups/crm storage/framework/backup-work
-   chown -R www-data:www-data storage/app
-   chmod -R ug+rwX storage/app
-   php artisan storage:link
-   ```
-   **مهم:** اگر `php artisan crm:backup` را با **root** زده‌اید، حتماً `chown` بالا را تکرار کنید؛ وگرنه بکاپ/آپلود از **پنل** با خطای Permission denied می‌شود.
+**متغیر env لازم نیست** مگر mount جای دیگری باشد. در آن صورت:
 
-5. **پشتیبان داخلی CRM (از 1.2.41):** هر شب **۲۰:۰۰** به وقت `Asia/Tehran` دستور `crm:backup` (DB + `private` + `public`) — حداکثر **۲** فایل zip در `storage/app/backups/crm`. پنل: **تنظیمات → بکاپ سامانه** (دستی). نیاز: `mysqldump` روی سرور + cron هر دقیقه: `php artisan schedule:run`.
+```dotenv
+CRM_STORAGE_PRIVATE_ROOT=/app/storage/app
+CRM_BACKUP_ROOT=/app/storage/app/backups/crm
+```
 
-**اشتباه رایج:** mount کردن فقط `public` یا ریشهٔ کل پروژه — مدارک در `storage/app/private` هستند و بدون mount درست از بین می‌روند.
+بعد از تغییر env: `php artisan config:clear && php artisan config:cache`.
+
+5. **پشتیبان داخلی CRM:** هر شب **۲۰:۰۰** به وقت `Asia/Tehran` دستور `crm:backup` (DB + فایل‌ها) — حداکثر **۲** فایل zip در `storage/app/backups/crm`. پنل: **تنظیمات → بکاپ سامانه**.
+
+**اشتباه رایج:** mount کردن مسیر اشتباه (مثلاً `/app/storage` یا `/app/storage/app/private`) یا کل پروژه — مسیر باید **`/app/storage/app`** باشد.
 
 این سند برای سرور لینوکس با PHP، MySQL یا MariaDB، Composer و Nginx یا Apache است. Docker الزامی نیست.
 
@@ -326,7 +338,7 @@ Restart=always
 ## پشتیبان
 
 - دامپ روزانه MySQL با `mysqldump --single-transaction`
-- کپی `storage/app/private`
+- کپی `storage/app/attachments` (و در صورت وجود `storage/app/private`)
 - نگهداری `APP_KEY` جدا از دامپ عمومی
 - بازیابی را روی یک پایگاه خالی تمرین کنید: بازگرداندن دامپ، برگرداندن فایل‌ها، سپس `php artisan migrate --force`
 
@@ -334,7 +346,7 @@ Restart=always
 
 ## به‌روزرسانی و بازگشت
 
-1. از پایگاه و `storage/app/private` نسخه بگیرید.
+1. از پایگاه و `storage/app/attachments` (و در صورت وجود `storage/app/private`) نسخه بگیرید.
 2. کد جدید را دریافت کنید.
 3. `composer install --no-dev --optimize-autoloader` و `npm ci && npm run build`
 4. `php artisan down`

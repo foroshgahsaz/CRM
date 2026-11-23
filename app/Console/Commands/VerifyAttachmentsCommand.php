@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\RequestAttachment;
+use App\Support\PersistentStoragePath;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 
@@ -38,7 +39,8 @@ class VerifyAttachmentsCommand extends Command
             ->chunkById(200, function ($rows) use ($disk, &$missing, &$total): void {
                 foreach ($rows as $attachment) {
                     $total++;
-                    $exists = $disk->exists($attachment->storage_path);
+                    $exists = $disk->exists($attachment->storage_path)
+                        || PersistentStoragePath::existingFilePath($root, $attachment->storage_path) !== null;
 
                     if ($exists) {
                         if (! $this->option('missing')) {

@@ -19,6 +19,7 @@ class PrivateStorageBootstrap
         return array_values(array_filter([
             $private,
             $private !== '' ? $private.DIRECTORY_SEPARATOR.'attachments' : null,
+            $private !== '' ? $private.DIRECTORY_SEPARATOR.'private'.DIRECTORY_SEPARATOR.'attachments' : null,
             (string) config('crm.backup.root'),
             storage_path('framework/backup-work'),
             storage_path('app/public'),
