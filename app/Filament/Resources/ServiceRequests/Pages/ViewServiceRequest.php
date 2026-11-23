@@ -32,10 +32,21 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
+use Livewire\WithFileUploads;
 
 class ViewServiceRequest extends ViewRecord
 {
+    use WithFileUploads;
+
     protected static string $resource = ServiceRequestResource::class;
+
+    /**
+     * @var array<int, TemporaryUploadedFile>
+     */
+    public array $tabAttachmentFiles = [];
+
+    public string $tabAttachmentVisibility = 'customer';
 
     public function mount(int|string $record): void
     {
@@ -321,6 +332,76 @@ class ViewServiceRequest extends ViewRecord
     private function nullableId(mixed $value): ?int
     {
         return filled($value) ? (int) $value : null;
+    }
+
+    public function saveTabAttachments(): void
+    {
+        $record = $this->getRecord();
+        Gate::authorize('addAttachment', $record);
+
+        $maxFiles = app(SettingsService::class)->getInt('max_upload_files', 5);
+        $maxKb = app(SettingsService::class)->getInt('max_upload_kb', 5120);
+
+        $remaining = max(0, $maxFiles - $record->attachments()->count());
+
+        $this->validate([
+            'tabAttachmentFiles' => ['required', 'array', 'min:1', 'max:'.$remaining],
+            'tabAttachmentFiles.*' => ['file', 'mimes:jpg,jpeg,png,webp,pdf', 'max:'.$maxKb],
+            'tabAttachmentVisibility' => ['required', 'in:customer,internal'],
+        ], [], [
+            'tabAttachmentFiles' => 'فایل‌ها',
+            'tabAttachmentVisibility' => 'نوع مدرک',
+        ]);
+
+        $asInternal = $this->tabAttachmentVisibility === 'internal';
+
+        if ($asInternal) {
+            Gate::authorize('uploadInternalAttachment', $record);
+        }
+
+        try {
+            foreach ($this->tabAttachmentFiles as $file) {
+                if (! $file instanceof TemporaryUploadedFile) {
+                    continue;
+                }
+
+                $uploaded = $file->getRealPath() !== false
+                    ? new UploadedFile($file->getRealPath(), $file->getClientOriginalName(), $file->getMimeType(), null, true)
+                    : null;
+
+                if ($uploaded === null) {
+                    continue;
+                }
+
+                $attachment = app(AttachmentService::class)->store(
+                    $uploaded,
+                    $record,
+                    $asInternal ? AttachmentCategory::Internal : AttachmentCategory::CustomerSupplement,
+                    $asInternal ? AttachmentVisibility::Internal : AttachmentVisibility::CustomerVisible,
+                    auth()->user(),
+                    $record->customer,
+                    $record->current_assignment_id,
+                );
+
+                app(AuditLogService::class)->record('attachment.uploaded', $attachment, 'success', [
+                    'request_id' => $record->id,
+                    'visibility' => $attachment->visibility->value,
+                    'source' => 'attachments_tab',
+                ], auth()->user());
+            }
+
+            $this->tabAttachmentFiles = [];
+            $this->tabAttachmentVisibility = 'customer';
+            $this->record = $record->fresh();
+            $this->fillForm();
+
+            Notification::make()->title('مدارک با موفقیت اضافه شد.')->success()->send();
+        } catch (ValidationException $exception) {
+            $message = collect($exception->errors())->flatten()->first();
+            Notification::make()->title(is_string($message) ? $message : 'بارگذاری مدرک ناموفق بود.')->danger()->send();
+        } catch (WorkflowException $exception) {
+            Notification::make()->title($exception->getMessage())->danger()->send();
+        }
     }
 
     private function run(callable $callback, string $success): void

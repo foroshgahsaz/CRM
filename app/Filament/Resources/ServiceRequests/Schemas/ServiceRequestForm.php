@@ -30,12 +30,11 @@ class ServiceRequestForm
             FileUpload::make('attachments')
                 ->label('مدارک')
                 ->multiple()
-                ->required()
                 ->storeFiles(false)
                 ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'application/pdf'])
                 ->maxSize(fn (): int => app(SettingsService::class)->getInt('max_upload_kb', 5120))
                 ->maxFiles(fn (): int => app(SettingsService::class)->getInt('max_upload_files', 5))
-                ->helperText('JPG، PNG، WEBP یا PDF. فایل روی دیسک خصوصی ذخیره می‌شود.')
+                ->helperText('چند فایل JPG، PNG، WEBP یا PDF. در صورت نیاز بعداً از تب «مدارک» پرونده هم می‌توانید اضافه کنید.')
                 ->columnSpanFull(),
             Section::make('فیلدهای اختصاصی')->schema(function (Get $get): array {
                 $typeId = $get('request_type_id');
