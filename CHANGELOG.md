@@ -1,5 +1,9 @@
 # تغییرات
 
+## 1.2.40
+
+- پیوست‌ها: `CRM_STORAGE_PRIVATE_ROOT`، ساخت خودکار پوشهٔ `private/attachments`، لاگ `attachment.missing_on_disk`، دستور `crm:verify-attachments` و بررسی storage در `crm:check-env`.
+
 ## 1.2.39
 
 - **ورود پنل با OTP موبایل:** بعد از ارسال رمز، دکمهٔ پایین به «ورود» تغییر می‌کند (رفع کش Livewire/Filament).

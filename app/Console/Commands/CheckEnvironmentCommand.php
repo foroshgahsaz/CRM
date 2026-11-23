@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\RequestType;
 use App\Support\MysqlConnectionConfig;
+use App\Support\PrivateStorageBootstrap;
 use Illuminate\Console\Command;
 use Illuminate\Database\Migrations\Migrator;
 use Illuminate\Support\Facades\DB;
@@ -119,8 +120,36 @@ class CheckEnvironmentCommand extends Command
         }
 
         $this->warnSessionCookieMismatch();
+        $storageOk = $this->checkPrivateStorage();
 
-        return self::SUCCESS;
+        return $storageOk ? self::SUCCESS : self::FAILURE;
+    }
+
+    private function checkPrivateStorage(): bool
+    {
+        $root = (string) config('filesystems.disks.local.root');
+        $this->newLine();
+        $this->info('ذخیرهٔ پیوست‌ها (دیسک local):');
+        $this->line('  root: '.$root);
+        $this->line('  base_path: '.base_path());
+
+        PrivateStorageBootstrap::ensureRootExists();
+
+        if (! is_dir($root)) {
+            $this->error('پوشه private storage ساخته نشد — mount دیسک یا CRM_STORAGE_PRIVATE_ROOT را بررسی کنید.');
+
+            return false;
+        }
+
+        if (! is_writable($root)) {
+            $this->error('پوشه private قابل نوشتن نیست — مجوز کاربر وب (www-data) را روی دیسک persistent تنظیم کنید.');
+
+            return false;
+        }
+
+        $this->info('پوشه private موجود و قابل نوشتن است.');
+
+        return true;
     }
 
     private function warnSessionCookieMismatch(): void

@@ -8,6 +8,7 @@ use App\Services\AuditLogService;
 use App\Services\CustomerAccessService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -45,7 +46,17 @@ class AttachmentController extends Controller
     private function download(RequestAttachment $attachment): StreamedResponse
     {
         abort_if(str_contains($attachment->storage_path, '..') || str_starts_with($attachment->storage_path, '/'), 404);
-        abort_unless(Storage::disk('local')->exists($attachment->storage_path), 404);
+
+        if (! Storage::disk('local')->exists($attachment->storage_path)) {
+            Log::warning('attachment.missing_on_disk', [
+                'attachment_id' => $attachment->id,
+                'service_request_id' => $attachment->service_request_id,
+                'storage_path' => $attachment->storage_path,
+                'disk_root' => config('filesystems.disks.local.root'),
+            ]);
+
+            abort(404);
+        }
 
         return Storage::disk('local')->download($attachment->storage_path, $attachment->original_name, [
             'Content-Type' => $attachment->mime_type,

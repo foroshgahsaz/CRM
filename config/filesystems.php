@@ -32,7 +32,8 @@ return [
 
         'local' => [
             'driver' => 'local',
-            'root' => storage_path('app/private'),
+            // دیسک persistent (مثلاً لیارا): CRM_STORAGE_PRIVATE_ROOT یا mount روی storage/app/private
+            'root' => env('CRM_STORAGE_PRIVATE_ROOT', storage_path('app/private')),
             'serve' => false,
             'throw' => false,
             'report' => false,
