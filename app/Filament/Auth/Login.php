@@ -2,6 +2,7 @@
 
 namespace App\Filament\Auth;
 
+use App\Enums\OtpPurpose;
 use App\Exceptions\WorkflowException;
 use App\Services\OtpService;
 use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
@@ -93,6 +94,7 @@ class Login extends BaseLogin
 
         $this->mobileOtpSent = true;
         $this->clearFormSchemaCache();
+        $this->dispatch('$refresh');
 
         Notification::make()
             ->title('رمز یک‌بارمصرف ارسال شد')
@@ -126,7 +128,7 @@ class Login extends BaseLogin
         $mobile = (string) ($data['mobile'] ?? '');
         $code = (string) ($data['code'] ?? '');
 
-        if (! $this->mobileOtpSent) {
+        if (! $this->mobileOtpPending()) {
             throw ValidationException::withMessages([
                 'data.mobile' => 'ابتدا رمز یک‌بارمصرف را دریافت کنید.',
             ]);
@@ -166,8 +168,8 @@ class Login extends BaseLogin
                     ->extraInputAttributes(['autocomplete' => 'one-time-code', 'dir' => 'ltr'])
                     ->minLength(4)
                     ->maxLength(8)
-                    ->visible($this->mobileOtpSent)
-                    ->required($this->mobileOtpSent),
+                    ->visible(fn (): bool => $this->mobileOtpPending())
+                    ->required(fn (): bool => $this->mobileOtpPending()),
                 $this->getRememberFormComponent(),
             ]);
         }
@@ -188,11 +190,15 @@ class Login extends BaseLogin
     protected function getFormActions(): array
     {
         if ($this->loginMethod === 'mobile') {
-            if (! $this->mobileOtpSent) {
-                return [$this->getSendOtpFormAction()];
+            if ($this->mobileOtpPending()) {
+                return [
+                    $this->getAuthenticateFormAction()
+                        ->name('mobileAuthenticate')
+                        ->label(fn (): string => 'ورود'),
+                ];
             }
 
-            return [$this->getAuthenticateFormAction()->label('ورود')];
+            return [$this->getSendOtpFormAction()];
         }
 
         return [$this->getAuthenticateFormAction()];
@@ -201,12 +207,29 @@ class Login extends BaseLogin
     protected function getSendOtpFormAction(): Action
     {
         return Action::make('sendStaffOtp')
-            ->label('دریافت رمز یک‌بارمصرف')
+            ->label(fn (): string => 'دریافت رمز یک‌بارمصرف')
             ->action('sendStaffLoginOtp');
+    }
+
+    protected function mobileOtpPending(): bool
+    {
+        if ($this->mobileOtpSent) {
+            return true;
+        }
+
+        $mobile = (string) ($this->data['mobile'] ?? '');
+
+        if ($mobile === '') {
+            return false;
+        }
+
+        return app(OtpService::class)->hasPendingOtp($mobile, OtpPurpose::StaffLogin, null);
     }
 
     protected function clearFormSchemaCache(): void
     {
-        unset($this->cachedSchemas['form']);
+        if (property_exists($this, 'cachedSchemas') && is_array($this->cachedSchemas)) {
+            $this->cachedSchemas = [];
+        }
     }
 }
