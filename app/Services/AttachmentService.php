@@ -67,7 +67,7 @@ class AttachmentService
 
         if (! Storage::disk('local')->makeDirectory(dirname($path))) {
             throw ValidationException::withMessages([
-                'attachments' => 'ساخت پوشهٔ مدارک روی دیسک ممکن نشد. دیسک پایدار لیارا را روی /app/storage/app بررسی کنید.',
+                'attachments' => 'ساخت پوشهٔ مدارک روی دیسک ممکن نشد. دیسک پایدار لیارا را روی مسیر storage/app بررسی کنید.',
             ]);
         }
 
@@ -75,7 +75,7 @@ class AttachmentService
 
         if ($stored === false) {
             throw ValidationException::withMessages([
-                'attachments' => 'فایل روی دیسک ذخیره نشد. مطمئن شوید دیسک پایدار لیارا روی /app/storage/app متصل است.',
+                'attachments' => 'فایل روی دیسک ذخیره نشد. مطمئن شوید دیسک پایدار لیارا روی مسیر storage/app متصل است.',
             ]);
         }
 

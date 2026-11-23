@@ -163,50 +163,51 @@ php artisan config:clear
 
 ### دیسک پایدار لیارا (مدارک و فایل‌ها)
 
-پنل لیارا باید دقیقاً این اتصال را داشته باشد (اسکرین شما درست است):
+پنل لیارا باید دیسک را روی مسیر `storage/app` **داخل پروژه** وصل کند. ریشهٔ این سرویس `/var/www` است، نه `/app`:
 
 | فیلد پنل | مقدار |
 | --- | --- |
 | نام دیسک | `hoomanservice-hfh-extra-claim` |
-| متصل شده به | **`crm -> /app/storage/app`** |
+| متصل شده به | **`crm -> /var/www/storage/app`** |
 
-از نسخهٔ **1.2.47** برنامه مدارک را **مستقیم روی همین دیسک** می‌نویسد (`/app/storage/app/attachments/...`)، نه داخل پوشهٔ موقت تصویر کانتینر.
+از نسخهٔ **1.2.48** برنامه مدارک را روی همین دیسک می‌نویسد (`/var/www/storage/app/attachments/...`). اگر متغیر `CRM_STORAGE_PRIVATE_ROOT` هنوز با `/private` تمام شود، برنامه آن را به ریشهٔ دیسک برمی‌گرداند.
 
 | محتوا | مسیر روی دیسک |
 | --- | --- |
-| **مدارک درخواست** | `/app/storage/app/attachments/{request_id}/...` |
-| **بکاپ CRM** | `/app/storage/app/backups/crm/...` |
-| **لوگو / branding** | `/app/storage/app/public/...` |
-| مسیر قدیمی (فقط خواندن) | `/app/storage/app/private/attachments/...` |
+| **مدارک درخواست** | `/var/www/storage/app/attachments/{request_id}/...` |
+| **بکاپ CRM** | `/var/www/storage/app/backups/crm/...` |
+| **لوگو / branding** | `/var/www/storage/app/public/...` |
+| مسیر قدیمی (فقط خواندن) | `/var/www/storage/app/private/attachments/...` |
 | پایگاه داده | سرویس MySQL جدا — **روی این دیسک نیست** |
 
 بعد از استقرار، در Console لیارا:
 
 ```bash
 php artisan config:clear
-php artisan crm:check-env
-# خروجی باید root برابر /app/storage/app باشد (نه .../storage/app/private)
+php artisan tinker --execute 'echo config("filesystems.disks.local.root");'
+# باید /var/www/storage/app باشد (نه .../private)
 
-mkdir -p /app/storage/app/attachments /app/storage/app/backups/crm /app/storage/app/public
-chown -R www-data:www-data /app/storage/app
-chmod -R ug+rwX /app/storage/app
+mkdir -p /var/www/storage/app/attachments /var/www/storage/app/backups/crm /var/www/storage/app/public
+chown -R www-data:www-data /var/www/storage/app
+chmod -R ug+rwX /var/www/storage/app
 php artisan storage:link
+php artisan crm:check-env
 ```
 
 اگر قبلاً فایل‌ها زیر `private/attachments` مانده‌اند، دانلود هنوز کار می‌کند؛ آپلودهای جدید روی `attachments/` روی همان دیسک می‌نشینند.
 
-**متغیر env لازم نیست** مگر mount جای دیگری باشد. در آن صورت:
+در پنل لیارا اگر `CRM_STORAGE_PRIVATE_ROOT` ست شده، مقدار درست این است:
 
 ```dotenv
-CRM_STORAGE_PRIVATE_ROOT=/app/storage/app
-CRM_BACKUP_ROOT=/app/storage/app/backups/crm
+CRM_STORAGE_PRIVATE_ROOT=/var/www/storage/app
+CRM_BACKUP_ROOT=/var/www/storage/app/backups/crm
 ```
 
 بعد از تغییر env: `php artisan config:clear && php artisan config:cache`.
 
 5. **پشتیبان داخلی CRM:** هر شب **۲۰:۰۰** به وقت `Asia/Tehran` دستور `crm:backup` (DB + فایل‌ها) — حداکثر **۲** فایل zip در `storage/app/backups/crm`. پنل: **تنظیمات → بکاپ سامانه**.
 
-**اشتباه رایج:** mount کردن مسیر اشتباه (مثلاً `/app/storage` یا `/app/storage/app/private`) یا کل پروژه — مسیر باید **`/app/storage/app`** باشد.
+**اشتباه رایج:** mount کردن `/app/storage/app` وقتی ریشهٔ پروژه `/var/www` است. مسیر باید **`/var/www/storage/app`** باشد.
 
 این سند برای سرور لینوکس با PHP، MySQL یا MariaDB، Composer و Nginx یا Apache است. Docker الزامی نیست.
 
