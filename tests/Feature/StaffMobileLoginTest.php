@@ -28,7 +28,9 @@ class StaffMobileLoginTest extends CrmTestCase
         $component = Livewire::test(Login::class)
             ->call('switchToMobileLogin')
             ->set('data.mobile', '09123000001')
-            ->call('sendStaffLoginOtp');
+            ->call('sendStaffLoginOtp')
+            ->assertSet('mobileOtpSent', true)
+            ->assertSeeHtml('>ورود<');
 
         $code = $this->extractOtpFromCapturedSms();
         $this->assertNotNull($code);
