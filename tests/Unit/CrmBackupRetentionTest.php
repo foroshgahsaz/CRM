@@ -22,12 +22,15 @@ class CrmBackupRetentionTest extends TestCase
         }
 
         $service = app(CrmBackupService::class);
-        $service->run('manual');
+        $reflection = new \ReflectionClass($service);
+        $method = $reflection->getMethod('applyRetention');
+        $method->invoke($service);
 
         $remaining = collect(File::files($root))->map->getFilename()->values()->all();
 
         $this->assertCount(2, $remaining);
         $this->assertContains('crm-backup-2026-01-03_120000-auto.zip', $remaining);
+        $this->assertContains('crm-backup-2026-01-02_120000-auto.zip', $remaining);
 
         File::deleteDirectory($root);
     }
