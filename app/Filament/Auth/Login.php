@@ -193,7 +193,6 @@ class Login extends BaseLogin
             if ($this->mobileOtpPending()) {
                 return [
                     $this->getAuthenticateFormAction()
-                        ->name('mobileAuthenticate')
                         ->label(fn (): string => 'ورود'),
                 ];
             }

@@ -20,6 +20,7 @@ use App\Sms\LogSmsGateway;
 use App\Sms\SmsGateway;
 use App\Sms\SmsIrGateway;
 use App\Support\MobileNumber;
+use App\Support\PrivateStorageBootstrap;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
@@ -46,6 +47,8 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Schema::defaultStringLength(191);
+
+        PrivateStorageBootstrap::ensureRootExists();
 
         Gate::policy(Role::class, RolePolicy::class);
 
