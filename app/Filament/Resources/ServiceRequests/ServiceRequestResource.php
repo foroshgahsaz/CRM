@@ -9,6 +9,7 @@ use App\Filament\Resources\ServiceRequests\Schemas\ServiceRequestForm;
 use App\Filament\Resources\ServiceRequests\Schemas\ServiceRequestInfolist;
 use App\Filament\Resources\ServiceRequests\Tables\ServiceRequestsTable;
 use App\Models\ServiceRequest;
+use App\Services\UnseenAssignedRequestCounter;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -33,6 +34,29 @@ class ServiceRequestResource extends Resource
     protected static string|UnitEnum|null $navigationGroup = 'عملیات';
 
     protected static ?int $navigationSort = 1;
+
+    public static function getNavigationBadge(): ?string
+    {
+        $user = auth()->user();
+
+        if ($user === null) {
+            return null;
+        }
+
+        $count = app(UnseenAssignedRequestCounter::class)->countFor($user);
+
+        return $count > 0 ? (string) $count : null;
+    }
+
+    public static function getNavigationBadgeColor(): string|array|null
+    {
+        return 'danger';
+    }
+
+    public static function getNavigationBadgeTooltip(): ?string
+    {
+        return 'ارجاع‌شده و هنوز باز نشده';
+    }
 
     public static function form(Schema $schema): Schema
     {

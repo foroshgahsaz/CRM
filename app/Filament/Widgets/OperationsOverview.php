@@ -4,6 +4,7 @@ namespace App\Filament\Widgets;
 
 use App\Enums\RequestStatus;
 use App\Models\ServiceRequest;
+use App\Services\UnseenAssignedRequestCounter;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Illuminate\Database\Eloquent\Builder;
@@ -49,10 +50,7 @@ class OperationsOverview extends StatsOverviewWidget
             RequestStatus::Reopened,
         ]));
         $overdue = $count(fn (Builder $builder) => $builder->overdue());
-        $mineUnread = $user ? (clone $query)
-            ->where('current_owner_id', $user->id)
-            ->whereHas('currentAssignment', fn (Builder $assignment) => $assignment->whereNull('first_viewed_at'))
-            ->count() : 0;
+        $mineUnread = $user ? app(UnseenAssignedRequestCounter::class)->countFor($user) : 0;
 
         return [
             Stat::make('کل پرونده‌ها', number_format($total))
