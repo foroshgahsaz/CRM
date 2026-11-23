@@ -5,7 +5,54 @@
 
     $request = RequestTimeline::load($getRecord());
     $attachments = $request->attachments->sortByDesc('id')->values();
+    $canUpload = auth()->user()?->can('addAttachment', $request) ?? false;
+    $canInternal = auth()->user()?->can('uploadInternalAttachment', $request) ?? false;
+    $maxFiles = app(\App\Services\SettingsService::class)->getInt('max_upload_files', 5);
+    $remainingSlots = max(0, $maxFiles - $attachments->count());
 @endphp
+
+@if ($canUpload && $remainingSlots > 0)
+    <div class="mb-6 rounded-2xl border border-dashed border-primary-300 bg-primary-50/40 p-5 dark:border-primary-500/30 dark:bg-primary-500/5">
+        <h4 class="mb-3 text-sm font-bold text-gray-900 dark:text-white">افزودن مدرک</h4>
+        <form wire:submit="saveTabAttachments" class="space-y-4">
+            <div class="grid gap-3">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    انتخاب فایل‌ها (حداکثر {{ $remainingSlots }} فایل)
+                    <input
+                        type="file"
+                        wire:model="tabAttachmentFiles"
+                        multiple
+                        accept=".jpg,.jpeg,.png,.webp,.pdf,image/jpeg,image/png,image/webp,application/pdf"
+                        class="mt-1 block w-full text-sm"
+                    >
+                </label>
+                @error('tabAttachmentFiles')
+                    <p class="text-sm text-danger-600">{{ $message }}</p>
+                @enderror
+                @error('tabAttachmentFiles.*')
+                    <p class="text-sm text-danger-600">{{ $message }}</p>
+                @enderror
+                @if ($canInternal)
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        نوع مدرک
+                        <select wire:model="tabAttachmentVisibility" class="mt-1 block w-full rounded-lg border-gray-300 text-sm dark:border-white/10 dark:bg-gray-900">
+                            <option value="customer">قابل نمایش به مشتری</option>
+                            <option value="internal">داخلی (فقط کارکنان)</option>
+                        </select>
+                    </label>
+                @endif
+            </div>
+            <x-filament::button type="submit" size="sm" icon="heroicon-o-arrow-up-tray" wire:loading.attr="disabled">
+                <span wire:loading.remove wire:target="saveTabAttachments,tabAttachmentFiles">بارگذاری</span>
+                <span wire:loading wire:target="saveTabAttachments,tabAttachmentFiles">در حال بارگذاری…</span>
+            </x-filament::button>
+        </form>
+    </div>
+@elseif ($canUpload && $remainingSlots === 0)
+    <p class="mb-4 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-100">
+        سقف تعداد فایل‌های این پرونده ({{ $maxFiles }}) تکمیل شده است.
+    </p>
+@endif
 
 @if ($attachments->isEmpty())
     <p class="rounded-xl border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500 dark:border-white/10">مدرکی پیوست نشده است.</p>

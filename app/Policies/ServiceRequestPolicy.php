@@ -149,6 +149,19 @@ class ServiceRequestPolicy
         return $this->activeOwner($user, $request, 'requests.request_customer_info', [RequestStatus::InProgress]);
     }
 
+    public function addAttachment(User $user, ServiceRequest $request): Response
+    {
+        if (! $this->view($user, $request) || $request->isReadOnly()) {
+            return Response::deny('در این وضعیت افزودن مدرک مجاز نیست.');
+        }
+
+        if ($user->can('requests.add_attachment') || $user->can('requests.upload_internal_attachment')) {
+            return Response::allow();
+        }
+
+        return Response::deny('دسترسی لازم برای افزودن مدرک وجود ندارد.');
+    }
+
     public function uploadInternalAttachment(User $user, ServiceRequest $request): Response
     {
         if (! $user->can('requests.upload_internal_attachment') || ! $this->view($user, $request) || $request->isReadOnly()) {
