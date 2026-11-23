@@ -8,6 +8,7 @@ use App\Models\Customer;
 use App\Models\RequestAttachment;
 use App\Models\ServiceRequest;
 use App\Models\User;
+use App\Support\PrivateStorageBootstrap;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -60,7 +61,23 @@ class AttachmentService
 
         $safeExtension = $extension === 'jpeg' ? 'jpg' : $extension;
         $path = 'attachments/'.$request->id.'/'.Str::uuid()->toString().'.'.$safeExtension;
-        Storage::disk('local')->put($path, (string) file_get_contents($file->getRealPath()));
+
+        $diskRoot = (string) config('filesystems.disks.local.root');
+        PrivateStorageBootstrap::assertWebWritable($diskRoot, 'ذخیرهٔ پیوست');
+
+        if (! Storage::disk('local')->makeDirectory(dirname($path))) {
+            throw ValidationException::withMessages([
+                'attachments' => 'ساخت پوشهٔ مدارک روی دیسک ممکن نشد. مجوز storage/app/private را بررسی کنید.',
+            ]);
+        }
+
+        $stored = Storage::disk('local')->put($path, (string) file_get_contents($file->getRealPath()));
+
+        if ($stored === false) {
+            throw ValidationException::withMessages([
+                'attachments' => 'فایل روی دیسک ذخیره نشد. مطمئن شوید دیسک persistent روی storage/app mount است.',
+            ]);
+        }
 
         return RequestAttachment::query()->create([
             'service_request_id' => $request->id,
