@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AttachmentController;
+use App\Http\Controllers\BackupDownloadController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\SitePageController;
 use App\Http\Controllers\SubmissionController;
@@ -35,4 +36,5 @@ Route::get('/track/attachments/{attachment}', [AttachmentController::class, 'cus
 
 Route::middleware('auth')->group(function () {
     Route::get('/staff/attachments/{attachment}', [AttachmentController::class, 'staff'])->name('staff.attachments.show');
+    Route::get('/staff/backups/{filename}', BackupDownloadController::class)->name('staff.backups.download');
 });

@@ -1,5 +1,9 @@
 # تغییرات
 
+## 1.2.41
+
+- **بکاپ:** دستور `crm:backup` و صفحهٔ «بکاپ سامانه» (دستی + زمان‌بندی روزانه ۲۰:۰۰)، zip شامل DB و فایل‌های private/public، نگه‌داری ۲ نسخهٔ آخر.
+
 ## 1.2.40
 
 - پیوست‌ها: `CRM_STORAGE_PRIVATE_ROOT`، ساخت خودکار پوشهٔ `private/attachments`، لاگ `attachment.missing_on_disk`، دستور `crm:verify-attachments` و بررسی storage در `crm:check-env`.

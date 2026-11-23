@@ -40,4 +40,11 @@ return [
         'password' => env('CRM_DEFAULT_ADMIN_PASSWORD', 'admin'),
     ],
 
+    'backup' => [
+        'root' => env('CRM_BACKUP_ROOT', storage_path('app/backups/crm')),
+        'retention' => (int) env('CRM_BACKUP_RETENTION', 2),
+        'schedule_time' => env('CRM_BACKUP_SCHEDULE_TIME', '20:00'),
+        'include_public' => (bool) env('CRM_BACKUP_INCLUDE_PUBLIC', true),
+    ],
+
 ];
